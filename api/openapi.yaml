@@ -1,0 +1,612 @@
+openapi: 3.0.3
+info:
+  title: Планировщик личных задач — API
+  version: "1.0.0"
+  description: |
+    Общий REST API для web-, desktop- и mobile-клиентов отборочного задания
+    чемпионата «Профессионалы», компетенция «Программные решения для бизнеса».
+
+    **Аутентификация.** Все методы, кроме `register` и `login`, требуют заголовка
+    `Authorization: Bearer <token>`. Пользователь видит и изменяет только свои задачи.
+
+    **Формат ответа.** Все методы возвращают единую обёртку:
+    `{ success, data, message, error_code }`.
+  contact:
+    name: Организатор
+    email: '__.__.___@________.__'
+servers:
+  - url: http://localhost:5000
+    description: Локальная разработка
+tags:
+  - name: Auth
+    description: Регистрация и вход
+  - name: Tasks
+    description: Задачи текущего пользователя
+  - name: Summary
+    description: Сводные данные
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Регистрация нового пользователя
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              email: student@college.ru
+              password: 'SuperSecret123'
+              fullName: Иван Петров
+      responses:
+        '201':
+          description: Пользователь создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email уже занят
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                data: null
+                message: Пользователь с таким email уже существует
+                error_code: EMAIL_TAKEN
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Вход и получение токена
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: student@college.ru
+              password: 'SuperSecret123'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/tasks:
+    get:
+      tags: [Tasks]
+      summary: Список задач текущего пользователя
+      description: |
+        Поддерживаются фильтры, сортировка и постраничный вывод.
+
+        - фильтры: `status`, `priority`, `dueDate` (ГГГГ-ММ-ДД), `q` (поиск по названию)
+        - сортировка: `sort` = `createdAt` | `dueDate` | `priority` | `title`
+        - порядок: `order` = `asc` | `desc`
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TaskStatus'
+        - name: priority
+          in: query
+          schema:
+            $ref: '#/components/schemas/TaskPriority'
+        - name: dueDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: q
+          in: query
+          description: Поиск по названию задачи
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, dueDate, priority, title]
+            default: createdAt
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Список задач
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/Task'
+                          total:
+                            type: integer
+                            example: 42
+                          page:
+                            type: integer
+                            example: 1
+                          pageSize:
+                            type: integer
+                            example: 20
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      tags: [Tasks]
+      summary: Создать задачу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+            example:
+              title: Сделать ER-диаграмму
+              description: Схема сущностей и связей
+              priority: high
+              dueDate: '2026-10-15'
+              categoryId: 1
+      responses:
+        '201':
+          description: Задача создана
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/tasks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+    get:
+      tags: [Tasks]
+      summary: Получить задачу по идентификатору
+      responses:
+        '200':
+          description: Задача
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      tags: [Tasks]
+      summary: Изменить задачу
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '200':
+          description: Задача обновлена
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      tags: [Tasks]
+      summary: Удалить задачу
+      responses:
+        '200':
+          description: Задача удалена
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                            format: int64
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/tasks/{id}/complete:
+    patch:
+      tags: [Tasks]
+      summary: Отметить задачу выполненной или вернуть её в работу
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                done:
+                  type: boolean
+                  default: true
+      responses:
+        '200':
+          description: Статус задачи обновлён
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/tasks/summary:
+    get:
+      tags: [Summary]
+      summary: Сводка по задачам пользователя
+      responses:
+        '200':
+          description: Сводка
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TaskSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SuccessEnvelope:
+      type: object
+      required: [success, data, message, error_code]
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          nullable: true
+        message:
+          type: string
+          example: OK
+        error_code:
+          type: string
+          nullable: true
+          example: null
+
+    ErrorResponse:
+      type: object
+      required: [success, data, message, error_code]
+      properties:
+        success:
+          type: boolean
+          example: false
+        data:
+          nullable: true
+        message:
+          type: string
+          example: Задача не найдена
+        error_code:
+          type: string
+          nullable: true
+          example: NOT_FOUND
+
+    RegisterRequest:
+      type: object
+      required: [email, password, fullName]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          minLength: 8
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 255
+
+    RegisterResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT-токен для заголовка Authorization
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjF9.signature
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+          description: Время жизни токена в секундах
+          example: 3600
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+
+    TaskStatus:
+      type: string
+      enum: [new, in_progress, done, cancelled]
+
+    TaskPriority:
+      type: string
+      enum: [low, medium, high]
+
+    TaskInput:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        categoryId:
+          type: integer
+          format: int64
+          nullable: true
+
+    Task:
+      allOf:
+        - $ref: '#/components/schemas/TaskInput'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 101
+            userId:
+              type: integer
+              format: int64
+              example: 1
+            completedAt:
+              type: string
+              format: date-time
+              nullable: true
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    TaskSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 42
+        done:
+          type: integer
+          example: 17
+        notDone:
+          type: integer
+          example: 25
+        overdue:
+          type: integer
+          example: 3
+        byPriority:
+          type: object
+          additionalProperties:
+            type: integer
+          example:
+            low: 10
+            medium: 20
+            high: 12
+
+  responses:
+    BadRequest:
+      description: Ошибка валидации запроса
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            data: null
+            message: Название задачи обязательно
+            error_code: VALIDATION_ERROR
+    Unauthorized:
+      description: Не авторизован — токен отсутствует или недействителен
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            data: null
+            message: Требуется авторизация
+            error_code: UNAUTHORIZED
+    Forbidden:
+      description: Нет доступа к чужому ресурсу
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            data: null
+            message: Доступ запрещён
+            error_code: FORBIDDEN
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            data: null
+            message: Задача не найдена
+            error_code: NOT_FOUND
+    ServerError:
+      description: Внутренняя ошибка сервера
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            data: null
+            message: Внутренняя ошибка сервера
+            error_code: INTERNAL_ERROR

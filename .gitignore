@@ -1,0 +1,41 @@
+# Секреты и локальное окружение
+.env
+.env.*
+!.env.example
+
+# Зависимости
+node_modules/
+vendor/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Сборка
+bin/
+obj/
+build/
+dist/
+.next/
+out/
+*.apk
+*.aab
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Система
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Прочее
+*.log
+*.tmp
+~$*
