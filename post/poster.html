@@ -62,10 +62,10 @@
   .poster > .fog {
     position: absolute; inset: 0; z-index: 2;
     background:
-      radial-gradient(ellipse 66% 30% at 30% 40%,
-        rgba(4,10,7,.80) 0%, rgba(4,10,7,.62) 42%, rgba(4,10,7,0) 72%),
-      radial-gradient(ellipse 46% 26% at 30% 74%,
-        rgba(4,10,7,.72) 0%, rgba(4,10,7,.44) 46%, rgba(4,10,7,0) 74%);
+      radial-gradient(ellipse 62% 26% at 28% 40%,
+        rgba(4,10,7,.80) 0%, rgba(4,10,7,.60) 44%, rgba(4,10,7,0) 74%),
+      radial-gradient(ellipse 42% 22% at 28% 70%,
+        rgba(4,10,7,.70) 0%, rgba(4,10,7,.42) 48%, rgba(4,10,7,0) 76%);
   }
 
   /* ---------- Полоса логотипов ---------- */
@@ -111,8 +111,8 @@
   /* ---------- Заголовок ---------- */
   .content {
     position: absolute; z-index: 5;
-    left: 54px; top: 316px;
-    width: 560px;
+    left: 54px; top: 300px;
+    width: 536px;
   }
 
   .eyebrow {
@@ -144,31 +144,42 @@
     border-top: 13px solid transparent; border-bottom: 13px solid transparent;
     border-left: 22px solid var(--green); }
 
-  /* ---------- Карточка QR ----------
-     Светлая непрозрачная подложка: код должен читаться идеально. */
+  /* ---------- Блок текста: отдельная тёмная плашка ----------
+     Намеренно не на белом: так QR и текст читаются как два разных
+     объекта, а тёмная подложка не спорит с белой карточкой кода. */
+  .textblock {
+    position: absolute; z-index: 5;
+    left: 54px; bottom: 452px;
+    width: 470px;
+    background: rgba(8, 16, 12, .74);
+    backdrop-filter: blur(6px);
+    border-left: 5px solid var(--green-lite);
+    border-radius: 0 18px 18px 0;
+    padding: 20px 24px 22px;
+  }
+  .textblock h3 { font-size: 28px; font-weight: 900; line-height: 1.18; color: var(--white); white-space: nowrap; }
+  .textblock h3 em { font-style: normal; color: var(--green-lite); }
+  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #D3DBD8; }
+  .textblock .contact {
+    margin-top: 12px; padding-top: 11px;
+    border-top: 1px solid rgba(255,255,255,.16);
+    font-size: 18px; font-weight: 700; color: var(--yellow);
+  }
+
+  /* ---------- Блок QR: отдельная белая карточка ----------
+     Сдвинут влево и вниз от антенны: та занимает примерно
+     x 560–960, y 800–1270, карточка заканчивается на x 318. */
   .qrblock {
     position: absolute; z-index: 5;
     left: 54px; bottom: 150px;
-    width: 520px;
-    display: flex; align-items: center; gap: 24px;
+    width: 264px; height: 264px;
     background: var(--white);
     border-radius: 22px;
-    padding: 24px 26px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center;
   }
-  .qrblock .qr {
-    flex: 0 0 auto;
-    width: 158px; height: 158px;
-    border: 1px solid #E1E6E4;
-    border-radius: 12px;
-    padding: 8px;
-  }
-  .qrblock .qr img { width: 158px; height: 158px; display: block; }
-  .qrtxt h3 { font-size: 26px; font-weight: 900; color: var(--dark); line-height: 1.2;
-    text-wrap: balance; }
-  .qrtxt h3 em { font-style: normal; color: var(--green); }
-  .qrtxt p { font-size: 19px; line-height: 1.36; font-weight: 400; color: #4b555b; margin-top: 10px; }
-  .qrtxt .contact { font-size: 18px; font-weight: 700; color: var(--dark); margin-top: 12px; }
+  .qrblock img { width: 216px; height: 216px; display: block; }
 
   /* ---------- Подвал ---------- */
   .footer {
@@ -216,13 +227,14 @@
     <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
   </div>
 
+  <div class="textblock">
+    <h3>Всё о компетенции —<br><em>по ссылке</em></h3>
+    <p>Отсканируйте QR-код. На отбор присылайте ссылку на свою работу.</p>
+    <div class="contact">Запись и вопросы — кабинет 202л</div>
+  </div>
+
   <div class="qrblock">
-    <div class="qr"><img src="../assets/qr_repo.png" alt="QR-код на условия отбора"></div>
-    <div class="qrtxt">
-      <h3>Всё о компетенции — <em>по ссылке</em></h3>
-      <p>Отсканируйте QR-код. На отбор присылайте ссылку на свою работу.</p>
-      <div class="contact">Запись и вопросы — кабинет 202л</div>
-    </div>
+    <img src="../assets/qr_repo.png" alt="QR-код на условия отбора">
   </div>
 
   <div class="footer">
