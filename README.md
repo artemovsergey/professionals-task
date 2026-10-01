@@ -5,6 +5,10 @@
 
 > Это облегчённое обобщённое задание для отбора. Полное описание — в файле [`ЗАДАНИЕ.md`](ЗАДАНИЕ.md).
 
+<p align="center">
+  <img src="post/poster.png" alt="Постер отбора на чемпионат «Профессионалы»" width="420">
+</p>
+
 ## 👉 Начинать отсюда
 
 **[Пошаговая инструкция — в wiki репозитория](https://github.com/artemovsergey/professionals-task/wiki)**
@@ -110,3 +114,23 @@
 **Контакты по вопросам задания:** `__.__.___@________.__`
 
 **Организатор:** Ставропольский колледж связи им. В.А. Петрова
+
+---
+
+## Материалы чемпионата
+
+Всё для анонса и подготовки лежит в этом же репозитории:
+
+| Что | Где |
+|---|---|
+| Постер 1080×1350 | [`post/poster.png`](post/poster.png) |
+| Исходник постера (HTML/CSS) | [`post/poster.html`](post/poster.html) |
+| Тексты рассылки | [`post/post_full.txt`](post/post_full.txt), [`post/post_short.txt`](post/post_short.txt) |
+| Логотипы чемпионата, брендбук | [`assets/`](assets/) |
+| Фон постера (снимок антенны) | [`assets/background.jpg`](assets/background.jpg) |
+| Задания прошлых этапов 2026 | [`stages/`](stages/) |
+
+Официальные материалы: [pro.firpo.ru](https://pro.firpo.ru/) ·
+брендбук и логотипы — в [`assets/Брендбук_2026.pdf`](assets/Брендбук_2026.pdf),
+[`assets/Логотипы.pdf`](assets/Логотипы.pdf),
+[`assets/Компетенции_ЧВТ.pdf`](assets/Компетенции_ЧВТ.pdf).
