@@ -145,11 +145,11 @@
     border-left: 22px solid var(--green); }
 
   /* ---------- Блок текста: отдельная тёмная плашка ----------
-     Намеренно не на белом: так QR и текст читаются как два разных
-     объекта, а тёмная подложка не спорит с белой карточкой кода. */
+     Ниже QR-карточки, та же левая кромка. Намеренно не на белом:
+     так код и текст читаются как два разных объекта. */
   .textblock {
     position: absolute; z-index: 5;
-    left: 54px; bottom: 452px;
+    left: 54px; top: 996px;
     width: 470px;
     background: rgba(8, 16, 12, .74);
     backdrop-filter: blur(6px);
@@ -167,11 +167,13 @@
   }
 
   /* ---------- Блок QR: отдельная белая карточка ----------
-     Сдвинут влево и вниз от антенны: та занимает примерно
-     x 560–960, y 800–1270, карточка заканчивается на x 318. */
+     Стоит сразу под зелёной стрелкой (она заканчивается на y 618)
+     и выровнен по левому краю колонки. Антенна занимает примерно
+     x 560–960, y 800–1270, карточка заканчивается на x 318 — до неё
+     более 240 px. */
   .qrblock {
     position: absolute; z-index: 5;
-    left: 54px; bottom: 150px;
+    left: 54px; top: 692px;
     width: 264px; height: 264px;
     background: var(--white);
     border-radius: 22px;
@@ -227,14 +229,14 @@
     <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
   </div>
 
+  <div class="qrblock">
+    <img src="../assets/qr_repo.png" alt="QR-код на условия отбора">
+  </div>
+
   <div class="textblock">
     <h3>Всё о компетенции —<br><em>по ссылке</em></h3>
     <p>Отсканируйте QR-код. На отбор присылайте ссылку на свою работу.</p>
     <div class="contact">Запись и вопросы — кабинет 202л</div>
-  </div>
-
-  <div class="qrblock">
-    <img src="../assets/qr_repo.png" alt="QR-код на условия отбора">
   </div>
 
   <div class="footer">
