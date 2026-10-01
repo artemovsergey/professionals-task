@@ -39,3 +39,6 @@ desktop.ini
 *.log
 *.tmp
 ~$*
+
+# Служебное окружение агентов
+.playwright-mcp/
