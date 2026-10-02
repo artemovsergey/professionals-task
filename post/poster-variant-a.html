@@ -72,14 +72,19 @@
   }
 
   /* ---------- Логотип колледжа ---------- */
-  .college-plate {
+  /* Логотип колледжа — чистый svg, как в основном постере: без
+     подложки, отделяет только тень. На чёрном фоне она почти не
+     нужна, но оставлена для ровного края у светлых участков. */
+  .college-slot {
     position: absolute; z-index: 5;
-    right: 54px; top: 48px;
-    background: var(--white);
-    border-radius: 22px;
-    padding: 13px 15px;
+    right: 54px; top: 40px;
+    width: 200px; height: 190px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .college-plate img { height: 136px; width: auto; display: block; }
+  .college-slot img {
+    height: 150px; width: auto; display: block;
+    filter: drop-shadow(0 3px 12px rgba(0,0,0,.75));
+  }
 
   /* ---------- Шевроны: крупный графический акцент ---------- */
   .chevrons {
@@ -101,17 +106,31 @@
   }
   .eyebrow .dot { color: var(--green); margin: 0 10px; }
 
+  /* Иерархия та же, что в основном постере: главное — название
+     движения, затем компетенция, призыв в конце. */
   h1 {
     margin-top: 18px;
-    font-size: 108px; line-height: .96; font-weight: 900;
-    letter-spacing: -3px;
+    font-size: 96px; line-height: .98; font-weight: 900;
+    letter-spacing: -2.4px;
+  }
+  h1 .name { color: var(--green); }
+
+  .kicker {
+    margin-top: 12px;
+    font-size: 36px; line-height: 1.16; font-weight: 500;
+    color: rgba(255,255,255,.82);
+  }
+  .sub {
+    margin-top: 10px;
+    font-size: 30px; line-height: 1.2; font-weight: 700;
+    color: rgba(255,255,255,.72);
   }
   h2 {
-    margin-top: 20px;
+    margin-top: 16px;
     font-size: 52px; line-height: 1.1; font-weight: 900;
-    color: var(--green); letter-spacing: -1px;
+    color: var(--white); letter-spacing: -1px;
   }
-  .rule { display: flex; align-items: center; margin: 30px 0 0; width: 620px; }
+  .rule { display: flex; align-items: center; margin: 24px 0 0; width: 620px; }
   .rule .bar { height: 10px; flex: 1 1 auto;
     background: linear-gradient(90deg, var(--dark) 0%, var(--mid) 42%, var(--green) 100%); }
 
@@ -177,13 +196,18 @@
     <span class="champ-year">2027</span>
   </div>
 
-  <div class="college-plate">
+  <div class="college-slot">
     <img src="../assets/college_logo.svg" alt="Ставропольский колледж связи им. В.А. Петрова">
   </div>
 
   <div class="content">
     <div class="eyebrow">Отбор студентов<span class="dot">•</span>2027</div>
-    <h1>Набор<br>на чемпионат</h1>
+
+    <h1>Чемпионат<br><span class="name">«Профессионалы»</span></h1>
+    <p class="kicker">по профессиональному мастерству</p>
+
+    <p class="sub">Набор на чемпионат</p>
+
     <h2>Программные решения<br>для бизнеса</h2>
     <div class="rule"><div class="bar"></div></div>
   </div>
