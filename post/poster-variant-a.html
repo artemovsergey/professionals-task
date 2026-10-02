@@ -108,17 +108,16 @@
 
   /* Иерархия та же, что в основном постере: главное — название
      движения, затем компетенция, призыв в конце. */
-  h1 {
+  .name-line {
     margin-top: 18px;
-    font-size: 96px; line-height: .98; font-weight: 900;
-    letter-spacing: -2.4px;
-  }
-  h1 .name { color: var(--green); }
-
-  .kicker {
-    margin-top: 12px;
-    font-size: 36px; line-height: 1.16; font-weight: 500;
+    font-size: 32px; line-height: 1.2; font-weight: 500;
     color: rgba(255,255,255,.82);
+  }
+  h1 {
+    margin-top: 14px;
+    font-size: 96px; line-height: 1.0; font-weight: 900;
+    letter-spacing: -2.4px;
+    color: var(--green);
   }
   .sub {
     margin-top: 16px;
@@ -203,8 +202,9 @@
   <div class="content">
     <div class="eyebrow">2027</div>
 
-    <h1>Чемпионат<br><span class="name">«Профессионалы»</span></h1>
-    <p class="kicker">по профессиональному мастерству</p>
+    <p class="name-line">чемпионат по профессиональному мастерству</p>
+
+    <h1>Профессионалы</h1>
 
     <p class="sub">компетенция:</p>
 
