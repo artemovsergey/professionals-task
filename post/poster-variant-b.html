@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Вариант B — отбор на чемпионат «Профессионалы»</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #6f757a; }
+  :root {
+    /* Пипетка по знакам: #4ECC0A (зелёный) и #1D1D1B (чёрный).
+       Шкала в logo_02-3: #1D1D1B → #398411 → #4ECC0A */
+    --green: #4ECC0A;
+    --mid: #398411;
+    --dark: #1D1D1B;
+    --white: #FFFFFF;
+  }
+
+  .poster {
+    position: relative;
+    width: 1080px; height: 1350px;
+    overflow: hidden;
+    font-family: 'Roboto', Arial, sans-serif;
+    color: var(--white);
+    isolation: isolate;
+  }
+
+  /* ---------- Фон ----------
+     Снимок 4928x3280 на полотно 1080x1350: cover по высоте, в кадр
+     попадает 53% ширины. Смещение 64% ставит антенну в x 560–960. */
+  .poster > .bg {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: 64% 50%;
+    z-index: 0;
+  }
+
+  /* ---------- Лента ----------
+     Один сплошной фирменный чёрный столб слева вместо мягких пятен
+     основного постера. Правый край растворён градиентом, поэтому
+     лента не читается как полоса. Всё, что правее x≈560, —
+     снимок без единого затемнения: антенна остаётся чистой. */
+  .spine {
+    position: absolute; inset: 0 auto 0 0;
+    width: 600px;
+    z-index: 1;
+    background: linear-gradient(90deg,
+      rgba(29,29,27,.95) 0%,
+      rgba(29,29,27,.93) 62%,
+      rgba(29,29,27,.86) 78%,
+      rgba(29,29,27,.55) 89%,
+      rgba(29,29,27,0) 100%);
+  }
+
+  /* ---------- Знак чемпионата в ленте ---------- */
+  .champ-wrap {
+    position: absolute; z-index: 5;
+    left: 54px; top: 54px;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,.6));
+  }
+  .champ-wrap img { height: 104px; width: auto; display: block; }
+  /* Поле «ПОЛЕ ДЛЯ ВВОДА ГОДА» закрываем фирменной плашкой с годом.
+     Доли от размеров знака 1218x450: x 45.2–61.2%, y 4.4–18.8%. */
+  .champ-year {
+    position: absolute;
+    left: 45.2%; top: 4.4%;
+    width: 16%; height: 14.4%;
+    background: var(--green);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 900; letter-spacing: .5px;
+    color: var(--dark);
+  }
+
+  /* ---------- Логотип колледжа: на снимке, в свободном небе ---------- */
+  .college-plate {
+    position: absolute; z-index: 5;
+    right: 64px; top: 300px;
+    background: var(--white);
+    border-radius: 24px;
+    padding: 15px 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+  }
+  .college-plate img { height: 160px; width: auto; display: block; }
+
+  /* ---------- Содержимое ленты ---------- */
+  .content {
+    position: absolute; z-index: 5;
+    left: 54px; top: 300px;
+    width: 420px;
+  }
+  .eyebrow {
+    font-size: 20px; font-weight: 700; letter-spacing: 3.2px;
+    text-transform: uppercase;
+  }
+  .eyebrow .dot { color: var(--green); margin: 0 10px; }
+
+  h1 {
+    margin-top: 16px;
+    font-size: 62px; line-height: 1.0; font-weight: 900;
+    letter-spacing: -1.2px;
+  }
+  h2 {
+    margin-top: 14px;
+    font-size: 36px; line-height: 1.16; font-weight: 900;
+    color: var(--green); letter-spacing: -.4px;
+  }
+  .rule { display: flex; align-items: center; margin: 26px 0 0; }
+  .rule .bar { height: 6px; flex: 1 1 auto;
+    background: linear-gradient(90deg, var(--dark) 0%, var(--mid) 45%, var(--green) 100%); }
+  .rule .arrow { width: 0; height: 0; margin-left: 2px;
+    border-top: 13px solid transparent; border-bottom: 13px solid transparent;
+    border-left: 22px solid var(--green); }
+
+  /* ---------- QR отдельным блоком, под стрелкой ---------- */
+  .qrblock {
+    position: absolute; z-index: 5;
+    left: 54px; top: 692px;
+    width: 264px; height: 264px;
+    background: var(--white);
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qrblock img { width: 216px; height: 216px; display: block; }
+
+  /* ---------- Слова отдельным блоком ---------- */
+  .textblock {
+    position: absolute; z-index: 5;
+    left: 54px; top: 1001px;
+    width: 420px;
+    background: rgba(29, 29, 27, .90);
+    border-left: 5px solid var(--green);
+    border-radius: 0 18px 18px 0;
+    padding: 20px 24px 22px;
+  }
+  .textblock h3 { font-size: 26px; font-weight: 900; line-height: 1.18;
+    white-space: nowrap; }
+  .textblock h3 em { font-style: normal; color: var(--green); }
+  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #C9CFCC; }
+  .textblock .contact {
+    margin-top: 12px; padding-top: 11px;
+    border-top: 1px solid rgba(255,255,255,.16);
+    font-size: 18px; font-weight: 700; color: var(--green);
+  }
+
+  /* ---------- Подвал ---------- */
+  .footer {
+    position: absolute; z-index: 6;
+    left: 0; right: 0; bottom: 0;
+    height: 104px;
+    display: flex; align-items: center;
+    padding: 0 54px;
+    background: rgba(29, 29, 27, .94);
+  }
+  .footer .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; }
+  .accentbar {
+    position: absolute; z-index: 7;
+    left: 0; right: 0; bottom: 104px;
+    height: 8px;
+    background: linear-gradient(90deg, var(--dark) 0%, var(--mid) 38%, var(--green) 100%);
+  }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <img class="bg" src="../assets/background.jpg" alt="">
+  <div class="spine"></div>
+
+  <div class="champ-wrap">
+    <img src="../assets/professionals_logo_02-1_white.png"
+         alt="Чемпионат по профессиональному мастерству «Профессионалы»">
+    <span class="champ-year">2026</span>
+  </div>
+
+  <div class="college-plate">
+    <img src="../assets/college_logo.svg" alt="Ставропольский колледж связи им. В.А. Петрова">
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2026</div>
+    <h1>Набор<br>на чемпионат</h1>
+    <h2>Программные решения для бизнеса</h2>
+    <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
+  </div>
+
+  <div class="qrblock">
+    <img src="../assets/qr_repo.png" alt="QR-код на условия отбора">
+  </div>
+
+  <div class="textblock">
+    <h3>Всё о компетенции —<br><em>по ссылке</em></h3>
+    <p>Отсканируйте QR-код. На отбор присылайте ссылку на свою работу.</p>
+    <div class="contact">Запись и вопросы — кабинет 202л</div>
+  </div>
+
+  <div class="footer">
+    <div class="tag">#ПРОФЕССИОНАЛЫСДЕЛАНОВРОССИИ</div>
+  </div>
+  <div class="accentbar"></div>
+
+</div>
+</body>
+</html>

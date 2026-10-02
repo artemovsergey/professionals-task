@@ -2,19 +2,23 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Постер — отбор на чемпионат «Профессионалы»</title>
+<title>Вариант A — отбор на чемпионат «Профессионалы»</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { background: #6f757a; }
+  /* Палитра взята пипеткой из самих знаков:
+     assets/professionals_logo_02-1.png → #4ECC0A (зелёный) 31k px
+                                           #1D1D1B (чёрный)   11k px
+     assets/professionals_logo_02-3.png → шкала #1D1D1B → #398411 → #4ECC0A
+     Ни жёлтого, ни сланцевого: это цвета колледжа, не чемпионата. */
   :root {
-    --green: #0F9346;
+    --green: #4ECC0A;
     --green-lite: #4ECC0A;
-    --yellow: #FCEE73;
-    --grey: #BDC6CB;
-    --dark: #364046;
+    --dark: #1D1D1B;
+    --grey: #A8AFAB;
     --white: #FFFFFF;
   }
 
@@ -47,12 +51,12 @@
     position: absolute; inset: 0; z-index: 1;
     background:
       linear-gradient(to bottom,
-        rgba(6,12,9,.50) 0%,
-        rgba(6,12,9,.10) 16%,
+        rgba(29,29,27,.55) 0%,
+        rgba(29,29,27,.12) 16%,
         rgba(6,12,9,0) 34%),
       linear-gradient(to top,
-        rgba(6,12,9,.55) 0%,
-        rgba(6,12,9,.22) 9%,
+        rgba(29,29,27,.60) 0%,
+        rgba(29,29,27,.24) 9%,
         rgba(6,12,9,0) 24%);
   }
 
@@ -63,9 +67,9 @@
     position: absolute; inset: 0; z-index: 2;
     background:
       radial-gradient(ellipse 62% 26% at 28% 40%,
-        rgba(4,10,7,.80) 0%, rgba(4,10,7,.60) 44%, rgba(4,10,7,0) 74%),
+        rgba(29,29,27,.82) 0%, rgba(29,29,27,.62) 44%, rgba(4,10,7,0) 74%),
       radial-gradient(ellipse 42% 22% at 28% 70%,
-        rgba(4,10,7,.70) 0%, rgba(4,10,7,.42) 48%, rgba(4,10,7,0) 76%);
+        rgba(29,29,27,.72) 0%, rgba(29,29,27,.44) 48%, rgba(4,10,7,0) 76%);
   }
 
   /* ---------- Полоса логотипов ---------- */
@@ -75,7 +79,7 @@
     height: 190px;
     padding: 0 54px;
     display: flex; align-items: center; justify-content: space-between;
-    background: linear-gradient(to bottom, rgba(6,12,9,.55), rgba(6,12,9,0));
+    background: linear-gradient(to bottom, rgba(29,29,27,.60), rgba(6,12,9,0));
     border-bottom: 3px solid var(--green-lite);
   }
   .topbar .champ-wrap {
@@ -95,9 +99,10 @@
     width: 16%; height: 14.4%;
     background: var(--green);
     border-radius: 7px;
+    mix-blend-mode: normal;
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 900; letter-spacing: .5px;
-    color: var(--white);
+    color: var(--dark);
   }
   /* Логотип колледжа вынесен из шапки в правую часть полотна: там
      свободное небо, знак становится вторым элементом композиции.
@@ -145,10 +150,10 @@
 
   .rule { display: flex; align-items: center; margin: 26px 0 0; }
   .rule .bar { height: 6px; flex: 1 1 auto;
-    background: linear-gradient(90deg, var(--green-lite) 0%, var(--green) 100%); }
+    background: linear-gradient(90deg, var(--dark) 0%, var(--green) 100%); }
   .rule .arrow { width: 0; height: 0; margin-left: 2px;
     border-top: 13px solid transparent; border-bottom: 13px solid transparent;
-    border-left: 22px solid var(--green); }
+    border-left: 22px solid var(--dark); }
 
   /* ---------- Блок текста: отдельная тёмная плашка ----------
      Ниже QR-карточки, та же левая кромка. Намеренно не на белом:
@@ -157,7 +162,7 @@
     position: absolute; z-index: 5;
     left: 54px; top: 996px;
     width: 470px;
-    background: rgba(8, 16, 12, .74);
+    background: rgba(29, 29, 27, .90);
     backdrop-filter: blur(6px);
     border-left: 5px solid var(--green-lite);
     border-radius: 0 18px 18px 0;
@@ -165,11 +170,11 @@
   }
   .textblock h3 { font-size: 28px; font-weight: 900; line-height: 1.18; color: var(--white); white-space: nowrap; }
   .textblock h3 em { font-style: normal; color: var(--green-lite); }
-  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #D3DBD8; }
+  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #C9CFCC; }
   .textblock .contact {
     margin-top: 12px; padding-top: 11px;
     border-top: 1px solid rgba(255,255,255,.16);
-    font-size: 18px; font-weight: 700; color: var(--yellow);
+    font-size: 18px; font-weight: 700; color: var(--green);
   }
 
   /* ---------- Блок QR: отдельная белая карточка ----------
@@ -197,7 +202,7 @@
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 54px;
     justify-content: flex-start;
-    background: rgba(54, 64, 70, .86);
+    background: rgba(29, 29, 27, .92);
     backdrop-filter: blur(3px);
   }
   /* «сделано в россии» остаётся один раз — в хэштеге */
@@ -206,7 +211,7 @@
     position: absolute; z-index: 6;
     left: 0; right: 0; bottom: 104px;
     height: 8px;
-    background: linear-gradient(90deg, var(--green) 0%, var(--green-lite) 55%, var(--yellow) 100%);
+    background: linear-gradient(90deg, var(--dark) 0%, #398411 38%, var(--green) 100%);
   }
 </style>
 </head>
