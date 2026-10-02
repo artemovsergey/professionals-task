@@ -5,9 +5,30 @@
 
 > Это облегчённое обобщённое задание для отбора. Полное описание — в файле [`ЗАДАНИЕ.md`](ЗАДАНИЕ.md).
 
-<p align="center">
-  <img src="post/poster.png" alt="Постер отбора на чемпионат «Профессионалы»" width="420">
-</p>
+## Постеры
+
+Три готовых варианта — один и тот же текст, три разных решения.
+
+<table>
+<tr>
+<td width="33%" align="center"><b>Основной</b><br><sub>фото антенны фоном</sub></td>
+<td width="33%" align="center"><b>Вариант A</b><br><sub>графика на чёрном</sub></td>
+<td width="33%" align="center"><b>Вариант B</b><br><sub>инверсия, зелёный фон</sub></td>
+</tr>
+<tr>
+<td><img src="post/poster.png" alt="Основной постер" width="300"></td>
+<td><img src="post/poster-variant-a.png" alt="Постер, вариант A" width="300"></td>
+<td><img src="post/poster-variant-b.png" alt="Постер, вариант B" width="300"></td>
+</tr>
+</table>
+
+| Файл | Исходник |
+|---|---|
+| `post/poster.png` | [`post/poster.html`](post/poster.html) |
+| `post/poster-variant-a.png` | [`post/poster-variant-a.html`](post/poster-variant-a.html) |
+| `post/poster-variant-b.png` | [`post/poster-variant-b.html`](post/poster-variant-b.html) |
+
+Как перегенерировать любой из них — в [`post/README.md`](post/README.md).
 
 ## 👉 Начинать отсюда
 

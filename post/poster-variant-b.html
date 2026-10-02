@@ -2,16 +2,17 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Вариант B — отбор на чемпионат «Профессионалы»</title>
+<title>Вариант B — зелёный, отбор на чемпионат «Профессионалы»</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
+  /* Вариант B — инверсия варианта A. Фон — фирменный зелёный #4ECC0A,
+     типография чёрная #1D1D1B. Фотографии нет: только знак, шевроны,
+     кубический паттерн и чёрные плиты как структура. */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { background: #6f757a; }
   :root {
-    /* Пипетка по знакам: #4ECC0A (зелёный) и #1D1D1B (чёрный).
-       Шкала в logo_02-3: #1D1D1B → #398411 → #4ECC0A */
     --green: #4ECC0A;
     --mid: #398411;
     --dark: #1D1D1B;
@@ -22,130 +23,119 @@
     position: relative;
     width: 1080px; height: 1350px;
     overflow: hidden;
+    background: var(--green);
     font-family: 'Roboto', Arial, sans-serif;
-    color: var(--white);
+    color: var(--dark);
     isolation: isolate;
   }
 
-  /* ---------- Фон ----------
-     Снимок 4928x3280 на полотно 1080x1350: cover по высоте, в кадр
-     попадает 53% ширины. Смещение 64% ставит антенну в x 560–960. */
-  .poster > .bg {
+  .pattern {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: 64% 50%;
+    opacity: .10;
     z-index: 0;
   }
-
-  /* ---------- Лента ----------
-     Один сплошной фирменный чёрный столб слева вместо мягких пятен
-     основного постера. Правый край растворён градиентом, поэтому
-     лента не читается как полоса. Всё, что правее x≈560, —
-     снимок без единого затемнения: антенна остаётся чистой. */
-  .spine {
-    position: absolute; inset: 0 auto 0 0;
-    width: 600px;
-    z-index: 1;
-    background: linear-gradient(90deg,
-      rgba(29,29,27,.95) 0%,
-      rgba(29,29,27,.93) 62%,
-      rgba(29,29,27,.86) 78%,
-      rgba(29,29,27,.55) 89%,
-      rgba(29,29,27,0) 100%);
+  /* Шевроны из брендбука залиты #4ECC0A, то есть на зелёном фоне
+     варианта B они невидимы. brightness(0) сводит любой цвет к чёрному. */
+  .chevrons {
+    position: absolute; z-index: 0;
+    left: -80px; bottom: 120px;
+    width: 760px;
+    filter: brightness(0);
+    opacity: .10;
   }
 
-  /* ---------- Знак чемпионата в ленте ---------- */
+  .topbar {
+    position: absolute; z-index: 4;
+    top: 0; left: 0; right: 0; height: 8px;
+    background: var(--dark);
+  }
+
+  /* ---------- Знак: чёрная версия, год в чёрной плашке ---------- */
   .champ-wrap {
     position: absolute; z-index: 5;
-    left: 54px; top: 54px;
-    filter: drop-shadow(0 2px 8px rgba(0,0,0,.6));
+    left: 54px; top: 50px;
   }
-  .champ-wrap img { height: 104px; width: auto; display: block; }
-  /* Поле «ПОЛЕ ДЛЯ ВВОДА ГОДА» закрываем фирменной плашкой с годом.
-     Доли от размеров знака 1218x450: x 45.2–61.2%, y 4.4–18.8%. */
+  .champ-wrap img { height: 100px; width: auto; display: block; }
   .champ-year {
     position: absolute;
-    left: 45.2%; top: 4.4%;
-    width: 16%; height: 14.4%;
-    background: var(--green);
+    left: 44.6%; top: 3.4%;
+    width: 17.2%; height: 17.0%;
+    background: var(--dark);
     border-radius: 7px;
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 900; letter-spacing: .5px;
-    color: var(--dark);
+    color: var(--green);
   }
 
-  /* ---------- Логотип колледжа: на снимке, в свободном небе ---------- */
   .college-plate {
     position: absolute; z-index: 5;
-    right: 64px; top: 300px;
-    background: var(--white);
-    border-radius: 24px;
-    padding: 15px 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.45);
-  }
-  .college-plate img { height: 160px; width: auto; display: block; }
-
-  /* ---------- Содержимое ленты ---------- */
-  .content {
-    position: absolute; z-index: 5;
-    left: 54px; top: 300px;
-    width: 420px;
-  }
-  .eyebrow {
-    font-size: 20px; font-weight: 700; letter-spacing: 3.2px;
-    text-transform: uppercase;
-  }
-  .eyebrow .dot { color: var(--green); margin: 0 10px; }
-
-  h1 {
-    margin-top: 16px;
-    font-size: 62px; line-height: 1.0; font-weight: 900;
-    letter-spacing: -1.2px;
-  }
-  h2 {
-    margin-top: 14px;
-    font-size: 36px; line-height: 1.16; font-weight: 900;
-    color: var(--green); letter-spacing: -.4px;
-  }
-  .rule { display: flex; align-items: center; margin: 26px 0 0; }
-  .rule .bar { height: 6px; flex: 1 1 auto;
-    background: linear-gradient(90deg, var(--dark) 0%, var(--mid) 45%, var(--green) 100%); }
-  .rule .arrow { width: 0; height: 0; margin-left: 2px;
-    border-top: 13px solid transparent; border-bottom: 13px solid transparent;
-    border-left: 22px solid var(--green); }
-
-  /* ---------- QR отдельным блоком, под стрелкой ---------- */
-  .qrblock {
-    position: absolute; z-index: 5;
-    left: 54px; top: 692px;
-    width: 264px; height: 264px;
+    right: 54px; top: 44px;
     background: var(--white);
     border-radius: 22px;
-    padding: 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    padding: 13px 15px;
+    box-shadow: 0 8px 24px rgba(29,29,27,.28);
+  }
+  .college-plate img { height: 136px; width: auto; display: block; }
+
+  /* ---------- Типографика ---------- */
+  .content {
+    position: absolute; z-index: 5;
+    left: 54px; top: 262px;
+    width: 972px;
+  }
+  .eyebrow {
+    font-size: 21px; font-weight: 700; letter-spacing: 3.4px;
+    text-transform: uppercase; color: var(--dark);
+  }
+  .eyebrow .dot { margin: 0 10px; }
+
+  h1 {
+    margin-top: 18px;
+    font-size: 96px; line-height: .98; font-weight: 900;
+    letter-spacing: -2.6px; color: var(--dark);
+  }
+
+  /* Компетенция — белым по чёрной плите: сильный графический блок */
+  .plate-band {
+    margin-top: 22px;
+    display: inline-block;
+    background: var(--dark);
+    padding: 16px 34px 18px;
+  }
+  .plate-band h2 {
+    font-size: 48px; line-height: 1.06; font-weight: 900;
+    letter-spacing: -1px; color: var(--white);
+  }
+
+  /* ---------- QR отдельным блоком: белая плита в чёрной рамке ---------- */
+  .qrblock {
+    position: absolute; z-index: 5;
+    left: 54px; top: 838px;
+    width: 264px; height: 264px;
+    background: var(--white);
+    border: 8px solid var(--dark);
     display: flex; align-items: center; justify-content: center;
   }
-  .qrblock img { width: 216px; height: 216px; display: block; }
+  .qrblock img { width: 232px; height: 232px; display: block; }
 
   /* ---------- Слова отдельным блоком ---------- */
   .textblock {
     position: absolute; z-index: 5;
-    left: 54px; top: 1001px;
-    width: 420px;
-    background: rgba(29, 29, 27, .90);
-    border-left: 5px solid var(--green);
-    border-radius: 0 18px 18px 0;
-    padding: 20px 24px 22px;
+    left: 354px; top: 838px;
+    width: 672px;
+    background: var(--dark);
+    padding: 28px 32px 30px;
   }
-  .textblock h3 { font-size: 26px; font-weight: 900; line-height: 1.18;
-    white-space: nowrap; }
+  .textblock h3 { font-size: 33px; font-weight: 900; line-height: 1.16;
+    color: var(--white); white-space: nowrap; }
   .textblock h3 em { font-style: normal; color: var(--green); }
-  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #C9CFCC; }
+  .textblock p { margin-top: 12px; font-size: 21px; line-height: 1.38; font-weight: 400; color: #D6D9D7; }
   .textblock .contact {
-    margin-top: 12px; padding-top: 11px;
-    border-top: 1px solid rgba(255,255,255,.16);
-    font-size: 18px; font-weight: 700; color: var(--green);
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid rgba(78,204,10,.4);
+    font-size: 21px; font-weight: 700; color: var(--green);
   }
 
   /* ---------- Подвал ---------- */
@@ -153,29 +143,24 @@
     position: absolute; z-index: 6;
     left: 0; right: 0; bottom: 0;
     height: 104px;
-    display: flex; align-items: center;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 0 54px;
-    background: rgba(29, 29, 27, .94);
+    background: var(--dark);
   }
-  .footer .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; }
-  .accentbar {
-    position: absolute; z-index: 7;
-    left: 0; right: 0; bottom: 104px;
-    height: 8px;
-    background: linear-gradient(90deg, var(--dark) 0%, var(--mid) 38%, var(--green) 100%);
-  }
+  .footer .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; color: var(--white); }
 </style>
 </head>
 <body>
 <div class="poster">
 
-  <img class="bg" src="../assets/background.jpg" alt="">
-  <div class="spine"></div>
+  <img class="pattern" src="../assets/pattern-cubes.png" alt="">
+  <img class="chevrons" src="../assets/chevrons.svg" alt="">
+  <div class="topbar"></div>
 
   <div class="champ-wrap">
-    <img src="../assets/professionals_logo_02-1_white.png"
+    <img src="../assets/professionals_logo_02-1_black.png"
          alt="Чемпионат по профессиональному мастерству «Профессионалы»">
-    <span class="champ-year">2026</span>
+    <span class="champ-year">2027</span>
   </div>
 
   <div class="college-plate">
@@ -183,10 +168,11 @@
   </div>
 
   <div class="content">
-    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2026</div>
+    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2027</div>
     <h1>Набор<br>на чемпионат</h1>
-    <h2>Программные решения для бизнеса</h2>
-    <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
+    <div class="plate-band">
+      <h2>Программные решения<br>для бизнеса</h2>
+    </div>
   </div>
 
   <div class="qrblock">
@@ -194,7 +180,7 @@
   </div>
 
   <div class="textblock">
-    <h3>Всё о компетенции —<br><em>по ссылке</em></h3>
+    <h3>Всё о компетенции — <em>по ссылке</em></h3>
     <p>Отсканируйте QR-код. На отбор присылайте ссылку на свою работу.</p>
     <div class="contact">Запись и вопросы — кабинет 202л</div>
   </div>
@@ -202,7 +188,6 @@
   <div class="footer">
     <div class="tag">#ПРОФЕССИОНАЛЫСДЕЛАНОВРОССИИ</div>
   </div>
-  <div class="accentbar"></div>
 
 </div>
 </body>

@@ -2,23 +2,20 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<title>Вариант A — отбор на чемпионат «Профессионалы»</title>
+<title>Вариант A — плакат, отбор на чемпионат «Профессионалы»</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
+  /* Вариант A — «плакат». Без фотографии: только фирменная графика
+     и два цвета знака (#1D1D1B и #4ECC0A). Фон собирается из тех же
+     элементов, что и в знаке: кубический паттерн, шевроны, шкала. */
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { background: #6f757a; }
-  /* Палитра взята пипеткой из самих знаков:
-     assets/professionals_logo_02-1.png → #4ECC0A (зелёный) 31k px
-                                           #1D1D1B (чёрный)   11k px
-     assets/professionals_logo_02-3.png → шкала #1D1D1B → #398411 → #4ECC0A
-     Ни жёлтого, ни сланцевого: это цвета колледжа, не чемпионата. */
   :root {
     --green: #4ECC0A;
-    --green-lite: #4ECC0A;
+    --mid: #398411;
     --dark: #1D1D1B;
-    --grey: #A8AFAB;
     --white: #FFFFFF;
   }
 
@@ -26,209 +23,158 @@
     position: relative;
     width: 1080px; height: 1350px;
     overflow: hidden;
+    background: var(--dark);
     font-family: 'Roboto', Arial, sans-serif;
     color: var(--white);
     isolation: isolate;
   }
 
-  /* ---------- Фон: снимок антенны во весь постер ----------
-     Исходник assets/background.jpg — 4928x3280 (альбомный).
-     Постер 1080x1350 (книжный): cover масштабирует по высоте, поэтому
-     по горизонтали видно лишь 53% кадра. Смещение 64% ставит антенну
-     в правую часть (примерно x 560–960), оставляя левую под текст. */
-  .poster > .bg {
+  /* ---------- Фон: кубический паттерн + мягкое свечение ---------- */
+  .pattern {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    object-position: 64% 50%;
+    opacity: .07;
     z-index: 0;
   }
-
-  /* ---------- Общее затемнение: лёгкое ----------
-     Задача — не гасить фотографию, а лишь приглушить её,
-     чтобы белый логотип и подвал читались. */
-  .poster > .scrim {
-    position: absolute; inset: 0; z-index: 1;
+  .glow {
+    position: absolute; inset: 0; z-index: 0;
     background:
-      linear-gradient(to bottom,
-        rgba(29,29,27,.55) 0%,
-        rgba(29,29,27,.12) 16%,
-        rgba(6,12,9,0) 34%),
-      linear-gradient(to top,
-        rgba(29,29,27,.60) 0%,
-        rgba(29,29,27,.24) 9%,
-        rgba(6,12,9,0) 24%);
+      radial-gradient(760px 620px at 78% 24%, rgba(78,204,10,.30) 0%, rgba(78,204,10,0) 68%),
+      radial-gradient(620px 520px at 12% 88%, rgba(57,132,17,.26) 0%, rgba(57,132,17,0) 70%);
   }
 
-  /* ---------- Мягкое пятно под текстовой колонкой ----------
-     Локальное затемнение вместо сплошной заливки: снимок остаётся
-     видимым справа и по краям, а колонка гарантированно читаема. */
-  .poster > .fog {
-    position: absolute; inset: 0; z-index: 2;
-    background:
-      radial-gradient(ellipse 62% 26% at 28% 40%,
-        rgba(29,29,27,.82) 0%, rgba(29,29,27,.62) 44%, rgba(4,10,7,0) 74%),
-      radial-gradient(ellipse 42% 22% at 28% 70%,
-        rgba(29,29,27,.72) 0%, rgba(29,29,27,.44) 48%, rgba(4,10,7,0) 76%);
-  }
-
-  /* ---------- Полоса логотипов ---------- */
+  /* ---------- Шкала знака во всю ширину ---------- */
   .topbar {
-    position: absolute; z-index: 5;
+    position: absolute; z-index: 4;
     top: 0; left: 0; right: 0;
-    height: 190px;
-    padding: 0 54px;
-    display: flex; align-items: center; justify-content: space-between;
-    background: linear-gradient(to bottom, rgba(29,29,27,.60), rgba(6,12,9,0));
-    border-bottom: 3px solid var(--green-lite);
+    height: 8px;
+    background: linear-gradient(90deg,
+      var(--dark) 0%, var(--mid) 38%, var(--green) 100%);
   }
-  .topbar .champ-wrap {
-    position: relative;
-    height: 116px;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,.55));
-  }
-  .topbar .champ { height: 116px; width: auto; display: block; }
 
-  /* Пунктирная рамка «ПОЛЕ ДЛЯ ВВОДА ГОДА» — заготовка брендбука.
-     Закрываем её фирменной плашкой с годом: в финальном знаке это
-     и есть заполненное поле. Координаты — доли от размеров логотипа
-     1218x450: поле занимает x 45.2–61.2%, y 4.4–18.8%. */
-  .topbar .champ-year {
+  /* ---------- Знак чемпионата ---------- */
+  .champ-wrap {
+    position: absolute; z-index: 5;
+    left: 54px; top: 54px;
+  }
+  .champ-wrap img { height: 100px; width: auto; display: block; }
+  /* Поле года знака: рамка x 45.2–61.2%, y 4.0–19.1% от 1218x450 */
+  .champ-year {
     position: absolute;
-    left: 45.2%; top: 4.4%;
-    width: 16%; height: 14.4%;
+    left: 44.6%; top: 3.4%;
+    width: 17.2%; height: 17.0%;
     background: var(--green);
     border-radius: 7px;
-    mix-blend-mode: normal;
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 900; letter-spacing: .5px;
     color: var(--dark);
   }
-  /* Логотип колледжа вынесен из шапки в правую часть полотна: там
-     свободное небо, знак становится вторым элементом композиции.
-     Выравнивание по той же сетке, что и текстовая колонка:
-     верхняя кромка — на y 300 (как у .content), левая — на 644,
-     то есть следующая позиция модулем 54 после конца колонки (590). */
+
+  /* ---------- Логотип колледжа ---------- */
   .college-plate {
     position: absolute; z-index: 5;
-    left: 644px; top: 300px;
+    right: 54px; top: 48px;
     background: var(--white);
-    border-radius: 24px;
-    padding: 15px 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+    border-radius: 22px;
+    padding: 13px 15px;
   }
-  .college-plate img { height: 160px; width: auto; display: block; }
+  .college-plate img { height: 136px; width: auto; display: block; }
 
-  /* ---------- Заголовок ---------- */
+  /* ---------- Шевроны: крупный графический акцент ---------- */
+  .chevrons {
+    position: absolute; z-index: 1;
+    right: -70px; top: 250px;
+    width: 620px;
+    opacity: .16;
+  }
+
+  /* ---------- Типографика ---------- */
   .content {
     position: absolute; z-index: 5;
-    left: 54px; top: 300px;
-    width: 536px;
+    left: 54px; top: 268px;
+    width: 720px;
   }
-
   .eyebrow {
     font-size: 21px; font-weight: 700; letter-spacing: 3.4px;
     text-transform: uppercase;
-    text-shadow: 0 2px 8px rgba(0,0,0,.6);
   }
-  .eyebrow .dot { color: var(--yellow); margin: 0 10px; }
+  .eyebrow .dot { color: var(--green); margin: 0 10px; }
 
   h1 {
-    margin-top: 16px;
-    font-size: 76px; line-height: 1.0; font-weight: 900;
-    letter-spacing: -1.6px;
-    text-shadow: 0 3px 14px rgba(0,0,0,.55);
+    margin-top: 18px;
+    font-size: 108px; line-height: .96; font-weight: 900;
+    letter-spacing: -3px;
   }
-
   h2 {
-    margin-top: 14px;
-    font-size: 42px; line-height: 1.16; font-weight: 900;
-    color: var(--green-lite);
-    letter-spacing: -.5px;
-    text-shadow: 0 3px 14px rgba(0,0,0,.6);
+    margin-top: 20px;
+    font-size: 52px; line-height: 1.1; font-weight: 900;
+    color: var(--green); letter-spacing: -1px;
   }
+  .rule { display: flex; align-items: center; margin: 30px 0 0; width: 620px; }
+  .rule .bar { height: 10px; flex: 1 1 auto;
+    background: linear-gradient(90deg, var(--dark) 0%, var(--mid) 42%, var(--green) 100%); }
 
-  .rule { display: flex; align-items: center; margin: 26px 0 0; }
-  .rule .bar { height: 6px; flex: 1 1 auto;
-    background: linear-gradient(90deg, var(--dark) 0%, var(--green) 100%); }
-  .rule .arrow { width: 0; height: 0; margin-left: 2px;
-    border-top: 13px solid transparent; border-bottom: 13px solid transparent;
-    border-left: 22px solid var(--dark); }
-
-  /* ---------- Блок текста: отдельная тёмная плашка ----------
-     Ниже QR-карточки, та же левая кромка. Намеренно не на белом:
-     так код и текст читаются как два разных объекта. */
-  .textblock {
-    position: absolute; z-index: 5;
-    left: 54px; top: 996px;
-    width: 470px;
-    background: rgba(29, 29, 27, .90);
-    backdrop-filter: blur(6px);
-    border-left: 5px solid var(--green-lite);
-    border-radius: 0 18px 18px 0;
-    padding: 20px 24px 22px;
-  }
-  .textblock h3 { font-size: 28px; font-weight: 900; line-height: 1.18; color: var(--white); white-space: nowrap; }
-  .textblock h3 em { font-style: normal; color: var(--green-lite); }
-  .textblock p { margin-top: 9px; font-size: 18px; line-height: 1.36; font-weight: 400; color: #C9CFCC; }
-  .textblock .contact {
-    margin-top: 12px; padding-top: 11px;
-    border-top: 1px solid rgba(255,255,255,.16);
-    font-size: 18px; font-weight: 700; color: var(--green);
-  }
-
-  /* ---------- Блок QR: отдельная белая карточка ----------
-     Стоит сразу под зелёной стрелкой (она заканчивается на y 618)
-     и выровнен по левому краю колонки. Антенна занимает примерно
-     x 560–960, y 800–1270, карточка заканчивается на x 318 — до неё
-     более 240 px. */
+  /* ---------- QR отдельным блоком ---------- */
   .qrblock {
     position: absolute; z-index: 5;
-    left: 54px; top: 692px;
+    left: 54px; top: 828px;
     width: 264px; height: 264px;
     background: var(--white);
     border-radius: 22px;
     padding: 24px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.5);
+    box-shadow: 0 10px 40px rgba(0,0,0,.55);
     display: flex; align-items: center; justify-content: center;
   }
   .qrblock img { width: 216px; height: 216px; display: block; }
 
+  /* ---------- Слова отдельным блоком ---------- */
+  .textblock {
+    position: absolute; z-index: 5;
+    left: 354px; top: 828px;
+    width: 672px;
+    background: rgba(78, 204, 10, .10);
+    border-left: 5px solid var(--green);
+    border-radius: 0 18px 18px 0;
+    padding: 26px 30px 28px;
+  }
+  .textblock h3 { font-size: 34px; font-weight: 900; line-height: 1.16;
+    white-space: nowrap; }
+  .textblock h3 em { font-style: normal; color: var(--green); }
+  .textblock p { margin-top: 12px; font-size: 21px; line-height: 1.38; font-weight: 400; color: #D6D9D7; }
+  .textblock .contact {
+    margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid rgba(255,255,255,.18);
+    font-size: 21px; font-weight: 700; color: var(--green);
+  }
+
   /* ---------- Подвал ---------- */
   .footer {
-    position: absolute; z-index: 5;
+    position: absolute; z-index: 6;
     left: 0; right: 0; bottom: 0;
     height: 104px;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 54px;
-    justify-content: flex-start;
-    background: rgba(29, 29, 27, .92);
-    backdrop-filter: blur(3px);
+    background: rgba(29, 29, 27, .96);
+    border-top: 1px solid rgba(78,204,10,.35);
   }
-  /* «сделано в россии» остаётся один раз — в хэштеге */
-  .fright .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; color: var(--white); }
-  .accentbar {
-    position: absolute; z-index: 6;
-    left: 0; right: 0; bottom: 104px;
-    height: 8px;
-    background: linear-gradient(90deg, var(--dark) 0%, #398411 38%, var(--green) 100%);
-  }
+  .footer .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; }
+  .footer .dot { color: var(--green); margin: 0 8px; }
 </style>
 </head>
 <body>
 <div class="poster">
 
-  <img class="bg" src="../assets/background.jpg" alt="">
+  <img class="pattern" src="../assets/pattern-cubes.png" alt="">
+  <div class="glow"></div>
+  <div class="topbar"></div>
 
-  <div class="scrim"></div>
-  <div class="fog"></div>
+  <img class="chevrons" src="../assets/chevrons.svg" alt="">
 
-  <div class="topbar">
-    <div class="champ-wrap">
-      <img class="champ" src="../assets/professionals_logo_02-1_white.png"
-           alt="Чемпионат по профессиональному мастерству «Профессионалы»">
-      <span class="champ-year">2026</span>
-    </div>
+  <div class="champ-wrap">
+    <img src="../assets/professionals_logo_02-1_white.png"
+         alt="Чемпионат по профессиональному мастерству «Профессионалы»">
+    <span class="champ-year">2027</span>
   </div>
 
   <div class="college-plate">
@@ -236,10 +182,10 @@
   </div>
 
   <div class="content">
-    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2026</div>
+    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2027</div>
     <h1>Набор<br>на чемпионат</h1>
-    <h2>Программные решения для бизнеса</h2>
-    <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
+    <h2>Программные решения<br>для бизнеса</h2>
+    <div class="rule"><div class="bar"></div></div>
   </div>
 
   <div class="qrblock">
@@ -247,17 +193,15 @@
   </div>
 
   <div class="textblock">
-    <h3>Всё о компетенции —<br><em>по ссылке</em></h3>
+    <h3>Всё о компетенции — <em>по ссылке</em></h3>
     <p>Отсканируйте QR-код. На отбор присылайте ссылку на свою работу.</p>
     <div class="contact">Запись и вопросы — кабинет 202л</div>
   </div>
 
   <div class="footer">
-    <div class="fright">
-      <div class="tag">#ПРОФЕССИОНАЛЫСДЕЛАНОВРОССИИ</div>
-    </div>
+    <div class="tag">#ПРОФЕССИОНАЛЫСДЕЛАНОВРОССИИ</div>
+    <div class="tag">профессионалы. сделано в россии</div>
   </div>
-  <div class="accentbar"></div>
 
 </div>
 </body>

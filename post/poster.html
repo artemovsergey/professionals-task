@@ -87,12 +87,14 @@
 
   /* Пунктирная рамка «ПОЛЕ ДЛЯ ВВОДА ГОДА» — заготовка брендбука.
      Закрываем её фирменной плашкой с годом: в финальном знаке это
-     и есть заполненное поле. Координаты — доли от размеров логотипа
-     1218x450: поле занимает x 45.2–61.2%, y 4.4–18.8%. */
+     и есть заполненное поле. Поле занимает x 550–745, y 18–86 знака
+     1218x450, то есть 45.2–61.2% по X и 4.0–19.1% по Y. Плашка
+     берёт границы с запасом ~5 px, иначе обводка рамки торчит
+     за края зелёного прямоугольника. */
   .topbar .champ-year {
     position: absolute;
-    left: 45.2%; top: 4.4%;
-    width: 16%; height: 14.4%;
+    left: 44.6%; top: 3.4%;
+    width: 17.2%; height: 17.0%;
     background: var(--green);
     border-radius: 7px;
     display: flex; align-items: center; justify-content: center;
@@ -222,7 +224,7 @@
     <div class="champ-wrap">
       <img class="champ" src="../assets/professionals_logo_02-1_white.png"
            alt="Чемпионат по профессиональному мастерству «Профессионалы»">
-      <span class="champ-year">2026</span>
+      <span class="champ-year">2027</span>
     </div>
   </div>
 
@@ -231,7 +233,7 @@
   </div>
 
   <div class="content">
-    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2026</div>
+    <div class="eyebrow">Отбор студентов<span class="dot">•</span>2027</div>
     <h1>Набор<br>на чемпионат</h1>
     <h2>Программные решения для бизнеса</h2>
     <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
