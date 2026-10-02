@@ -99,14 +99,17 @@
     font-size: 11px; font-weight: 900; letter-spacing: .5px;
     color: var(--white);
   }
-  .topbar .college-plate {
-    flex: none;
+  /* Логотип колледжа вынесен из шапки в правую часть полотна:
+     там свободное небо, знак становится вторым элементом композиции. */
+  .college-plate {
+    position: absolute; z-index: 5;
+    right: 64px; top: 330px;
     background: var(--white);
-    border-radius: 20px;
-    padding: 9px 11px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.4);
+    border-radius: 24px;
+    padding: 15px 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.45);
   }
-  .topbar .college-plate img { height: 84px; width: auto; display: block; }
+  .college-plate img { height: 160px; width: auto; display: block; }
 
   /* ---------- Заголовок ---------- */
   .content {
@@ -190,11 +193,12 @@
     height: 104px;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 54px;
+    justify-content: flex-start;
     background: rgba(54, 64, 70, .86);
     backdrop-filter: blur(3px);
   }
-  .slogan { font-size: 25px; font-weight: 700; }
-  .fright .tag { font-size: 19px; font-weight: 700; letter-spacing: 1.1px; color: var(--grey); }
+  /* «сделано в россии» остаётся один раз — в хэштеге */
+  .fright .tag { font-size: 22px; font-weight: 700; letter-spacing: 1.3px; color: var(--white); }
   .accentbar {
     position: absolute; z-index: 6;
     left: 0; right: 0; bottom: 104px;
@@ -217,9 +221,10 @@
            alt="Чемпионат по профессиональному мастерству «Профессионалы»">
       <span class="champ-year">2026</span>
     </div>
-    <div class="college-plate">
-      <img src="../assets/college_logo.svg" alt="Ставропольский колледж связи им. В.А. Петрова">
-    </div>
+  </div>
+
+  <div class="college-plate">
+    <img src="../assets/college_logo.svg" alt="Ставропольский колледж связи им. В.А. Петрова">
   </div>
 
   <div class="content">
@@ -240,7 +245,6 @@
   </div>
 
   <div class="footer">
-    <div class="slogan">профессионалы. сделано в россии!</div>
     <div class="fright">
       <div class="tag">#ПРОФЕССИОНАЛЫСДЕЛАНОВРОССИИ</div>
     </div>
