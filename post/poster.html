@@ -101,51 +101,75 @@
     font-size: 11px; font-weight: 900; letter-spacing: .5px;
     color: var(--white);
   }
-  /* Логотип колледжа вынесен из шапки в правую часть полотна: там
-     свободное небо, знак становится вторым элементом композиции.
-     Выравнивание по той же сетке, что и текстовая колонка:
-     верхняя кромка — на y 300 (как у .content), левая — на 644,
-     то есть следующая позиция модулем 54 после конца колонки (590). */
-  .college-plate {
+  /* ---------- Логотип колледжа ----------
+     Без подложки: чистый svg поверх фотографии. Чтобы отделить знак от
+     тёмного неба, вместо фона — только тень, и она не перекрывает фон.
+     Выравнивание задаёт слот: это и есть свободная зона в правой части
+     полотна — от текстовой колонки до правого поля (x 650…1026) и от
+     низа шапки до верха антенны (y 236…772). Логотип центрируется в ней. */
+  .college-slot {
     position: absolute; z-index: 5;
-    left: 644px; top: 300px;
-    background: var(--white);
-    border-radius: 24px;
-    padding: 15px 16px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.45);
+    left: 650px; top: 236px;
+    width: 376px; height: 536px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .college-plate img { height: 160px; width: auto; display: block; }
+  .college-slot img {
+    height: 190px; width: auto; display: block;
+    filter: drop-shadow(0 4px 18px rgba(0,0,0,.65));
+  }
 
-  /* ---------- Заголовок ---------- */
+  /* ---------- Заголовок ----------
+     Главное — название движения и компетенция. «Набор на чемпионат»
+     опущен до подзаголовка: раньше он занимал 76 px и был крупнее
+     всего остального, хотя по сути призыв, а не предмет. */
   .content {
     position: absolute; z-index: 5;
-    left: 54px; top: 300px;
-    width: 536px;
+    left: 54px; top: 250px;
+    width: 560px;
   }
 
   .eyebrow {
-    font-size: 21px; font-weight: 700; letter-spacing: 3.4px;
+    font-size: 20px; font-weight: 700; letter-spacing: 3.4px;
     text-transform: uppercase;
     text-shadow: 0 2px 8px rgba(0,0,0,.6);
   }
   .eyebrow .dot { color: var(--yellow); margin: 0 10px; }
 
+  /* Название чемпионата — крупнейший блок */
   h1 {
-    margin-top: 16px;
-    font-size: 76px; line-height: 1.0; font-weight: 900;
-    letter-spacing: -1.6px;
+    margin-top: 14px;
+    font-size: 68px; line-height: .98; font-weight: 900;
+    letter-spacing: -1.8px;
     text-shadow: 0 3px 14px rgba(0,0,0,.55);
   }
+  h1 .name { color: var(--green-lite); }
 
-  h2 {
-    margin-top: 14px;
-    font-size: 42px; line-height: 1.16; font-weight: 900;
-    color: var(--green-lite);
-    letter-spacing: -.5px;
-    text-shadow: 0 3px 14px rgba(0,0,0,.6);
+  /* Пояснение под названием — на порядок мельче */
+  .kicker {
+    margin-top: 10px;
+    font-size: 29px; line-height: 1.16; font-weight: 500;
+    color: rgba(255,255,255,.82);
+    text-shadow: 0 2px 10px rgba(0,0,0,.5);
   }
 
-  .rule { display: flex; align-items: center; margin: 26px 0 0; }
+  /* Призыв — самый мелкий из крупных */
+  .sub {
+    margin-top: 12px;
+    font-size: 25px; line-height: 1.2; font-weight: 700;
+    color: rgba(255,255,255,.72);
+    text-shadow: 0 2px 8px rgba(0,0,0,.5);
+  }
+
+  /* Компетенция — второй по важности блок */
+  h2 {
+    margin-top: 16px;
+    font-size: 40px; line-height: 1.14; font-weight: 900;
+    color: var(--white);
+    letter-spacing: -.5px;
+    text-shadow: 0 3px 12px rgba(0,0,0,.55);
+  }
+
+  .rule { display: flex; align-items: center; margin: 22px 0 0; width: 430px; }
   .rule .bar { height: 6px; flex: 1 1 auto;
     background: linear-gradient(90deg, var(--green-lite) 0%, var(--green) 100%); }
   .rule .arrow { width: 0; height: 0; margin-left: 2px;
@@ -228,14 +252,19 @@
     </div>
   </div>
 
-  <div class="college-plate">
+  <div class="college-slot">
     <img src="../assets/college_logo.svg" alt="Ставропольский колледж связи им. В.А. Петрова">
   </div>
 
   <div class="content">
     <div class="eyebrow">Отбор студентов<span class="dot">•</span>2027</div>
-    <h1>Набор<br>на чемпионат</h1>
-    <h2>Программные решения для бизнеса</h2>
+
+    <h1>Чемпионат<br><span class="name">«Профессионалы»</span></h1>
+    <p class="kicker">по профессиональному мастерству</p>
+
+    <p class="sub">Набор на чемпионат</p>
+
+    <h2>Программные решения<br>для бизнеса</h2>
     <div class="rule"><div class="bar"></div><div class="arrow"></div></div>
   </div>
 
