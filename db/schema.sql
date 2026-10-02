@@ -86,12 +86,12 @@ INSERT INTO categories (user_id, name, color) VALUES
     (1, 'Личное',   '#0F9346'),
     (1, 'Работа',   '#FCEE73');
 
-INSERT INTO tasks (user_id, category_id, title, description, status, priority, due_date) VALUES
-    (1, 1, 'Сделать ER-диаграмму',  'Схема сущностей и связей',       'new',        'high',   CURRENT_DATE + 2),
-    (1, 3, 'Сверстать главную',      'Список задач, адаптив',           'in_progress','medium', CURRENT_DATE + 5),
-    (1, 2, 'Сходить в спортзал',     NULL,                             'done',       'low',    CURRENT_DATE - 1);
-
-UPDATE tasks SET completed_at = NOW() WHERE id = 3;
+-- У задачи в статусе done сразу заполняем completed_at: ограничение
+-- ck_tasks_completed_at не пропускает выполненную задачу без даты выполнения.
+INSERT INTO tasks (user_id, category_id, title, description, status, priority, due_date, completed_at) VALUES
+    (1, 1, 'Сделать ER-диаграмму',  'Схема сущностей и связей',       'new',        'high',   CURRENT_DATE + 2, NULL),
+    (1, 3, 'Сверстать главную',      'Список задач, адаптив',           'in_progress','medium', CURRENT_DATE + 5, NULL),
+    (1, 2, 'Сходить в спортзал',     NULL,                             'done',       'low',    CURRENT_DATE - 1, NOW());
 
 -- ---------------------------------------------------------------------
 -- Полезный запрос: сводка по задачам пользователя
