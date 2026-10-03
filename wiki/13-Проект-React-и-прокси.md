@@ -543,6 +543,13 @@ git commit -m "Web-клиент: React-проект, типы API, клиент 
 - [ ] `vite.config.ts` с прокси `/api` → `http://localhost:5000`
 - [ ] `index.html` с `viewport`, глобальные стили
 
----
+## Иллюстрации
 
-Дальше: [14-Регистрация-и-вход](14-Регистрация-и-вход)
+![[images/web13-explorer.png]]
+*Структура веб-клиента в VS Code*
+
+![[images/web13-api-client.png]]
+*Слой API: токен в localStorage и разбор конверта*
+
+![[images/web13-vite-proxy.png]]
+*Прокси `/api` на сервер в `vite.config.js`*

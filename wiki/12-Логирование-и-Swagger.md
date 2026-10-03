@@ -288,6 +288,10 @@ git commit -m "Backend: Serilog, логирование запросов, XML-к
 - [x] корректные HTTP-коды: 400 / 401 / 403 / 404 / 500
 - [x] операции логируются
 
----
+## Иллюстрации
 
-Дальше: [13-Проект-React-и-прокси](13-Проект-React-и-прокси)
+![[images/api12-swagger.png]]
+*Swagger UI с контрактом из `api/openapi.yaml`*
+
+![[images/api12-swagger-authorize.png]]
+*Кнопка Authorize: токен из `/api/auth/login` вставляется один раз*

@@ -600,6 +600,10 @@ git commit -m "Backend: solution, проекты, сущности, DbContext, �
 - [ ] миграция `InitialCreate` и файл `db/schema.sql` в репозитории
 - [ ] `dotnet build` проходит
 
----
+## Иллюстрации
 
-Дальше: [06-Единый-формат-ответа-и-ошибки](06-Единый-формат-ответа-и-ошибки)
+![[images/code-api-dbcontext.png]]
+*DbContext с отображением на таблицы из `schema.sql`*
+
+![[images/code-api-program.png]]
+*Регистрация контекста, JWT и Swagger в `Program.cs`*
