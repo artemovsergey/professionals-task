@@ -444,6 +444,23 @@ git commit -m "Mobile-клиент: проект Expo, API-клиент, SecureS
 | `process.env.EXPO_PUBLIC_API_URL` — `undefined` | файл должен называться `.env`, переменная — с префиксом `EXPO_PUBLIC_` |
 | Метка `blank-typescript` не найдена | `npx create-expo-app@latest` требует Node 18+ |
 
+## Иллюстрации
+
+![[images/mob22-explorer.png]]
+*Структура мобильного проекта в VS Code*
+
+![[images/mob22-app.png]]
+*Экраны на API React Native: View, Text, Pressable, FlatList*
+
+![[images/mob22-api.png]]
+*Слой API мобильного клиента — тот же конверт ответа*
+
+![[images/mob22-vite-rnw.png]]
+*Запуск RN-кода в браузере: react-native подменяется на react-native-web*
+
+![[images/mob22-login.png]]
+*Экран входа на 390 px*
+
 ---
 
 Дальше: [23-Mobile-React-Native-экраны](23-Mobile-React-Native-экраны)
