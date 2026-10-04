@@ -616,6 +616,16 @@ git commit -m "Desktop-клиент: проект Avalonia, API-клиент, х
 | `No such host` / таймаут | API не запущен на порту 5000 |
 | Не собирается на РедОС | проверьте, что нет Windows-специфичных пакетов; Avalonia кроссплатформенна |
 
----
+## Иллюстрации
 
-Дальше: [20-Desktop-Avalonia-экраны](20-Desktop-Avalonia-экраны)
+![[images/desk19-explorer.png]]
+*Структура десктопного проекта в VS Code*
+
+![[images/desk19-mainwindow-axaml.png]]
+*Разметка окна на XAML: список, сводка, стили кнопок*
+
+![[images/desk19-program.png]]
+*Точка входа и запуск окна на Avalonia*
+
+![[images/desk20-login.png]]
+*Окно приложения на экране входа*

@@ -696,6 +696,16 @@ git commit -m "Desktop-клиент: вход, список задач, свод
 gnome-screenshot -w -f docs/screenshots/desktop-tasks.png
 ```
 
----
+## Иллюстрации
 
-Дальше: [21-Tauri-или-PWA-вместо-Avalonia](21-Tauri-или-PWA-вместо-Avalonia)
+![[images/desk20-viewmodel.png]]
+*Вьюмодель: вход, загрузка задач и сводки, переключение статуса*
+
+![[images/desk20-list.png]]
+*Список задач в окне приложения*
+
+![[images/desk20-filter.png]]
+*Фильтр-чип меняет выборку задач*
+
+![[gifs/desktop-scenario.gif]]
+*Сценарий в окне: вход, фильтр «в работе», возврат к «все»*

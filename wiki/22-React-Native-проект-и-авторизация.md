@@ -460,7 +460,3 @@ git commit -m "Mobile-клиент: проект Expo, API-клиент, SecureS
 
 ![[images/mob22-login.png]]
 *Экран входа на 390 px*
-
----
-
-Дальше: [23-Mobile-React-Native-экраны](23-Mobile-React-Native-экраны)
