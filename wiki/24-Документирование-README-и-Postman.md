@@ -158,10 +158,10 @@ dotnet test                       # юнит- и интеграционные т
 
 ## API
 
-Спецификация: [`api/openapi.yaml`](api/openapi.yaml) — импортируется в Swagger UI
+Спецификация: [`api/openapi.yaml`](https://github.com/artemovsergey/professionals-task/blob/main/api/openapi.yaml) — импортируется в Swagger UI
 и Postman.
 
-Коллекция Postman: [`postman/Professionals-Task.postman_collection.json`](postman/Professionals-Task.postman_collection.json).
+Коллекция Postman: [`postman/Professionals-Task.postman_collection.json`](https://github.com/artemovsergey/professionals-task/blob/main/postman/Professionals-Task.postman_collection.json).
 Импортируйте через Postman → Import → выберите файл. Переменные коллекции:
 `baseUrl`, `email`, `password`, `token`, `taskId`.
 
