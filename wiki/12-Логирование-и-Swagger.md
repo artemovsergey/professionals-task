@@ -275,7 +275,7 @@ git commit -m "Backend: Serilog, логирование запросов, XML-к
 
 # Итог сессий 2–4: backend готов
 
-Проверьте чек-лист из [`criteria.md`](../criteria.md), раздел «Backend и API —
+Проверьте чек-лист из [`criteria.md`](https://github.com/artemovsergey/professionals-task/blob/main/criteria.md), раздел «Backend и API —
 25 баллов»:
 
 - [x] регистрация и вход, пароль в хешированном виде (BCrypt, соль внутри)
