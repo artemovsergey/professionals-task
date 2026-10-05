@@ -1,542 +1,272 @@
 Сессия 2. Backend: каркас · 0–75 мин
 
-# 1. Solution и проекты (0–15 мин)
+# Как читать эту страницу
 
-Перейдите в корень репозитория и создайте solution:
+Каждый шаг — одна небольшая операция: сначала команда или кусок кода, затем
+снимок того, как выглядит результат. Скриншоты снимайте в VS Code и в DBeaver
+по ходу работы, а не в конце.
+
+Проектов два: `TaskPlanner.Api` (сервис) и `TaskPlanner.Tests` (тесты). Схема
+базы берётся из `db/schema.sql` со страницы [03](03-Скрипт-schema-sql) —
+миграции для этого задания не обязательны.
+
+# 1. Шаг 1. Solution (5 мин)
 
 ```bash
 cd src
 dotnet new sln -n TaskPlanner
-dotnet sln TaskPlanner.sln add api/TaskPlanner.Core api/TaskPlanner.Api api/TaskPlanner.Tests
 ```
 
-Три проекта:
+![[images/api05-s1-sln.png]]
+*Solution создан: `The template "Solution File" was created successfully`*
+
+# 2. Шаг 2. Два проекта (5–20 мин)
 
 ```bash
-dotnet new classlib -n TaskPlanner.Core  -o api/TaskPlanner.Core  -f net9.0
-dotnet new webapi  -n TaskPlanner.Api   -o api/TaskPlanner.Api   -f net9.0 --use-controllers
+dotnet new webapi -n TaskPlanner.Api   -o api/TaskPlanner.Api   -f net9.0 --use-controllers
 dotnet new xunit   -n TaskPlanner.Tests -o api/TaskPlanner.Tests -f net9.0
-
-dotnet sln TaskPlanner.sln add api/TaskPlanner.Core api/TaskPlanner.Api api/TaskPlanner.Tests
 ```
 
-Ссылки: `Core` → используется в `Api` и `Tests`:
+Флаг `-f net9.0` обязателен: без него на машине с .NET 10 получится проект под
+`net10.0`, а проверяющий собирает на .NET 9.
+
+![[images/api05-s2-projects.png]]
+*Шаблоны `webapi` и `xUnit` созданы, восстановление зависимостей прошло*
+
+# 3. Шаг 3. Проекты в solution и ссылка на API (20–25 мин)
 
 ```bash
-dotnet add api/TaskPlanner.Api   reference api/TaskPlanner.Core
-dotnet add api/TaskPlanner.Tests reference api/TaskPlanner.Core
+dotnet sln TaskPlanner.sln add api/TaskPlanner.Api api/TaskPlanner.Tests
 dotnet add api/TaskPlanner.Tests reference api/TaskPlanner.Api
+dotnet sln TaskPlanner.sln list
 ```
 
-> **Замечание:** доменный слой в `Core` — не украшение. Он позволяет писать
-> юнит-тесты сервисов без запуска веб-сервера и без базы. На отборе это
-> отдельные баллы за тест-кейсы.
+Тесты живут в отдельном проекте, но им нужен доступ к коду сервиса — поэтому
+ссылка `Tests -> Api`. Без неё тесты не увидят `Program` и маршруты.
 
-# 2. Пакеты (15–25 мин)
+![[images/api05-s3-sln.png]]
+*Оба проекта в solution, ссылка добавлена, `dotnet sln list` их показывает*
+
+# 4. Шаг 4. Пакеты API (25–40 мин)
 
 ```bash
-cd api/TaskPlanner.Core
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL -v 9.0.4
-dotnet add package FluentValidation -v 12.0.0
-
-cd ../TaskPlanner.Api
-dotnet add package Microsoft.EntityFrameworkCore.Design -v 9.0.4
-dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer -v 9.0.4
-dotnet add package System.IdentityModel.Tokens.Jwt -v 8.3.0
+cd api/TaskPlanner.Api
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL -v 9.0.0
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer -v 9.0.0
 dotnet add package BCrypt.Net-Next -v 4.0.3
 dotnet add package Swashbuckle.AspNetCore -v 7.2.0
-dotnet add package FluentValidation.AspNetCore -v 12.0.0
-dotnet add package Serilog.AspNetCore -v 9.0.0
-dotnet add package Serilog.Sinks.Console -v 6.0.0
-dotnet add package Serilog.Sinks.File -v 6.0.0
+```
 
+Четыре пакета закрывают всёBackend-приложение: драйвер PostgreSQL с EF Core,
+JWT, хеширование паролей и Swagger UI.
+
+> **Замечание:** версии EF Core держите на 9.0.x. Смешение 8.x и 9.x даёт
+> `The specified version of the Entity Framework Core is not compatible`.
+
+![[images/api05-s4-packages-api.png]]
+*Пакеты добавлены: `PackageReference for package ... added to file`*
+
+# 5. Шаг 5. Пакеты тестов (40–45 мин)
+
+```bash
 cd ../TaskPlanner.Tests
-dotnet add package Microsoft.EntityFrameworkCore.InMemory -v 9.0.4
-dotnet add package Microsoft.AspNetCore.Mvc.Testing -v 9.0.4
+dotnet add package Microsoft.AspNetCore.Mvc.Testing -v 9.0.0
 dotnet add package FluentAssertions -v 7.0.0
 ```
 
-Проверка сборки — она уже должна работать:
+`Mvc.Testing` поднимает сервис целиком, `FluentAssertions` даёт читаемые
+проверки вида `result.Should().BeUnauthorized()`.
+
+![[images/api05-s5-packages-tests.png]]
+*Пакеты тестов добавлены в `TaskPlanner.Tests.csproj`*
+
+# 6. Шаг 6. Сборка (45–50 мин)
 
 ```bash
 cd ../..
 dotnet build
 ```
 
-> **Замечание:** версии пакетов EF Core должны совпадать с версией .NET 9.
-> Смешение 8.x и 9.x даёт `System.InvalidOperationException: The specified
-> version of the Entity Framework Core is not compatible`.
+![[images/api05-s6-build.png]]
+*`Build succeeded`: собраны обе DLL — API и тесты*
 
-# 3. Сущности (25–40 мин)
+# 7. Шаг 7. Сущность пользователя (50–55 мин)
 
-`src/api/TaskPlanner.Core/Entities/User.cs`:
+`api/TaskPlanner.Api/Models/Entities.cs`:
 
 ```csharp
-namespace TaskPlanner.Core.Entities;
-
 public class User
 {
     public long Id { get; set; }
-
     public string Email { get; set; } = string.Empty;
-
-    /// <summary>Хеш пароля (BCrypt). Открытый пароль в базе не хранится.</summary>
     public string PasswordHash { get; set; } = string.Empty;
-
     public string FullName { get; set; } = string.Empty;
-
     public DateTimeOffset CreatedAt { get; set; }
-
-    public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
-
-    public ICollection<Category> Categories { get; set; } = new List<Category>();
 }
 ```
 
-`src/api/TaskPlanner.Core/Entities/TaskItem.cs`:
+Колонка `password_hash` хранит хеш BCrypt. Открытый пароль в базе не
+хранится, и в логах он тоже не должен появляться.
+
+![[images/api05-s7-user.png]]
+*`User`: пять свойств, названия совпадают с колонками из `schema.sql`*
+
+# 8. Шаг 8. Сущность задачи (55–60 мин)
 
 ```csharp
-namespace TaskPlanner.Core.Entities;
-
 public class TaskItem
 {
     public long Id { get; set; }
-
     public long UserId { get; set; }
-    public User? User { get; set; }
-
-    public long? CategoryId { get; set; }
-    public Category? Category { get; set; }
-
     public string Title { get; set; } = string.Empty;
-
     public string? Description { get; set; }
-
-    public TaskStatus Status { get; set; } = TaskStatus.New;
-
-    public TaskPriority Priority { get; set; } = TaskPriority.Medium;
-
+    public string Status { get; set; } = "new";
+    public string Priority { get; set; } = "medium";
     public DateOnly? DueDate { get; set; }
-
-    /// <summary>Заполняется только когда <see cref="Status"/> = Done.</summary>
     public DateTimeOffset? CompletedAt { get; set; }
-
     public DateTimeOffset CreatedAt { get; set; }
-
     public DateTimeOffset UpdatedAt { get; set; }
+    public long? CategoryId { get; set; }
 }
 ```
 
-> **Замечание:** класс называется `TaskItem`, а не `Task`. Имя `Task`
-> совпадает с `System.Threading.Tasks.Task` — при `using System.Threading.Tasks`
-> компилятор начнёт путать вашу сущность с делегатом. Это самая частая
-> ошибка новичков в .NET-проектах.
+Два решения, которые стоит принять сразу:
 
-`src/api/TaskPlanner.Core/Entities/Category.cs`:
+- класс называется `TaskItem`, а не `Task`: имя `Task` совпадает с
+  `System.Threading.Tasks.Task`, и при `using System.Threading.Tasks`
+  компилятор начинает путать сущность с делегатом;
+- `Status` и `Priority` — строки, а не enum: в базе они лежат строками
+  (`'in_progress'`, а не `inProgress`), и такой же формат требует
+  `api/openapi.yaml`.
+
+![[images/api05-s8-taskitem.png]]
+*`TaskItem`: двенадцать свойств, `Status` и `Priority` — строки*
+
+# 9. Шаг 9. Контекст и наборы сущностей (60–62 мин)
+
+`api/TaskPlanner.Api/Data/TaskPlannerContext.cs`:
 
 ```csharp
-namespace TaskPlanner.Core.Entities;
-
-public class Category
+public class TaskPlannerContext(DbContextOptions<TaskPlannerContext> options)
+    : DbContext(options)
 {
-    public long Id { get; set; }
-
-    public long UserId { get; set; }
-    public User? User { get; set; }
-
-    public string Name { get; set; } = string.Empty;
-
-    /// <summary>Цвет в формате #RRGGBB.</summary>
-    public string? Color { get; set; }
-
-    public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+    public DbSet<Models.User> Users => Set<Models.User>();
+    public DbSet<Models.TaskItem> Tasks => Set<Models.TaskItem>();
+    public DbSet<Models.Category> Categories => Set<Models.Category>();
 }
 ```
 
-`src/api/TaskPlanner.Core/Enums/TaskStatus.cs`:
+Три `DbSet` — это три таблицы, с которыми работает сервис.
+
+![[images/api05-s9-dbsets.png]]
+*Контекст объявляет `Users`, `Tasks`, `Categories`*
+
+# 10. Шаг 10. Отображение users (62–65 мин)
 
 ```csharp
-namespace TaskPlanner.Core.Enums;
-
-/// <summary>
-/// Значения совпадают со списком из db/schema.sql и api/openapi.yaml.
-/// Менять строки нельзя: они лежат в CHECK-ограничениях базы и в контракте API.
-/// </summary>
-public enum TaskStatus
+b.Entity<Models.User>(e =>
 {
-    New = 0,
-    InProgress = 1,
-    Done = 2,
-    Cancelled = 3,
-}
+    e.ToTable("users");
+    e.HasKey(x => x.Id);
+    // EF оборачивает имена в кавычки, поэтому «Id» и «id» — разные колонки
+    e.Property(x => x.Id).HasColumnName("id");
+    e.Property(x => x.Email).HasColumnName("email");
+    e.Property(x => x.PasswordHash).HasColumnName("password_hash");
+    e.Property(x => x.FullName).HasColumnName("full_name");
+    e.Property(x => x.CreatedAt).HasColumnName("created_at");
+});
 ```
 
-`src/api/TaskPlanner.Core/Enums/TaskPriority.cs`:
+Без `HasColumnName` EF создаст колонки `Id`, `EmailHash`, `PasswordHash` —
+и `SELECT` из приложения перестанет совпадать с таблицей из `schema.sql`.
+
+![[images/api05-s10-users-mapping.png]]
+*Каждое свойство связано с колонкой своей таблицы*
+
+# 11. Шаг 11. Отображение tasks (65–68 мин)
 
 ```csharp
-namespace TaskPlanner.Core.Enums;
-
-public enum TaskPriority
+b.Entity<Models.TaskItem>(e =>
 {
-    Low = 0,
-    Medium = 1,
-    High = 2,
-}
+    e.ToTable("tasks");
+    e.HasKey(x => x.Id);
+    e.Property(x => x.Id).HasColumnName("id");
+    e.Property(x => x.UserId).HasColumnName("user_id");
+    e.Property(x => x.Title).HasColumnName("title");
+    e.Property(x => x.Description).HasColumnName("description");
+    e.Property(x => x.Status).HasColumnName("status");
+    e.Property(x => x.Priority).HasColumnName("priority");
+    e.Property(x => x.DueDate).HasColumnName("due_date");
+    e.Property(x => x.CompletedAt).HasColumnName("completed_at");
+    e.Property(x => x.CreatedAt).HasColumnName("created_at");
+    e.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+    e.Property(x => x.CategoryId).HasColumnName("category_id");
+});
 ```
 
-# 4. Конвертация enum ⇄ строка (40–50 мин)
+CHECK-ограничения из `schema.sql` переносить в `OnModelCreating` не нужно:
+схему создаёт скрипт, а не миграции. Дублировать правила в двух местах — значит
+со временем получить расхождение.
 
-Enum хранится в базе как строка (`'new'`, `'high'`) и в JSON отдаётся строкой.
-Значение `in_progress` пишется **с подчёркиванием**, а `camelCase`-сериализатор
-даст `inProgress` — поэтому конвертер пишется явно.
+![[images/api05-s11-tasks-mapping.png]]
+*`tasks`: двенадцать колонок, имена совпадают со скриптом*
 
-`src/api/TaskPlanner.Core/Common/EnumJsonConverters.cs`:
+# 12. Шаг 12. Подключение контекста (68–70 мин)
+
+`api/TaskPlanner.Api/Program.cs`:
 
 ```csharp
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using TaskPlanner.Core.Enums;
-
-namespace TaskPlanner.Core.Common;
-
-/// <summary>
-/// Приводит enum к строке из контракта API: in_progress, а не inProgress.
-/// Нужен потому, что в CHECK-ограничении базы записано 'in_progress'.
-/// </summary>
-public class TaskStatusConverter : JsonConverter<TaskStatus>
-{
-    private static readonly Dictionary<TaskStatus, string> ToText = new()
-    {
-        [TaskStatus.New] = "new",
-        [TaskStatus.InProgress] = "in_progress",
-        [TaskStatus.Done] = "done",
-        [TaskStatus.Cancelled] = "cancelled",
-    };
-
-    private static readonly Dictionary<string, TaskStatus> FromText =
-        ToText.ToDictionary(x => x.Value, x => x.Key);
-
-    public override TaskStatus Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        var value = reader.GetString() ?? string.Empty;
-        if (FromText.TryGetValue(value, out var result))
-        {
-            return result;
-        }
-
-        throw new JsonException($"Неизвестный статус: {value}");
-    }
-
-    public override void Write(Utf8JsonWriter writer, TaskStatus value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(ToText[value]);
-    }
-}
-
-public class TaskPriorityConverter : JsonConverter<TaskPriority>
-{
-    private static readonly Dictionary<TaskPriority, string> ToText = new()
-    {
-        [TaskPriority.Low] = "low",
-        [TaskPriority.Medium] = "medium",
-        [TaskPriority.High] = "high",
-    };
-
-    private static readonly Dictionary<string, TaskPriority> FromText =
-        ToText.ToDictionary(x => x.Value, x => x.Key);
-
-    public override TaskPriority Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        var value = reader.GetString() ?? string.Empty;
-        if (FromText.TryGetValue(value, out var result))
-        {
-            return result;
-        }
-
-        throw new JsonException($"Неизвестный приоритет: {value}");
-    }
-
-    public override void Write(Utf8JsonWriter writer, TaskPriority value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(ToText[value]);
-    }
-}
+builder.Services.AddDbContext<TaskPlanner.Api.Data.TaskPlannerContext>(o =>
+    o.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 ```
 
-# 5. `AppDbContext` (50–65 мин)
+Строка подключения лежит в `appsettings.json`, а не в коде: адрес БД у
+проверяющего может отличаться от вашего.
 
-`src/api/TaskPlanner.Api/Data/AppDbContext.cs`:
+![[images/api05-s12-program-db.png]]
+*Контекст зарегистрирован в DI через `AddDbContext`*
+
+# 13. Шаг 13. Swagger (70–73 мин)
 
 ```csharp
-using Microsoft.EntityFrameworkCore;
-using TaskPlanner.Core.Entities;
-
-namespace TaskPlanner.Api.Data;
-
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(o =>
 {
-    public DbSet<User> Users => Set<User>();
-
-    public DbSet<TaskItem> Tasks => Set<TaskItem>();
-
-    public DbSet<Category> Categories => Set<Category>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        // ---------------------------------------------------------------
-        // users
-        // ---------------------------------------------------------------
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.ToTable("users", table => table.HasCheckConstraint("ck_users_email_format",
-                "email ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'"));
-            entity.HasCheckConstraint("ck_users_full_name",
-                "length(btrim(full_name)) > 0");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.Id)
-                .HasColumnName("id")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.Email)
-                .HasColumnName("email")
-                .HasMaxLength(255)
-                .IsRequired();
-
-            entity.Property(x => x.PasswordHash)
-                .HasColumnName("password_hash")
-                .HasMaxLength(255)
-                .IsRequired();
-
-            entity.Property(x => x.FullName)
-                .HasColumnName("full_name")
-                .HasMaxLength(255)
-                .IsRequired();
-
-            entity.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .HasColumnType("timestamptz")
-                .IsRequired();
-
-            entity.HasIndex(x => x.Email)
-                .IsUnique()
-                .HasDatabaseName("uq_users_email");
-        });
-
-        // ---------------------------------------------------------------
-        // categories
-        // ---------------------------------------------------------------
-        modelBuilder.Entity<Category>(entity =>
-        {
-            entity.ToTable("categories");
-            entity.HasCheckConstraint("ck_categories_name", "length(btrim(name)) > 0");
-            entity.HasCheckConstraint("ck_categories_color",
-                "color IS NULL OR color ~ '^#[0-9A-Fa-f]{6}$'");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.Id)
-                .HasColumnName("id")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.UserId)
-                .HasColumnName("user_id")
-                .IsRequired();
-
-            entity.Property(x => x.Name)
-                .HasColumnName("name")
-                .HasMaxLength(100)
-                .IsRequired();
-
-            entity.Property(x => x.Color)
-                .HasColumnName("color")
-                .HasMaxLength(7);
-
-            entity.HasIndex(x => new { x.UserId, x.Name })
-                .IsUnique()
-                .HasDatabaseName("uq_categories_user_name");
-
-            entity.HasOne(x => x.User)
-                .WithMany(u => u.Categories)
-                .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-
-        // ---------------------------------------------------------------
-        // tasks
-        // ---------------------------------------------------------------
-        modelBuilder.Entity<TaskItem>(entity =>
-        {
-            entity.ToTable("tasks");
-            entity.HasCheckConstraint("ck_tasks_title_not_empty", "length(btrim(title)) > 0");
-            entity.HasCheckConstraint("ck_tasks_status",
-                "status IN ('new','in_progress','done','cancelled')");
-            entity.HasCheckConstraint("ck_tasks_priority",
-                "priority IN ('low','medium','high')");
-            entity.HasCheckConstraint("ck_tasks_completed_at",
-                "(status = 'done' AND completed_at IS NOT NULL) OR (status <> 'done' AND completed_at IS NULL)");
-
-            entity.HasKey(x => x.Id);
-
-            entity.Property(x => x.Id)
-                .HasColumnName("id")
-                .ValueGeneratedOnAdd();
-
-            entity.Property(x => x.UserId)
-                .HasColumnName("user_id")
-                .IsRequired();
-
-            entity.Property(x => x.CategoryId)
-                .HasColumnName("category_id");
-
-            entity.Property(x => x.Title)
-                .HasColumnName("title")
-                .HasMaxLength(200)
-                .IsRequired();
-
-            entity.Property(x => x.Description)
-                .HasColumnName("description");
-
-            // enum хранится строкой — так же, как в CHECK-ограничении
-            entity.Property(x => x.Status)
-                .HasColumnName("status")
-                .HasColumnType("varchar(16)")
-                .HasConversion<string>()
-                .IsRequired();
-
-            entity.Property(x => x.Priority)
-                .HasColumnName("priority")
-                .HasColumnType("varchar(16)")
-                .HasConversion<string>()
-                .IsRequired();
-
-            entity.Property(x => x.DueDate)
-                .HasColumnName("due_date")
-                .HasColumnType("date");
-
-            entity.Property(x => x.CompletedAt)
-                .HasColumnName("completed_at")
-                .HasColumnType("timestamptz");
-
-            entity.Property(x => x.CreatedAt)
-                .HasColumnName("created_at")
-                .HasColumnType("timestamptz")
-                .IsRequired();
-
-            entity.Property(x => x.UpdatedAt)
-                .HasColumnName("updated_at")
-                .HasColumnType("timestamptz")
-                .IsRequired();
-
-            entity.HasIndex(x => x.UserId)
-                .HasDatabaseName("ix_tasks_user_id");
-
-            entity.HasIndex(x => x.Status)
-                .HasDatabaseName("ix_tasks_status");
-
-            entity.HasIndex(x => x.DueDate)
-                .HasDatabaseName("ix_tasks_due_date");
-
-            entity.HasIndex(x => new { x.UserId, x.Status, x.DueDate })
-                .HasDatabaseName("ix_tasks_user_status_due");
-
-            entity.HasIndex(x => x.CreatedAt)
-                .HasDatabaseName("ix_tasks_created_at");
-
-            entity.HasOne(x => x.User)
-                .WithMany(u => u.Tasks)
-                .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(x => x.Category)
-                .WithMany(c => c.Tasks)
-                .HasForeignKey(x => x.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull);
-        });
-    }
-}
+    o.SwaggerDoc("v1", new() {
+        Title = "Планировщик личных задач — API",
+        Version = "v1"
+    });
+});
 ```
 
-> **Замечание:** ограничения из `db/schema.sql` перенесены в `OnModelCreating`,
-> чтобы миграции создавали ту же схему. Иначе база из миграций разойдётся со
-> скриптом, который сдаётся проверяющему, и ограничения пропадут.
->
-> Внимание к экранированию: внутри C#-строки регулярное выражение
-> `'^[^@\s]+@[^@\s]+\.[^@\s]+$'` записывается как
-> `"email ~ '^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'"` — два обратных слэша.
+Swagger нужен не для красоты: без него нельзя показать проверяющему контракт
+методов, а это отдельные баллы.
 
-# 6. Фабрика для миграций (65–70 мин)
+![[images/api05-s13-program-swagger.png]]
+*Документация API включена в сборку*
 
-`src/api/TaskPlanner.Api/Data/DesignTimeDbContextFactory.cs`:
+# 14. Шаг 14. Конверт ответа (73–75 мин)
+
+`api/TaskPlanner.Api/Contracts/Contracts.cs`:
 
 ```csharp
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
-
-namespace TaskPlanner.Api.Data;
-
-/// <summary>
-/// Нужна, чтобы команда dotnet ef работала без запуска приложения.
-/// </summary>
-public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+public class Envelope<T>
 {
-    public AppDbContext CreateDbContext(string[] args)
-    {
-        var configuration = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: false)
-            .AddEnvironmentVariables()
-            .Build();
+    public bool Success { get; set; }
+    public T? Data { get; set; }
+    public string Message { get; set; } = "OK";
 
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-        var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        optionsBuilder.UseNpgsql(connectionString);
-
-        return new AppDbContext(optionsBuilder.Options);
-    }
+    [System.Text.Json.Serialization.JsonPropertyName("error_code")]
+    public string? ErrorCode { get; set; }
 }
 ```
 
-# 7. Первая миграция (70–75 мин)
+Одна обёртка на весь API: успех и ошибка отличаются только `success` и
+`error_code`. Формат разбирается на странице
+[06](06-Единый-формат-ответа-и-ошибки).
 
-Установите инструмент миграций (один раз, локально для репозитория):
-
-```bash
-cd src
-dotnet new tool-manifest
-dotnet tool install dotnet-ef --version 9.0.4
-```
-
-Создайте миграцию и примените её:
-
-```bash
-cd api/TaskPlanner.Api
-dotnet ef migrations add InitialCreate
-dotnet ef database update
-```
-
-Проверьте, что миграция создала ограничения:
-
-```bash
-psql -h 127.0.0.1 -U taskplanner -d taskplanner -c "\d tasks"
-```
-
-> **Замечание:** `dotnet ef database update` упадёт с
-> `42P01: relation "tasks" does not exist`, если таблицы уже созданы
-> `schema.sql` — миграция не умеет «пересоздать» существующую таблицу. Если
-> вы применяли `schema.sql` вручную, сначала пересоздайте базу:
->
-> ```bash
-> dropdb -h 127.0.0.1 -U taskplanner taskplanner
-> createdb -h 127.0.0.1 -U taskplanner taskplanner
-> dotnet ef database update
-> psql -h 127.0.0.1 -U taskplanner -d taskplanner -f ../db/seed.sql
-> ```
+![[images/api05-s14-envelope.png]]
+*`Envelope<T>`: `success`, `data`, `message`, `error_code`*
 
 # Проверка
 
@@ -545,21 +275,17 @@ cd src
 dotnet build
 ```
 
-Должно быть `Build succeeded`, без предупреждений о nullable.
+В выводе должно быть `Build succeeded` без предупреждений о nullable.
 
-Запустите API — на этой странице он ещё не отвечает на `/health`, но должен
-подняться:
+Запустите API — на этой странице маршрутов ещё нет, но процесс должен подняться
+и показать пустой Swagger:
 
 ```bash
 cd api/TaskPlanner.Api
 dotnet run
 ```
 
-В консоли: `Now listening on: http://localhost:5000`, и в Swagger — список
-методов WeatherForecast. Пока это нормально: маршруты будут на следующей
-странице.
-
-Проверка в базе — ограничения на месте:
+Проверка в базе — ограничения на месте после `schema.sql`:
 
 ```sql
 SELECT conname, pg_get_constraintdef(oid)
@@ -570,13 +296,13 @@ ORDER BY conname;
 
 В результате должны быть `ck_tasks_completed_at`, `ck_tasks_priority`,
 `ck_tasks_status`, `ck_tasks_title_not_empty`, `fk_tasks_user`,
-`fk_tasks_category`, `pk_tasks`.
+`fk_tasks_category`.
 
 # Коммит
 
 ```bash
 git add src
-git commit -m "Backend: solution, проекты, сущности, DbContext, первая миграция"
+git commit -m "Backend: solution, проекты, пакеты, сущности и контекст данных"
 ```
 
 # Если что-то не получилось
@@ -584,26 +310,21 @@ git commit -m "Backend: solution, проекты, сущности, DbContext, �
 | Симптом | Что делать |
 |---|---|
 | `dotnet: command not found` | см. [00-Подготовка-окружения](00-Подготовка-окружения) |
-| `The specified version of the Entity Framework Core is not compatible` | выровнять версии всех `EntityFrameworkCore`-пакетов на 9.0.x |
-| `Unable to create an object of type 'DesignTimeDbContextFactory'` | не найден `appsettings.json`: запускать `dotnet ef` из каталога `TaskPlanner.Api` |
+| `'net9.0' is not a valid value for -f` | на машине стоит .NET 10 SDK: поставьте .NET 9 или укажите свою версию |
+| `The specified version of the Entity Framework Core is not compatible` | выровнять все пакеты `EntityFrameworkCore` на 9.0.x |
 | `Npgsql.NpgsqlException: Failed to connect` | не запущен PostgreSQL или неверна строка подключения |
-| `relation "tasks" does not exist` | пересоздать базу, см. замечание выше |
-| Компилятор не находит `TaskStatus` в сущности | забыт `using TaskPlanner.Core.Enums;` |
-| `.HasConversion<string>()` ругается | EF 9 переименовал в `HasConversion<string>()` → строка; проверьте, что тип колонки указан как `varchar(16)` |
+| `relation "users" does not exist` | не выполнен `db/schema.sql` со страницы [03](03-Скрипт-schema-sql) |
+| В базе появились колонки `Id`, `Email` вместо `id`, `email` | забыли `HasColumnName` в `OnModelCreating` |
 
 # Что должно быть в репозитории к концу сессии 2, блок 1
 
-- [ ] `src/TaskPlanner.sln` с тремя проектами
-- [ ] `TaskPlanner.Core`: сущности `User`, `TaskItem`, `Category`, enum-ы, конвертеры
-- [ ] `TaskPlanner.Api`: `AppDbContext` со всеми CHECK-ограничениями и индексами
-- [ ] `DesignTimeDbContextFactory`
-- [ ] миграция `InitialCreate` и файл `db/schema.sql` в репозитории
+- [ ] `TaskPlanner.sln` с проектами `TaskPlanner.Api` и `TaskPlanner.Tests`
+- [ ] `Models/Entities.cs`: `User`, `TaskItem`, `Category`
+- [ ] `Data/TaskPlannerContext.cs` с отображением на таблицы из `schema.sql`
+- [ ] `Contracts/Contracts.cs` с общим конвертом ответа
+- [ ] `Program.cs` с `AddDbContext`, Swagger и строкой подключения из настроек
 - [ ] `dotnet build` проходит
 
-## Иллюстрации
+---
 
-![[images/code-api-dbcontext.png]]
-*DbContext с отображением на таблицы из `schema.sql`*
-
-![[images/code-api-program.png]]
-*Регистрация контекста, JWT и Swagger в `Program.cs`*
+Дальше: [06-Единый-формат-ответа-и-ошибки](06-Единый-формат-ответа-и-ошибки)
