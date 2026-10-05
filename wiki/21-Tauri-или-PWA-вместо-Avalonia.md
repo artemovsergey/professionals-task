@@ -314,6 +314,26 @@ git add src/web src/desktop
 git commit -m "Desktop-клиент: вариант Tauri/PWA вместо Avalonia (для финального этапа)"
 ```
 
+## Иллюстрации
+
+![[images/pwa21-manifest.png]]
+*Манифест PWA в VS Code: имя, иконки, режим standalone, ярлык «Новая задача»*
+
+![[images/pwa21-sw.png]]
+*Service worker в VS Code: кэш оболочки и правило «данные из сети»*
+
+![[images/pwa21-app-window.png]]
+*Клиент запущен как приложение: окно без вкладок и адресной строки*
+
+![[images/pwa21-installed-mobile.png]]
+*Тот же клиент на телефоне — установка из браузера*
+
+![[images/pwa21-offline.png]]
+*Офлайн: оболочка из кэша, метка «офлайн» и понятная ошибка вместо данных*
+
+![[gifs/pwa-scenario.gif]]
+*Сценарий PWA: вход, создание, фильтр, выполнение и запуск без сети*
+
 ---
 
 Дальше: [22-React-Native-проект-и-авторизация](22-React-Native-проект-и-авторизация)

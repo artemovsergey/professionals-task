@@ -23,6 +23,10 @@ WIKI_SRC="$PROJECT_DIR/wiki"
 WORK_DIR="$(mktemp -d)"
 DRY_RUN=false
 
+# Скриншоты и gif не хранятся в репозитории задания: они лежат в
+# репозитории эталона (professionals-reference), оттуда и копируются в вики.
+ASSETS_DIR="${ASSETS_DIR:-$PROJECT_DIR/../professionals-reference/shots}"
+
 if [ "${1:-}" = "--dry-run" ]; then
   DRY_RUN=true
 fi
@@ -107,6 +111,17 @@ echo "==> Копирую страницы из wiki/"
 # Удаляем только .md, чтобы не потерять .git и служебные файлы вики
 find . -maxdepth 1 -name '*.md' -delete
 cp "$WIKI_SRC"/*.md .
+
+echo "==> Копирую иллюстрации из $ASSETS_DIR"
+if [ -d "$ASSETS_DIR" ]; then
+  rm -rf images gifs
+  mkdir -p images gifs
+  find "$ASSETS_DIR" -maxdepth 1 -name '*.png' -exec cp {} images/ \;
+  find "$ASSETS_DIR" -maxdepth 1 -name '*.gif' -exec cp {} gifs/ \;
+  echo "    картинок: $(ls images | wc -l), gif: $(ls gifs | wc -l)"
+else
+  echo "    каталога нет — иллюстрации не попадут в вики" >&2
+fi
 
 echo "==> Изменения:"
 git status --short
