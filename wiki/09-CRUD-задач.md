@@ -90,6 +90,9 @@ app.MapGet("/api/tasks/{id:long}", async (
 curl -s http://localhost:5000/api/tasks/$ID -H "Authorization: Bearer $TOKEN"
 ```
 
+![[images/api09-s8-code-read.png]]
+*Обработчик чтения: две проверки подряд — сначала существование, потом владелец*
+
 ![[images/api09-s2-read-200.png]]
 *`200`: та же задача, что создали на прошлом шаге*
 
@@ -118,6 +121,9 @@ curl -s -X PUT http://localhost:5000/api/tasks/$ID \
   -H 'Content-Type: application/json' \
   -d '{"title":"Собрать дистрибутив клиента","priority":"low","status":"in_progress","dueDate":"2026-11-15"}'
 ```
+
+![[images/api09-s9-code-update.png]]
+*Обработчик изменения: те же проверки, затем присваивание полей*
 
 ![[images/api09-s3-update-200.png]]
 *`200`: `priority` стала `low`, статус — `in_progress`, `dueDate` сдвинулся*
@@ -158,6 +164,9 @@ app.MapDelete("/api/tasks/{id:long}", async (
 curl -s -X DELETE http://localhost:5000/api/tasks/$ID \
   -H "Authorization: Bearer $TOKEN"
 ```
+
+![[images/api09-s10-code-delete.png]]
+*Обработчик удаления заканчивается `Ok<object?>(null)` — конверт остаётся единым*
 
 ![[images/api09-s5-delete.png]]
 *`200` с `data: null` — тот же конверт, что и у остальных методов*
