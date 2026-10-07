@@ -1,711 +1,226 @@
 Сессия 7. Desktop-клиент: экраны · 70–150 мин
 
-# 1. Экран входа (70–95 мин)
+# Что делаем на этой странице
 
-`ViewModels/LoginViewModel.cs`:
+Рисуем окно: вход, список задач с фильтрами-чипами, отметка выполнения,
+удаление и панель сводки. Всё это уже работает на тех же запросах API,
+что и веб-клиент, поэтому здесь меняется только разметка и обработчики.
 
-```csharp
-using System.Net;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using TaskPlanner.Desktop.Services;
+Каркас и модель представления — на [19-Avalonia-проект-и-навигация](19-Avalonia-проект-и-навигация).
+На этой странице мы достраиваем `MainWindow.axaml` и его code-behind.
 
-namespace TaskPlanner.Desktop.ViewModels;
+# Шаг 1. Экран входа
 
-public partial class LoginViewModel(
-    ApiClient apiClient,
-    TokenStorage tokenStorage) : ViewModelBase
-{
-    [ObservableProperty]
-    private string _email = string.Empty;
-
-    [ObservableProperty]
-    private string _password = string.Empty;
-
-    [ObservableProperty]
-    private string _fullName = string.Empty;
-
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
-
-    [ObservableProperty]
-    private bool _isBusy;
-
-    [ObservableProperty]
-    private bool _isAuthenticated;
-
-    [ObservableProperty]
-    private bool _isRegisterMode;
-
-    public string SubmitTitle => IsRegisterMode ? "Зарегистрироваться" : "Войти";
-
-    partial void OnIsRegisterModeChanged(bool value)
-        => OnPropertyChanged(nameof(SubmitTitle));
-
-    private bool Validate()
-    {
-        if (string.IsNullOrWhiteSpace(Email))
-        {
-            ErrorMessage = "Укажите email";
-            return false;
-        }
-
-        if (string.IsNullOrEmpty(Password))
-        {
-            ErrorMessage = "Укажите пароль";
-            return false;
-        }
-
-        if (Password.Length < 8)
-        {
-            ErrorMessage = "Пароль не короче 8 символов";
-            return false;
-        }
-
-        if (IsRegisterMode && string.IsNullOrWhiteSpace(FullName))
-        {
-            ErrorMessage = "Укажите имя";
-            return false;
-        }
-
-        ErrorMessage = string.Empty;
-        return true;
-    }
-
-    [RelayCommand]
-    private async Task SubmitAsync()
-    {
-        if (IsBusy || !Validate())
-        {
-            return;
-        }
-
-        IsBusy = true;
-        ErrorMessage = string.Empty;
-
-        try
-        {
-            if (IsRegisterMode)
-            {
-                var user = await apiClient.RegisterAsync(Email.Trim(), Password, FullName.Trim());
-
-                // Регистрация токена не возвращает — сразу входим
-                var session = await apiClient.LoginAsync(Email.Trim(), Password);
-
-                apiClient.SetToken(session.Token);
-                tokenStorage.Save(session.Token, session.User.FullName, session.User.Email);
-            }
-            else
-            {
-                var session = await apiClient.LoginAsync(Email.Trim(), Password);
-
-                apiClient.SetToken(session.Token);
-                tokenStorage.Save(session.Token, session.User.FullName, session.User.Email);
-            }
-
-            IsAuthenticated = true;
-        }
-        catch (ApiException e)
-        {
-            ErrorMessage = e.Message;
-        }
-        catch (TaskCanceledException)
-        {
-            ErrorMessage = "Сервер не отвечает. Проверьте, что API запущен.";
-        }
-        catch (HttpRequestException)
-        {
-            ErrorMessage = "Нет связи с сервером на http://localhost:5000";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    [RelayCommand]
-    private void ToggleMode()
-        => IsRegisterMode = !IsRegisterMode;
-
-    [RelayCommand]
-    private void Logout()
-    {
-        apiClient.SetToken(null);
-        tokenStorage.Clear();
-        IsAuthenticated = false;
-        Password = string.Empty;
-    }
-}
-```
-
-> **Замечание:** `ApiClient.RegisterAsync` возвращает `UserDto`, но в коде
-> результат не используется — он нужен только для проверки, что запрос
-> прошёл. Если компилятор предупредит о неиспользуемой переменной,
-> замените строку на `_ = await apiClient.RegisterAsync(...)`.
-
-`Views/LoginView.axaml`:
+Приложение открывается на форме входа: два поля, кнопка и строка ошибки.
+Поля уже заполнены демо-данными, чтобы можно было нажать «Войти» сразу.
 
 ```xml
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:TaskPlanner.Desktop.ViewModels"
-             x:Class="TaskPlanner.Desktop.Views.LoginView"
-             x:DataType="vm:LoginViewModel">
-
-  <Border Background="#F1F6F2">
-    <StackPanel Width="380" Margin="0,80,0,0" HorizontalAlignment="Center" Spacing="12">
-
-      <TextBlock Text="Планировщик задач" FontSize="26" FontWeight="Bold"
-                 Foreground="#364046" HorizontalAlignment="Center" />
-
-      <TextBlock Classes="hint"
-                 Text="Войдите, чтобы увидеть свои задачи"
-                 HorizontalAlignment="Center" Foreground="#6D797F" />
-
-      <TextBlock Text="{Binding ErrorMessage}"
-                 Foreground="#D13C3C" TextWrapping="Wrap"
-                 IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-
-      <TextBox Watermark="Email" Text="{Binding Email}" />
-
-      <TextBox Watermark="Пароль" PasswordChar="•"
-               Text="{Binding Password}" />
-
-      <TextBox Watermark="Имя и фамилия" Text="{Binding FullName}"
-               IsVisible="{Binding IsRegisterMode}" />
-
-      <Button Content="{Binding SubmitTitle}"
-              Command="{Binding SubmitCommand}"
-              IsEnabled="{Binding !IsBusy}"
-              HorizontalAlignment="Stretch"
-              Background="#0F9346" Foreground="White" />
-
-      <ProgressBar IsIndeterminate="True"
-                   IsVisible="{Binding IsBusy}" Height="4" />
-
-      <Button Content="Регистрация / Вход"
-              Command="{Binding ToggleModeCommand}"
-              HorizontalAlignment="Center" Background="Transparent" />
-
-    </StackPanel>
-  </Border>
-</UserControl>
+<StackPanel Width="380" Spacing="12"
+            IsVisible="{Binding !IsLoggedIn}">
+  <TextBlock Text="{Binding Error}" Foreground="#C0392B"
+             IsVisible="{Binding Error, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+  <TextBox Text="{Binding Email}" Watermark="student@college.ru" />
+  <TextBox Text="{Binding Password}" PasswordChar="•" />
+  <Button Content="Войти" Classes="primary" Click="OnSignIn" />
+</StackPanel>
 ```
 
-`Views/LoginView.axaml.cs`:
+Одна строка `IsVisible` переключает весь блок: после входа форма исчезает, и
+на её месте появляется список. Отдельной страницы входа в проекте нет —
+это один `Window` с двумя состояниями.
+
+![[images/desk20-s01-login.png]]
+*Форма входа: почта, пароль и кнопка «Войти», имя клиента в шапке*
+
+# Шаг 2. Неверный пароль
+
+Введите любой неверный пароль и нажмите «Войти». Сервер вернёт `401`, и
+клиент покажет текст из поля `message` — без своих формулировок:
 
 ```csharp
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-
-namespace TaskPlanner.Desktop.Views;
-
-public partial class LoginView : UserControl
+if (!payload.IsSuccessStatusCode)
 {
-    public LoginView()
-    {
-        InitializeComponent();
-    }
-
-    private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
+    Error = json.GetProperty("message").GetString() ?? "Не удалось войти";
+    return;
 }
 ```
 
-# 2. Экран задач (95–130 мин)
+![[images/desk20-s02-error.png]]
+*Ошибка входа выведена красным над полями: «Неверная почта или пароль»*
 
-`ViewModels/TaskItemViewModel.cs`:
+Проверять пароль на клиенте не нужно: правило одно на сервере, и клиент
+показывает то же сообщение, которое вернул бэкенд.
 
-```csharp
-using CommunityToolkit.Mvvm.ComponentModel;
-using TaskPlanner.Desktop.Services;
+# Шаг 3. Список задач
 
-namespace TaskPlanner.Desktop.ViewModels;
-
-/// <summary>
-/// Одна задача в списке. Содержит только текущие значения —
-/// после любой операции сервер возвращает новый объект, поэтому
-/// строку пересоздаём, а не правим на месте.
-/// </summary>
-public partial class TaskItemViewModel(TaskDto dto) : ObservableObject
-{
-    public long Id => dto.Id;
-
-    public string Title => dto.Title;
-
-    public string? Description => dto.Description;
-
-    public string StatusText => dto.Status switch
-    {
-        Core.Enums.TaskStatus.New => "Новая",
-        Core.Enums.TaskStatus.InProgress => "В работе",
-        Core.Enums.TaskStatus.Done => "Выполнена",
-        Core.Enums.TaskStatus.Cancelled => "Отменена",
-        _ => dto.Status.ToString(),
-    };
-
-    public string PriorityText => dto.Priority switch
-    {
-        Core.Enums.TaskPriority.Low => "Низкий",
-        Core.Enums.TaskPriority.Medium => "Средний",
-        Core.Enums.TaskPriority.High => "Высокий",
-        _ => dto.Priority.ToString(),
-    };
-
-    public bool IsDone => dto.Status == Core.Enums.TaskStatus.Done;
-
-    public string DueText => string.IsNullOrEmpty(dto.DueDate)
-        ? "Без срока"
-        : DateTime.Parse(dto.DueDate).ToString("dd.MM.yyyy");
-
-    public bool IsOverdue => !IsDone
-        && !string.IsNullOrEmpty(dto.DueDate)
-        && DateTime.Parse(dto.DueDate).Date < DateTime.Today;
-}
-```
-
-`ViewModels/TasksViewModel.cs`:
-
-```csharp
-using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using TaskPlanner.Desktop.Services;
-
-namespace TaskPlanner.Desktop.ViewModels;
-
-public partial class TasksViewModel(ApiClient apiClient) : ViewModelBase
-{
-    [ObservableProperty]
-    private string _statusFilter = "";
-
-    [ObservableProperty]
-    private string _errorMessage = string.Empty;
-
-    [ObservableProperty]
-    private bool _isBusy;
-
-    [ObservableProperty]
-    private bool _isSummaryVisible;
-
-    [ObservableProperty]
-    private string _summaryText = string.Empty;
-
-    public ObservableCollection<TaskItemViewModel> Items { get; } = new();
-
-    [RelayCommand]
-    private async Task LoadAsync()
-    {
-        if (IsBusy)
-        {
-            return;
-        }
-
-        IsBusy = true;
-        ErrorMessage = string.Empty;
-
-        try
-        {
-            var page = await apiClient.GetTasksAsync(
-                page: 1,
-                pageSize: 50,
-                status: string.IsNullOrEmpty(StatusFilter) ? null : StatusFilter);
-
-            Items.Clear();
-
-            foreach (var dto in page.Items)
-            {
-                Items.Add(new TaskItemViewModel(dto));
-            }
-
-            SummaryText = $"Показано {Items.Count} из {page.Total}";
-        }
-        catch (ApiException e)
-        {
-            ErrorMessage = e.Message;
-        }
-        catch (HttpRequestException)
-        {
-            ErrorMessage = "Нет связи с сервером";
-        }
-        finally
-        {
-            IsBusy = false;
-        }
-    }
-
-    [RelayCommand]
-    private async Task ToggleCompletedAsync(TaskItemViewModel? item)
-    {
-        if (item is null)
-        {
-            return;
-        }
-
-        try
-        {
-            await apiClient.ToggleCompletedAsync(item.Id);
-            await LoadAsync();
-        }
-        catch (ApiException e)
-        {
-            ErrorMessage = e.Message;
-        }
-    }
-
-    [RelayCommand]
-    private async Task DeleteAsync(TaskItemViewModel? item)
-    {
-        if (item is null)
-        {
-            return;
-        }
-
-        var confirmed = await ConfirmationService.AskAsync(
-            this, $"Удалить задачу «{item.Title}»?");
-
-        if (!confirmed)
-        {
-            return;
-        }
-
-        try
-        {
-            await apiClient.DeleteTaskAsync(item.Id);
-            await LoadAsync();
-        }
-        catch (ApiException e)
-        {
-            ErrorMessage = e.Message;
-        }
-    }
-
-    [RelayCommand]
-    private async Task ShowSummaryAsync()
-    {
-        IsSummaryVisible = !IsSummaryVisible;
-
-        if (!IsSummaryVisible)
-        {
-            return;
-        }
-
-        try
-        {
-            var summary = await apiClient.GetSummaryAsync();
-
-            var low = summary.ByPriority.GetValueOrDefault("low");
-            var medium = summary.ByPriority.GetValueOrDefault("medium");
-            var high = summary.ByPriority.GetValueOrDefault("high");
-
-            SummaryText =
-                $"Всего: {summary.Total}\n" +
-                $"Выполнено: {summary.Done}\n" +
-                $"Не выполнено: {summary.NotDone}\n" +
-                $"Просрочено: {summary.Overdue}\n" +
-                $"Незавершённые: низкий {low}, средний {medium}, высокий {high}";
-        }
-        catch (ApiException e)
-        {
-            ErrorMessage = e.Message;
-        }
-    }
-
-    [RelayCommand]
-    private void HideSummary() => IsSummaryVisible = false;
-
-    partial void OnStatusFilterChanged(string value) => _ = LoadAsync();
-}
-```
-
-# 3. Подтверждение удаления (130–138 мин)
-
-Диалог подтверждения в Avalonia делается отдельным окном. Простейший
-вариант — окно с сообщением и двумя кнопками:
-
-`Views/ConfirmWindow.axaml`:
+Верните правильный пароль и нажмите «Войти». Запрос уходит на
+`/api/tasks?sort=dueDate&order=asc&pageSize=50`, рядом — `/api/tasks/summary`,
+поэтому в списке и в сводке всегда одни и те же цифры.
 
 ```xml
-<Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="TaskPlanner.Desktop.Views.ConfirmWindow"
-        Title="Подтверждение" Width="380" SizeToContent="Height"
-        WindowStartupLocation="CenterOwner" CanResize="False">
-
-  <StackPanel Margin="20" Spacing="16">
-    <TextBlock x:Name="MessageText" TextWrapping="Wrap" />
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-      <Button Content="Отмена" Click="OnCancel" />
-      <Button Content="Удалить" Click="OnConfirm" Background="#D13C3C" Foreground="White" />
-    </StackPanel>
-  </StackPanel>
-</Window>
+<Button Content="Все" Click="OnFilterAll" Classes="chip" />
+<Button Content="Новые" Click="OnFilterNew" Classes="chip" />
+<Button Content="В работе" Click="OnFilterInProgress" Classes="chip" />
+<Button Content="Готово" Click="OnFilterDone" Classes="chip" />
+<Button Content="Обновить" Click="OnRefresh" Classes="ghost" />
 ```
 
-`Views/ConfirmWindow.axaml.cs`:
-
-```csharp
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-
-namespace TaskPlanner.Desktop.Views;
-
-public partial class ConfirmWindow : Window
-{
-    public ConfirmWindow()
-    {
-        InitializeComponent();
-    }
-
-    private void InitializeComponent() => AvaloniaXamlLoader.Load(this);
-
-    public static Task<bool> AskAsync(Window owner, string message)
-    {
-        var window = new ConfirmWindow();
-
-        window.FindControl<TextBlock>("MessageText")!.Text = message;
-
-        var tcs = new TaskCompletionSource<bool>();
-
-        void Closed(object? sender, Avalonia.Controls.WindowClosingEventArgs e)
-        {
-            tcs.TrySetResult(window.Result);
-        }
-
-        window.Closed += Closed;
-        window.ShowDialog(owner);
-
-        return tcs.Task;
-    }
-
-    private bool Result { get; set; }
-
-    private void OnConfirm(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
-    {
-        Result = true;
-        Close();
-    }
-
-    private void OnCancel(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => Close();
-}
-```
-
-`Services/ConfirmationService.cs`:
-
-```csharp
-using Avalonia.Controls;
-using TaskPlanner.Desktop.Views;
-
-namespace TaskPlanner.Desktop.Services;
-
-public static class ConfirmationService
-{
-    public static Task<bool> AskAsync(object owner, string message)
-    {
-        if (owner is not TopLevel topLevel)
-        {
-            return Task.FromResult(false);
-        }
-
-        var ownerWindow = topLevel as Window ?? topLevel.GetVisualRoot() as Window;
-
-        return ownerWindow is null
-            ? Task.FromResult(false)
-            : ConfirmWindow.AskAsync(ownerWindow, message);
-    }
-}
-```
-
-Добавьте в `Services/ConfirmationService.cs` первый `using`:
-
-```csharp
-using Avalonia.VisualTree;
-```
-
-# 4. Экран задач в XAML (138–145 мин)
-
-`Views/TasksView.axaml`:
+Карточка задачи — четыре строки: галочка, название, описание и бейджи
+со статусом и приоритетом:
 
 ```xml
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:TaskPlanner.Desktop.ViewModels"
-             x:Class="TaskPlanner.Desktop.Views.TasksView"
-             x:DataType="vm:TasksViewModel">
-
-  <DockPanel LastChildFill="True">
-
-    <Border DockPanel.Dock="Top" Background="#364046" Padding="16,12">
-      <Grid ColumnDefinitions="Auto,*,Auto">
-        <TextBlock Grid.Column="0" Text="Задачи" Foreground="White"
-                   FontSize="20" FontWeight="Bold" VerticalAlignment="Center" />
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8">
-          <ComboBox Width="150" ItemsSource="{Binding StatusFilterOptions}"
-                    SelectedItem="{Binding StatusFilter}" />
-          <Button Content="Обновить" Command="{Binding LoadCommand}" />
-          <Button Content="Сводка" Command="{Binding ShowSummaryCommand}" />
-        </StackPanel>
-      </Grid>
-    </Border>
-
-    <StackPanel DockPanel.Dock="Top" Margin="16,12" Spacing="8"
-                IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-      <TextBlock Text="{Binding ErrorMessage}" Foreground="#D13C3C" TextWrapping="Wrap" />
-    </StackPanel>
-
-    <Border DockPanel.Dock="Bottom" Background="White" Padding="16,10">
-      <TextBlock Text="{Binding SummaryText}" Foreground="#6D797F" />
-    </Border>
-
-    <ScrollViewer>
-      <ItemsControl ItemsSource="{Binding Items}" Margin="16">
-        <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="vm:TaskItemViewModel">
-            <Border Background="White" CornerRadius="10" Padding="14" Margin="0,0,0,10">
-              <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
-                <CheckBox Grid.Row="0" Grid.Column="0"
-                          IsChecked="{Binding IsDone, Mode=OneWay}"
-                          Command="{Binding $parent[ItemsControl].((vm:TasksViewModel)DataContext).ToggleCompletedCommand}"
-                          CommandParameter="{Binding}" />
-
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Title}"
-                           FontWeight="SemiBold" VerticalAlignment="Center" Margin="8,0" />
-
-                <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" Spacing="8">
-                  <Button Content="Удалить"
-                          Command="{Binding $parent[ItemsControl].((vm:TasksViewModel)DataContext).DeleteCommand}"
-                          CommandParameter="{Binding}"
-                          Background="#D13C3C" Foreground="White" />
-                </StackPanel>
-
-                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2"
-                           Text="{Binding Description}" Foreground="#6D797F"
-                           TextWrapping="Wrap" IsVisible="{Binding Description, Converter={x:Static StringConverters.IsNotNull}}" />
-
-                <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2"
-                            Orientation="Horizontal" Spacing="12" Margin="8,8,0,0">
-                  <TextBlock Text="{Binding StatusText}" FontSize="13" />
-                  <TextBlock Text="{Binding PriorityText}" FontSize="13" />
-                  <TextBlock Text="{Binding DueText}" FontSize="13" Foreground="#6D797F" />
-                  <TextBlock Text="просрочена" FontSize="13" Foreground="#D13C3C"
-                             IsVisible="{Binding IsOverdue}" />
-                </StackPanel>
-              </Grid>
-            </Border>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
-    </ScrollViewer>
-
-  </DockPanel>
-</UserControl>
+<CheckBox IsChecked="{Binding Done, Mode=OneWay}" Click="OnToggleDone" Tag="{Binding}" />
+<TextBlock Text="{Binding Title}" FontSize="15" FontWeight="SemiBold" />
+<Border Classes="badge">
+  <TextBlock Text="{Binding StatusRu}" Foreground="#398411" FontSize="11" />
+</Border>
 ```
 
-Добавьте в `TasksViewModel` список значений фильтра:
+![[images/desk20-s03-list.png]]
+*Список из семи задач: у каждой карточки галочка, название, описание, бейджи и «Удалить». Справа — сводка 7 / 4 / 0*
+
+`Mode=OneWay` у галочки означает, что сама она не пишет в модель: значение
+приходит из сервера. Иначе рассинхрон — нажали, отметили, а сервер
+ответил иначе, и чекбокс остался бы в неверном состоянии.
+
+# Шаг 4. Фильтры-чипы
+
+Фильтр — это не отдельный компонент, а значение `StatusFilter` и тот же
+запрос списка. Обработчик меняет значение и перезапрашивает данные:
 
 ```csharp
-public IReadOnlyList<string> StatusFilterOptions { get; } =
-    ["", "new", "in_progress", "done", "cancelled"];
-```
+private async void OnFilterNew(object? sender, RoutedEventArgs e) => await FilterAsync("new");
 
-# 5. Открытие списка при входе (145–150 мин)
-
-В `MainWindowViewModel` подпишитесь на вход и загружайте список:
-
-```csharp
-Login.PropertyChanged += (_, e) =>
+private async Task FilterAsync(string status)
 {
-    if (e.PropertyName != nameof(LoginViewModel.IsAuthenticated))
-    {
-        return;
-    }
-
-    IsAuthenticated = Login.IsAuthenticated;
-
-    if (IsAuthenticated)
-    {
-        _ = Tasks.LoadAsync();
-    }
-};
+    _vm.StatusFilter = status;
+    await _vm.RefreshAsync();
+}
 ```
 
-# Проверка
+Внутри `RefreshAsync` значение превращается в параметр запроса, поэтому
+остальной код не меняется:
 
-```bash
-cd src/desktop/TaskPlanner.Desktop
-dotnet run
+```csharp
+var query = new List<string> { "sort=dueDate", "order=asc", "pageSize=50" };
+if (!string.IsNullOrWhiteSpace(StatusFilter))
+    query.Add($"status={StatusFilter}");
 ```
 
-1. Появится форма входа. Введите неверный пароль → «Неверный email или пароль».
-2. Нажмите «Регистрация / Вход» → появляется поле имени, кнопка меняет текст.
-3. Зарегистрируйтесь и войдите → открывается список задач.
-4. Список не пуст: 10–50 задач из `seed.sql`.
-5. Поставьте галочку у задачи → статус меняется на «Выполнена», строка
-   обновляется, счётчик «Показано N из M» пересчитан.
-6. Фильтр по статусу: выберите `done` → список обновился без кнопки
-   «Обновить» (срабатывает `OnStatusFilterChanged`).
-7. Нажмите «Удалить» → диалог подтверждения; «Отмена» ничего не удаляет,
-   «Удалить» убирает строку.
-8. Нажмите «Сводка» → панель с числами совпадает с `GET /api/tasks/summary`.
-9. Закройте приложение и откройте снова → вы уже внутри, список загружен:
-   токен сохранён в `%APPDATA%/TaskPlanner/session.json`
-   (на РедОС — `~/.local/share/TaskPlanner/session.json`).
-10. Остановите API, нажмите «Обновить» → понятное сообщение о недоступности
-    сервера, приложение не падает.
+![[images/desk20-s04-filter-new.png]]
+*Чип «Новые» оставил в списке только задачи со статусом «Новая», сводка при этом не изменилась*
 
-```bash
-# проверить, что desktop ходит в тот же API одной базой
-curl -s -X POST http://localhost:5000/api/auth/register \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"desktop-check@college.ru","password":"Passw0rd123","fullName":"Проверка"}'
-# зарегистрируйте этого же пользователя из приложения — должен быть 409
+![[images/desk20-s05-filter-done.png]]
+*Чип «Готово» показал четыре выполненные задачи — цифры совпадают со сводкой*
+
+Сводка не меняется от фильтра специально: она всегда про все задачи
+пользователя. Если нужна «выборка внутри выборки», счётчики придётся
+считать на сервере отдельным запросом — но в задании этого не требуется.
+
+# Шаг 5. Отметка выполнения
+
+Снимите галочку у задачи. Клик уходит на `PATCH /api/tasks/{id}/complete`,
+после чего список перечитывается целиком — так состояние приходит из
+одного источника:
+
+```csharp
+public async Task ToggleAsync(TaskRow task)
+{
+    await _http.PatchAsJsonAsync($"/api/tasks/{task.Id}/complete", new { done = !task.Done });
+    await RefreshAsync();
+}
 ```
+
+![[images/desk20-s06-toggle.png]]
+*Задача вернулась в статус «В работе», счётчик «Выполнено» уменьшился с 4 до 3*
+
+Обработчик достаёт строку из `Tag` — того же элемента, на котором
+произошёл клик:
+
+```csharp
+private async void OnToggleDone(object? sender, RoutedEventArgs e)
+{
+    if (sender is CheckBox { Tag: TaskRow task }) await _vm.ToggleAsync(task);
+}
+```
+
+# Шаг 6. Удаление
+
+Кнопка «Удалить» в карточке отправляет `DELETE /api/tasks/{id}` и так же
+перечитывает список:
+
+```csharp
+public async Task DeleteAsync(TaskRow task)
+{
+    await _http.DeleteAsync($"/api/tasks/{task.Id}");
+    await RefreshAsync();
+}
+```
+
+![[images/desk20-s07-delete.png]]
+*Задача исчезла из списка, «Всего задач» стало 6 — счётчик обновился вместе со строкой*
+
+Удаление происходит сразу, без подтверждения. Для на отборе этого
+достаточно, но в рабочем приложении перед `DELETE` стоит показывать диалог
+с вопросом — об этом ниже.
+
+# Шаг 7. Панель сводки
+
+Справа от списка — три числа из `GET /api/tasks/summary`:
+
+```xml
+<Border Background="#FFFFFF" CornerRadius="12" Padding="18" VerticalAlignment="Top">
+  <TextBlock Text="Сводка" FontSize="16" FontWeight="SemiBold" />
+  <TextBlock Text="Всего задач" Foreground="#6B6B6B" />
+  <TextBlock Text="{Binding Total}" FontWeight="Bold" Foreground="#398411" />
+  <TextBlock Text="Выполнено" Foreground="#6B6B6B" />
+  <TextBlock Text="{Binding Done}" FontWeight="Bold" />
+  <TextBlock Text="Просрочено" Foreground="#6B6B6B" />
+  <TextBlock Text="{Binding Overdue}" FontWeight="Bold" />
+</Border>
+```
+
+Счётчики только читают ответ сводки — считать их вручную на клиенте нельзя,
+тогда как после любой операции числа разойдутся с сервером.
+
+# Что добавить сверх эталона
+
+Раздел «Desktop-клиент» просит 3–4 экрана и хранение токена между запусками.
+В эталоне окно одно, токен живёт в памяти процесса, поэтому три вещи
+дописываются руками — каждая независима от остальных:
+
+- **Форма создания задачи.** По клику «Новая задача» показывается
+  `Window` с полями `title`, `description`, `status`, `priority`, `dueDate`,
+  а `POST /api/tasks` добавляет строку в тот же `Tasks`.
+- **Карточка задачи.** Отдельное окно с деталями и редактированием через
+  `PUT /api/tasks/{id}` — сейчас в списке видны только название, описание и
+  бейджи.
+- **Сохранение токена.** Токен из ответа `login` кладётся в файл
+  `session.json` в каталоге данных приложения, при старте читается обратно
+  и подставляется в заголовок `Authorization`. На РедОС это
+  `~/.local/share/TaskPlanner/session.json`, на Windows — `%APPDATA%\TaskPlanner`.
+- **Подтверждение удаления.** Перед `DELETE` показывается диалог
+  «Удалить задачу?». Отмена ничего не отправляет.
+
+Токен в файле — компромисс для учебного проекта: в рабочем приложении его
+нужно шифровать или хранить в системном хранилище секретов. Сам формат
+ответа при этом не меняется — это тот же контракт, что и в веб-клиенте.
 
 # Коммит
 
 ```bash
 git add src/desktop
-git commit -m "Desktop-клиент: вход, список задач, сводка, подтверждение удаления"
+git commit -m "Desktop-клиент: вход, список с фильтрами, отметка выполнения, удаление, сводка"
 ```
 
 # Если что-то не получилось
 
 | Симптом | Что делать |
 |---|---|
-| Свойство из ViewModel не обновляется | класс не `partial` либо нет `[ObservableProperty]` |
-| Команда не вызывается, `Command` пустой | имя команды генерируется из метода: `LoadAsync` → `LoadCommand` |
-| `ToggleCompletedCommand` не находится в DataTemplate | команда лежит в родительском ViewModel; нужен `$parent[ItemsControl].DataContext` |
-| `StringConverters` не найден | добавьте `xmlns` или используйте `IsVisible="{Binding ErrorMessage.Length}"` — нет, `Text` пустой даст `NullReference`; правильно — конвертер `x:Static StringConverters.IsNotNullOrEmpty` |
-| Диалог подтверждения не появляется | `AskAsync` вернул `false`: передан не `Window`; передавайте `this` из ViewModel нельзя — используйте `TopLevel` |
-| Показан пустой список | не вызвали `Tasks.LoadAsync()` после входа |
-| Не собирается на РедОС | проверьте `Environment.SpecialFolder.ApplicationData` и отсутствие `System.Drawing` |
-
-# Итог сессии 7
-
-Раздел «Desktop-клиент — 15 баллов»:
-
-- [x] настоящее настольное приложение на Avalonia, **не WebView**
-- [x] 3–4 экрана: вход, список задач, карточка/детали, сводка
-- [x] авторизация и хранение токена между запусками
-- [x] создание, изменение, отметка выполнения, удаление
-- [x] приложение запускается по инструкции из README (сессия 9)
-
-Скриншоты Avalonia-клиента — в `docs/screenshots/`:
-
-```bash
-# на РедОС и Linux удобно снимать окно командой
-gnome-screenshot -w -f docs/screenshots/desktop-tasks.png
-```
-
-## Иллюстрации
-
-![[images/desk20-viewmodel.png]]
-*Вьюмодель: вход, загрузка задач и сводки, переключение статуса*
-
-![[images/desk20-list.png]]
-*Список задач в окне приложения*
-
-![[images/desk20-filter.png]]
-*Фильтр-чип меняет выборку задач*
-
-![[gifs/desktop-scenario.gif]]
-*Сценарий в окне: вход, фильтр «в работе», возврат к «все»*
+| Форма входа не исчезает после входа | свойство называется `IsLoggedIn`, а в разметке `{Binding !IsLoggedIn}` |
+| Ошибка не показывается | у `TextBlock` с ошибкой должен быть `IsVisible` с `StringConverters.IsNotNullOrEmpty` |
+| Фильтр-чип ничего не меняет | в `RefreshAsync` проверка `StatusFilter` добавляет параметр `status` |
+| Галочка не отправляет запрос | у чекбокса нужен `Tag="{Binding}"`, иначе обработчик не найдёт строку |
+| Чекбокс «щёлкает» назад | у него стоит `IsChecked="{Binding Done, Mode=OneWay}"` — значение приходит с сервера |
+| Счётчики в сводке не меняются | счётчики читаются из ответа `summary`, а не считаются в клиенте |
+| `404` на `PATCH` или `DELETE` | в пути должен быть префикс `/api` и id задачи: `/api/tasks/{id}/complete` |
