@@ -1,335 +1,249 @@
 Сессия 7. Desktop-клиент: Tauri или PWA вместо Avalonia
 
 Эта страница — **запасной вариант**. Основной для отбора — Avalonia
-([19](19-Avalonia-проект-и-навигация), [20](20-Desktop-Avalonia-экраны)),
-потому что раздел 2.4 задания требует нативный интерфейс:
+([19-Avalonia-проект-и-навигация](19-Avalonia-проект-и-навигация),
+[20-Desktop-Avalonia-экраны](20-Desktop-Avalonia-экраны)), потому что раздел
+2.4 задания требует нативный интерфейс:
 
 > Настольное приложение. **Не гибрид и не WebView** — это должна быть
 > самостоятельная нативная программа, использующая тот же API.
 
 Tauri и PWA работают через web-движок, поэтому для **этого** задания не
-подходят: за такой раздел снимаются все 15 баллов.
-
-Когда вариант становится допустимым:
+подходят: за такой раздел снимают все 15 баллов.
 
 | Этап | Можно ли web-обёртка |
 |---|---|
 | Отбор (это задание) | **нет** — только нативный UI |
-| Региональный этап | **нет** — «настольное приложение (не гибрид, не использовать WebView)» |
-| Финальный этап | **да** — «C#/Java/Python/Golang с использованием встроенного браузерного компонента или нативного UI» |
+| Региональный этап | **нет** — «не гибрид, не использовать WebView» |
+| Финальный этап | **да** — «нативного UI или встроенного браузерного компонента» |
 
-Страница пригодится, когда вы дойдёте до финала и захотите перенести web-клиент
-в окно, либо если с Avalonia возникнут непреодримые проблемы.
+Дальше — PWA, потому что он у нас уже собран на web-клиенте из сессий 5–6
+и показан в работе.
 
----
+# Что делаем на этой странице
 
-# 1. Вариант A: Tauri (системный WebView + Rust-ядро)
+Тот же самый React-клиент превращается в устанавливаемое приложение:
+манифест с иконками, service worker с кэшем оболочки и понятное поведение
+без сети. Никаких новых зависимостей — только файлы в `public/` и десяток
+строк в существующих.
 
-## Что это
+# Шаг 1. Подключаем манифест
 
-Tauri — лёгкая оболочка: интерфейс остаётся вашим React-приложением, а
-системный WebView используется нативно (WebView2 на Windows, WebKitGTK на
-Linux, WKWebView на macOS). Никакого Chromium в комплекте — размер сборки
-измеряется мегабайтами, а не сотнями.
+`web/index.html` — три строки в `<head>`:
 
-## Требования
-
-| Компонент | Версия | Замечание |
-|---|---|---|
-| Rust | stable | `curl https://sh.rustup.rs -sSf \| sh` |
-| Node.js | 20+ | уже стоит |
-| Tauri CLI | 2.x | `npm install -D @tauri-apps/cli` |
-| Системные библиотеки Linux | webkit2gtk, libsoup | на РедОС ставятся из репозитория |
-
-## Установка на РедОС
-
-```bash
-# Проверьте, что WebKitGTK есть. На площадке может отсутствовать —
-# тогда Tauri-сборку проверить не удастся, а Avalonia соберётся везде.
-rpm -q webkit2gtk4.0-devel 2>/dev/null || echo "webkit2gtk4.0-devel не установлен"
-
-sudo dnf install -y webkit2gtk4.0-devel \
-  openssl-devel \
-  libsoup3-devel \
-  libappindicator-gtk3-devel \
-  librsvg2-devel \
-  patchelf
+```html
+<link rel="manifest" href="/manifest.webmanifest" />
+<meta name="theme-color" content="#1D1D1B" />
+<link rel="apple-touch-icon" href="/icon-192.png" />
 ```
 
-> **Замечание:** именно поэтому для отбора выбран Avalonia — он собирается на
-> чистой РедОС без системных зависимостей. Tauri требует `webkit2gtk-devel`,
-> которого в инфраструктурном листе чемпионата нет.
+`theme-color` красит строку состояния у установленного приложения,
+`apple-touch-icon` — иконку на iOS. Без манифеста браузер не считает
+страницу устанавливаемой.
 
-## Инициализация поверх web-клиента
+![[images/pwa21-index.png]]
+*index.html: манифест, цвет темы и иконки подключены*
+
+# Шаг 2. Пишем манифест
+
+`web/public/manifest.webmanifest`:
+
+```json
+{
+  "name": "Планировщик личных задач",
+  "short_name": "Задачи",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#F2F2EF",
+  "theme_color": "#1D1D1B",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [{ "name": "Новая задача", "url": "/?action=new" }]
+}
+```
+
+`display: "standalone"` — ключевое поле: из-за него приложение открывается
+без вкладок и адресной строки. Иконка `maskable` нужна для Android, где
+система обрезает квадрат по своей маске.
+
+![[images/pwa21-manifest.png]]
+*Манифест: имя, standalone, две иконки и ярлык «Новая задача» в меню приложения*
+
+# Шаг 3. Рисуем иконки
+
+Иконки не нарисовать руками в двух размерах — их проще сгенерировать.
+Скрипт `tools/make-pwa-icons.mjs` открывает страницу нужного размера и
+снимает её:
+
+```js
+for (const size of [192, 512]) {
+  const page = await browser.newContext({ viewport: { width: size, height: size } }).then((c) => c.newPage());
+  const pad = Math.round(size * 0.18);
+  await page.setContent(`<body style="margin:0;background:#1D1D1B;display:flex;
+    align-items:center;justify-content:center;">
+    <img src="${logoDataUri}" style="width:${size - pad * 2}px">`);
+  await page.screenshot({ path: `web/public/icon-${size}.png` });
+}
+```
+
+```bash
+node tools/make-pwa-icons.mjs
+```
+
+![[images/pwa21-icons.png]]
+*Скрипт генерации иконок: два размера, отступ 18% от края под маску системы*
+
+# Шаг 4. Регистрируем service worker
+
+`web/src/main.jsx`:
+
+```jsx
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+```
+
+Регистрация после `load` — чтобы не мешать первой отрисовке, а ошибка
+регистрации гасится: приложение должно работать и без service worker,
+иначе его нельзя будет открыть обычным браузером.
+
+![[images/pwa21-register.png]]
+*main.jsx: регистрация worker после загрузки страницы*
+
+# Шаг 5. Кэшируем оболочку, данные не кэшируем
+
+`web/public/sw.js` — самый важный файл страницы. Стратегия одна строка:
+статику кэшируем, задачи всегда берём из сети.
+
+```js
+const CACHE = 'taskplanner-shell-v1';
+const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+```
+
+```js
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting())
+  );
+});
+```
+
+Данные в кэш не попадают:
+
+```js
+if (url.pathname.startsWith('/api/')) return;
+```
+
+Навигация — сначала сеть, при ошибке оболочка из кэша:
+
+```js
+if (request.mode === 'navigate') {
+  event.respondWith(
+    fetch(request).catch(() => caches.match('/index.html').then((r) => r ?? Response.error()))
+  );
+  return;
+}
+```
+
+Если закэшировать `/api`, пользователь увидит старые задачи и будет
+думать, что сервер сломан. Кэш должен хранить только оболочку.
+
+![[images/pwa21-sw.png]]
+*sw.js: оболочка кэшируется при установке, запросы к /api всегда идут в сеть*
+
+# Шаг 6. Показываем метку «офлайн»
+
+`web/src/components/TaskBoard.jsx`:
+
+```jsx
+const offline = typeof navigator !== 'undefined' && navigator.onLine === false;
+
+{offline ? <span className="offline">офлайн</span> : null}
+```
+
+Пустой экран без объяснения выглядит как поломка. Одна метка честно
+говорит, что произошло.
+
+# Шаг 7. Запускаем как приложение
+
+```bash
+cd src/web
+npm run build && npm run preview -- --port 4173
+```
+
+Откройте `http://localhost:4173` и установите приложение из меню браузера.
+
+![[images/pwa21-app-window.png]]
+*После установки: окно без вкладок и адресной строки, сверху только название и «×»*
+
+![[images/pwa21-installed-mobile.png]]
+*На телефоне то же приложение ставится из браузера и открывается во весь экран*
+
+# Шаг 8. Проверяем работу без сети
+
+Выключите сеть (в DevTools — вкладка Network → Offline) и перезагрузите
+приложение. Оно должно открыться: оболочка из кэша, метка «офлайн» и
+понятная ошибка вместо данных.
+
+![[images/pwa21-offline.png]]
+*Без сети приложение открывается: оболочка из кэша, метка «офлайн», данные не подменены мусором*
+
+![[gifs/pwa-scenario.gif]]
+*Сценарий целиком: вход, создание, фильтр, отметка выполнения и запуск без сети*
+
+# Если выбрали Tauri
+
+Tauri — это тот же React в системном WebView (WebView2 на Windows,
+WebKitGTK на Linux) плюс маленькое ядро на Rust. Плагин ставится в тот же
+web-клиент, конфигурация описывает окно, а `localStorage` продолжает
+работать без изменений:
 
 ```bash
 cd src/web
 npm install -D @tauri-apps/cli @tauri-apps/api
-npx tauri init
-
-# npx tauri init спросит:
-#   App name:            TaskPlanner
-#   Window title:        Планировщик задач
-#   Web assets location: ../dist        (путь к сборке Vite)
-#   Dev server URL:      http://localhost:5173
-#   Frontend dev command: npm run dev
-#   Frontend build command: npm run build
+npx tauri init          # Web assets: ../dist, Dev server URL: http://localhost:5173
+npm run tauri build
 ```
 
-Конфигурация `src/tauri.conf.json` (ключевые поля):
-
-```json
-{
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "TaskPlanner",
-  "version": "1.0.0",
-  "identifier": "ru.college.taskplanner",
-  "build": {
-    "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Планировщик задач",
-        "width": 1000,
-        "height": 680,
-        "minWidth": 900,
-        "minHeight": 600
-      }
-    ],
-    "security": {
-      "csp": "default-src 'self'; connect-src 'self' ipc: http://ipc.localhost http://localhost:5000"
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all"
-  }
-}
-```
-
-## Токен в Tauri
-
-`localStorage` в Tauri живёт в каталоге данных приложения и переживает
-перезапуск — web-клиент работает без изменений. Для чувствительного хранения
-используйте плагин `tauri-plugin-store` с шифрованием:
+Главная сложность — не код, а система: на РедОС нужны
+`webkit2gtk4.0-devel`, `libsoup3-devel`, `openssl-devel`, `librsvg2-devel`,
+`patchelf` и Rust. Если их нет, Tauri-сборка не запустится, а Avalonia
+соберётся везде. Проверить заранее:
 
 ```bash
-npm install -D tauri-plugin-store
+rpm -q webkit2gtk4.0-devel 2>/dev/null || echo "webkit2gtk не установлен — Tauri не собрать"
 ```
 
-```typescript
-// src/storage/secureSession.ts
-import { load, Store } from '@tauri-apps/plugin-store';
-
-const TOKEN_KEY = 'session';
-
-export async function saveSession(token: string, user: unknown): Promise<void> {
-  const store = await load('session.json', { autoSave: true });
-
-  await store.set(TOKEN_KEY, { token, user });
-}
-
-export async function loadSession(): Promise<{ token: string; user: unknown } | null> {
-  const store = await load('session.json', { autoSave: false });
-
-  return (await store.get<{ token: string; user: unknown }>(TOKEN_KEY)) ?? null;
-}
-
-export async function clearSession(): Promise<void> {
-  const store = await load('session.json', { autoSave: true });
-
-  await store.delete(TOKEN_KEY);
-}
-```
-
-> **Замечание:** `@tauri-apps/plugin-store` — упрощённая обёртка над
-> `localStorage`, а не системное шифрование. Если нужна реальная защита
-> секретов, добавляйте `tauri-plugin-keyring` и храните токен в системном
-> хранилище (Windows Credential Manager, libsecret на Linux, Keychain на macOS).
-
-## Проверка
-
-```bash
-npm run tauri dev      # разработка с горячей перезагрузкой
-npm run tauri build    # сборка установщиков
-```
-
-Откройте DevTools в окне (правая кнопка → «Open DevTools» или `Ctrl`+`Shift`+`I`)
-и убедитесь, что в `Application → Local Storage` лежит `taskplanner.token`.
-
----
-
-# 2. Вариант B: PWA (без установки, только браузер)
-
-## Что это
-
-PWA — это тот же web-клиент плюс `manifest.json` и service worker. При
-определённых условиях браузер предлагает «Установить приложение», и оно
-запускается в отдельном окне без адресной строки.
-
-## Как добавить PWA к готовому web-клиенту
-
-Установите плагин:
-
-```bash
-cd src/web
-npm install -D vite-plugin-pwa
-```
-
-`src/web/vite.config.ts`:
-
-```typescript
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { VitePWA } from 'vite-plugin-pwa';
-
-export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
-      manifest: {
-        name: 'Планировщик задач',
-        short_name: 'Задачи',
-        description: 'Планировщик личных задач',
-        lang: 'ru',
-        start_url: '/',
-        scope: '/',
-        display: 'standalone',
-        background_color: '#f1f6f2',
-        theme_color: '#0f9346',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-        ],
-      },
-      workbox: {
-        // Токен и данные задач не кэшируем — только статика
-        globPatterns: ['**/*.{js,css,html,woff2}'],
-        navigateFallback: 'index.html',
-      },
-    }),
-  ],
-  server: {
-    port: 5173,
-    strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-    },
-  },
-});
-```
-
-Иконки сгенерируйте простой командой (или сделайте скриншот квадрата 512×512):
-
-```bash
-mkdir -p public
-# положите сюда pwa-192x192.png и pwa-512x512.png
-```
-
-Проверка в браузере:
-
-1. `npm run build && npm run preview`
-2. DevTools → Application → Manifest: поля заполнены, ошибок нет.
-3. DevTools → Application → Service Workers: worker зарегистрирован.
-4. Application → Manifest → «Installability»: нет ошибок.
-5. В адресной строке или в меню браузера появится значок установки.
-6. После установки приложение открывается в окне без адресной строки.
-7. **Обязательно:** DevTools → Application → Service Workers → «Offline»,
-   затем перезагрузка — статика грузится из кэша, а `/api` даёт понятную
-   ошибку «Нет связи с сервером», а не пустой экран.
-
-> **Замечание:** PWA без HTTPS не работает как приложение (кроме
-> `localhost`). На площадке по HTTPS может не быть — поэтому PWA годится для
-> демонстрации на своём компьютере, но не для сдачи.
-
----
-
-# 3. Сравнение вариантов
+# Сравнение
 
 | Критерий | Avalonia | Tauri | PWA |
 |---|---|---|---|
 | Нативный UI | да | нет (WebView) | нет (браузер) |
 | Подходит для раздела 2.4 | **да** | нет | нет |
-| Подходит для финала | да | да | зависит от формулировки |
-| Сборка на чистой РедОС | да, без доп. зависимостей | нужны `webkit2gtk4.0-devel` и Rust | обычная сборка Vite |
-| Размер сборки | ~15 МБ | ~5 МБ | ~2 МБ |
-| Скорость разработки | медленнее (XAML + MVVM) | быстро (тот же React) | быстро |
-| Работа на мобильном | нет | нет | частично |
-
-# 4. Что делать, если Avalonia не получается
-
-1. Соберите **web-клиент полностью** (сессии 5–6). Это уже готовая основа.
-2. Сделайте desktop-клиент на **Avalonia** минимально: вход, список, сводка.
-   Три экрана закрывают требование «минимум 3–4 экрана».
-3. Если Avalonia не собирается на РедОС — запишите это в README с точными
-   текстом ошибки и инструкцией, что проверено на Windows. Это честнее, чем
-   сдавать Tauri и потерять 15 баллов.
-
-# Проверка
-
-Если вы дошли до финала и выбрали Tauri или PWA:
-
-```bash
-# Tauri
-npm run tauri build
-ls -la src-tauri/target/release/bundle/
-
-# PWA
-npm run build
-grep -c "manifest" dist/index.html
-ls dist/manifest.webmanifest dist/sw.js 2>/dev/null || echo "manifest не создан"
-```
-
-В README обязательно напишите, каким вариантом является desktop-клиент и
-почему. Эксперт оценивает соответствие требованиям задания, а не симпатию к
-фреймворку.
+| Подходит для финала | да | да | да |
+| Сборка на чистой РедОС | без доп. зависимостей | нужны webkit2gtk и Rust | обычная сборка Vite |
+| Работает без сети | нет | нет | да |
+| Установка на телефон | нет | нет | да |
 
 # Коммит
 
 ```bash
-git add src/web src/desktop
-git commit -m "Desktop-клиент: вариант Tauri/PWA вместо Avalonia (для финального этапа)"
+git add src/web
+git commit -m "PWA: манифест, иконки, service worker с кэшем оболочки и режим офлайн"
 ```
 
-## Иллюстрации
+# Если что-то не получилось
 
-![[images/pwa21-manifest.png]]
-*Манифест PWA в VS Code: имя, иконки, режим standalone, ярлык «Новая задача»*
-
-![[images/pwa21-sw.png]]
-*Service worker в VS Code: кэш оболочки и правило «данные из сети»*
-
-![[images/pwa21-app-window.png]]
-*Клиент запущен как приложение: окно без вкладок и адресной строки*
-
-![[images/pwa21-installed-mobile.png]]
-*Тот же клиент на телефоне — установка из браузера*
-
-![[images/pwa21-offline.png]]
-*Офлайн: оболочка из кэша, метка «офлайн» и понятная ошибка вместо данных*
-
-![[gifs/pwa-scenario.gif]]
-*Сценарий PWA: вход, создание, фильтр, выполнение и запуск без сети*
+| Симптом | Что делать |
+|---|---|
+| Браузер не предлагает установку | нет `<link rel="manifest">` в `index.html` или манифест не отдаётся: проверьте `curl -I http://localhost:4173/manifest.webmanifest` |
+| Иконка в окне — стандартная браузерная | в манифесте нет иконок нужных размеров или они не лежат в `public/` |
+| Приложение не открывается без сети | не сработал `install` в service worker: оболочка не закэширована, проверьте имя `CACHE` |
+| Список показывает старые задачи | в `fetch` пропала проверка `url.pathname.startsWith('/api/')` |
+| Установка не работает на телефоне по http | нужен HTTPS: PWA ставится только с `https://` или с `localhost` |
+| `XOpenDisplay`/окно Tauri не открывается | не установлен `webkit2gtk4.0-devel` — переходите на Avalonia |
