@@ -1,833 +1,173 @@
-Сессия 8. Mobile-клиент: экраны · 75–150 мин
+Сессия 4. Мобильный клиент: экраны · 35–70 мин
 
-# 1. Навигация (75–90 мин)
+# Что делаем на этой странице
 
-`src/mobile/src/navigation/RootNavigator.tsx`:
+Список задач на телефоне: сводка, поиск, фильтры-чипы и карточки. Экраны
+проверяем в браузере на ширине 390 px — это тот же код, что уйдёт на
+устройство.
 
-```tsx
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from '../auth/AuthContext';
-import { LoginScreen } from '../screens/LoginScreen';
-import { TasksScreen } from '../screens/TasksScreen';
-import { TaskFormScreen } from '../screens/TaskFormScreen';
+# Шаг 1. Состояние экрана
 
-export type RootStackParamList = {
-  Login: undefined;
-  Tasks: undefined;
-  TaskForm: { taskId?: number };
-};
+`src/App.jsx`:
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
-
-export function RootNavigator() {
-  const { user, isInitializing } = useAuth();
-
-  if (isInitializing) {
-    return null;
-  }
-
-  return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: true }}>
-        {user ? (
-          <>
-            <Stack.Screen name="Tasks" component={TasksScreen} options={{ title: 'Задачи' }} />
-            <Stack.Screen name="TaskForm" component={TaskFormScreen} options={{ title: 'Задача' }} />
-          </>
-        ) : (
-          <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Вход' }} />
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
-```
-
-`App.tsx`:
-
-```tsx
-import React from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider } from './src/auth/AuthContext';
-import { RootNavigator } from './src/navigation/RootNavigator';
-
-export default function App() {
-  return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar style="dark" />
-        <RootNavigator />
-      </AuthProvider>
-    </SafeAreaProvider>
-  );
-}
-```
-
-> **Замечание:** стек строится по наличию пользователя. При выходе стек
-> пересобирается и показывает только `Login` — «застревания» на закрытом
-> экране не бывает. Отдельный guard не нужен.
-
-# 2. Экран входа (90–105 мин)
-
-`src/mobile/src/screens/LoginScreen.tsx`:
-
-```tsx
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { useAuth } from '../auth/AuthContext';
-import { ApiError } from '../api/client';
-
-export function LoginScreen() {
-  const { login, register } = useAuth();
-
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-
-  async function handleSubmit() {
-    setError('');
-
-    if (!email.trim() || !password) {
-      setError('Заполните email и пароль');
-      return;
-    }
-
-    if (mode === 'register' && !fullName.trim()) {
-      setError('Укажите имя');
-      return;
-    }
-
-    setBusy(true);
-
-    try {
-      if (mode === 'register') {
-        await register(email, password, fullName);
-      } else {
-        await login(email, password);
-      }
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Что-то пошло не так');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Планировщик задач</Text>
-        <Text style={styles.subtitle}>
-          {mode === 'login' ? 'Войдите, чтобы увидеть свои задачи' : 'Создайте аккаунт'}
-        </Text>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-
-        {mode === 'register' && (
-          <TextInput
-            style={styles.input}
-            placeholder="Имя и фамилия"
-            value={fullName}
-            onChangeText={setFullName}
-            autoCapitalize="words"
-          />
-        )}
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Пароль"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-        />
-
-        <TouchableOpacity
-          style={[styles.button, busy && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={busy}
-        >
-          {busy ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.buttonText}>
-              {mode === 'login' ? 'Войти' : 'Зарегистрироваться'}
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.link}
-          onPress={() => {
-            setMode(mode === 'login' ? 'register' : 'login');
-            setError('');
-          }}
-        >
-          <Text style={styles.linkText}>
-            {mode === 'login' ? 'Нет аккаунта? Зарегистрируйтесь' : 'Уже есть аккаунт? Войдите'}
-          </Text>
-        </TouchableOpacity>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F1F6F2' },
-  container: { padding: 24, paddingTop: 64 },
-  title: { fontSize: 26, fontWeight: '700', color: '#364046' },
-  subtitle: { marginTop: 6, marginBottom: 24, color: '#6D797F' },
-  error: {
-    backgroundColor: '#FDECEC',
-    borderColor: '#D13C3C',
-    borderWidth: 1,
-    color: '#D13C3C',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#DDE3E0',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  button: {
-    backgroundColor: '#0F9346',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
-  link: { marginTop: 20, alignItems: 'center' },
-  linkText: { color: '#0F9346', fontSize: 14 },
-});
-```
-
-> **Замечание:** `KeyboardAvoidingView` + `ScrollView` обязательны. Без них
-> клавиатура на Android закрывает кнопку входа, и нажать её невозможно.
-
-# 3. Экран списка (105–130 мин)
-
-`src/mobile/src/screens/TasksScreen.tsx`:
-
-```tsx
-import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/RootNavigator';
-import type { Task, TaskStatus } from '../api/types';
-import { ApiError, tasksApi } from '../api/client';
-import { useAuth } from '../auth/AuthContext';
-
-type Props = NativeStackScreenProps<RootStackParamList, 'Tasks'>;
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  new: 'Новая',
-  in_progress: 'В работе',
-  done: 'Выполнена',
-  cancelled: 'Отменена',
-};
-
-const FILTERS: Array<{ value: TaskStatus | undefined; label: string }> = [
-  { value: undefined, label: 'Все' },
-  { value: 'new', label: 'Новые' },
-  { value: 'in_progress', label: 'В работе' },
-  { value: 'done', label: 'Готово' },
-];
-
-function formatDate(value: string | null): string {
-  if (!value) return 'Без срока';
-
-  const date = new Date(value);
-
-  return `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-}
-
-function isOverdue(task: Task): boolean {
-  if (task.status === 'done' || !task.dueDate) return false;
-
-  return task.dueDate < new Date().toISOString().slice(0, 10);
-}
-
-export function TasksScreen({ navigation }: Props) {
-  const { logout } = useAuth();
-
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [status, setStatus] = useState<TaskStatus | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState('');
-
-  const load = useCallback(async () => {
-    try {
-      const result = await tasksApi.list(status);
-
-      setTasks(result.items);
-      setError('');
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Не удалось загрузить задачи');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [status]);
-
-  // Загрузка при монтировании и при смене фильтра
-  useState(() => {
-    void load();
-  });
-
-  async function handleToggle(task: Task) {
-    try {
-      await tasksApi.toggleCompleted(task.id);
-      await load();
-    } catch (e) {
-      Alert.alert('Ошибка', e instanceof ApiError ? e.message : 'Не удалось изменить задачу');
-    }
-  }
-
-  function handleDelete(task: Task) {
-    Alert.alert('Удалить задачу', `Удалить «${task.title}»?`, [
-      { text: 'Отмена', style: 'cancel' },
-      {
-        text: 'Удалить',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await tasksApi.remove(task.id);
-            await load();
-          } catch (e) {
-            Alert.alert('Ошибка', e instanceof ApiError ? e.message : 'Не удалось удалить');
-          }
-        },
-      },
-    ]);
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color="#0F9346" />
-      </View>
-    );
-  }
-
-  return (
-    <View style={styles.flex}>
-      <View style={styles.toolbar}>
-        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('TaskForm', {})}>
-          <Text style={styles.addButtonText}>+ Новая задача</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={logout}>
-          <Text style={styles.logout}>Выйти</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.filters}>
-        {FILTERS.map((filter) => (
-          <TouchableOpacity
-            key={filter.label}
-            style={[styles.filterChip, status === filter.value && styles.filterChipActive]}
-            onPress={() => {
-              setStatus(filter.value);
-              setLoading(true);
-            }}
-          >
-            <Text style={[styles.filterText, status === filter.value && styles.filterTextActive]}>
-              {filter.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => String(item.id)}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); void load(); }} />
-        }
-        ListEmptyComponent={
-          <Text style={styles.empty}>Задач нет. Нажмите «Новая задача».</Text>
-        }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.card, isOverdue(item) && styles.cardOverdue]}
-            onPress={() => navigation.navigate('TaskForm', { taskId: item.id })}
-            onLongPress={() => handleDelete(item)}
-          >
-            <View style={styles.cardHead}>
-              <TouchableOpacity
-                onPress={() => handleToggle(item)}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <View style={[styles.checkbox, item.status === 'done' && styles.checkboxDone]}>
-                  {item.status === 'done' && <Text style={styles.checkmark}>✓</Text>}
-                </View>
-              </TouchableOpacity>
-
-              <Text style={[styles.title, item.status === 'done' && styles.titleDone]}>
-                {item.title}
-              </Text>
-            </View>
-
-            <View style={styles.meta}>
-              <Text style={styles.badge}>{STATUS_LABELS[item.status]}</Text>
-              <Text style={styles.badge}>{item.priority}</Text>
-              <Text style={styles.due}>
-                {formatDate(item.dueDate)}
-                {isOverdue(item) ? ' — просрочена' : ''}
-              </Text>
-            </View>
-
-            <Text style={styles.hint}>долгое нажатие — удалить</Text>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F1F6F2' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  toolbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-  },
-  addButton: { backgroundColor: '#0F9346', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 10 },
-  addButtonText: { color: '#FFFFFF', fontWeight: '700' },
-  logout: { color: '#6D797F' },
-  filters: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, flexWrap: 'wrap' },
-  filterChip: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#DDE3E0',
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-  },
-  filterChipActive: { backgroundColor: '#0F9346', borderColor: '#0F9346' },
-  filterText: { color: '#364046', fontSize: 13 },
-  filterTextActive: { color: '#FFFFFF' },
-  error: { margin: 16, color: '#D13C3C' },
-  empty: { textAlign: 'center', color: '#6D797F', marginTop: 48, paddingHorizontal: 24 },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 14,
-    marginHorizontal: 16,
-    marginTop: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: 'transparent',
-  },
-  cardOverdue: { borderLeftColor: '#D13C3C' },
-  cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  checkbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: '#0F9346',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxDone: { backgroundColor: '#0F9346' },
-  checkmark: { color: '#FFFFFF', fontWeight: '700' },
-  title: { flex: 1, fontSize: 16, fontWeight: '500', color: '#364046' },
-  titleDone: { textDecorationLine: 'line-through', color: '#6D797F' },
-  meta: { flexDirection: 'row', gap: 8, marginTop: 10, alignItems: 'center', flexWrap: 'wrap' },
-  badge: {
-    backgroundColor: '#F1F6F2',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 2,
-    fontSize: 12,
-    color: '#364046',
-  },
-  due: { fontSize: 12, color: '#6D797F' },
-  hint: { marginTop: 8, fontSize: 11, color: '#BDC6CB' },
-});
-```
-
-> **Замечание:** `useState(() => { void load(); })` — неправильный хук: его
-> аргумент это значение, а не эффект, и загрузка не выполнится. Замените на
-> честный `useEffect`:
-
-```tsx
-import { useEffect } from 'react';
-
-useEffect(() => {
-  setLoading(true);
-  void load();
-}, [load]);
-```
-
-# 4. Экран формы (130–140 мин)
-
-`src/mobile/src/screens/TaskFormScreen.tsx`:
-
-```tsx
-import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../navigation/RootNavigator';
-import type { Task, TaskPriority, TaskStatus } from '../api/types';
-import { ApiError, tasksApi } from '../api/client';
-
-type Props = NativeStackScreenProps<RootStackParamList, 'TaskForm'>;
-
-const STATUSES: TaskStatus[] = ['new', 'in_progress', 'done', 'cancelled'];
-const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high'];
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  new: 'Новая',
-  in_progress: 'В работе',
-  done: 'Выполнена',
-  cancelled: 'Отменена',
-};
-
-const PRIORITY_LABELS: Record<TaskPriority, string> = {
-  low: 'Низкий',
-  medium: 'Средний',
-  high: 'Высокий',
-};
-
-export function TaskFormScreen({ navigation, route }: Props) {
-  const taskId = route.params?.taskId;
-
+```javascript
+function TaskList({ user, onSignOut }) {
+  const [data, setData] = useState({ items: [], total: 0 });
+  const [summary, setSummary] = useState(null);
+  const [q, setQ] = useState('');
+  const [status, setStatus] = useState('');
+  const [creating, setCreating] = useState(false);
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<TaskPriority>('medium');
-  const [status, setStatus] = useState<TaskStatus>('new');
-  const [dueDate, setDueDate] = useState('');
-  const [loading, setLoading] = useState(taskId !== undefined);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (taskId === undefined) return;
-
-    let cancelled = false;
-
-    tasksApi
-      .list()
-      .then((result) => {
-        if (cancelled) return;
-
-        const task: Task | undefined = result.items.find((x) => x.id === taskId);
-
-        if (!task) return;
-
-        setTitle(task.title);
-        setDescription(task.description ?? '');
-        setPriority(task.priority);
-        setStatus(task.status);
-        setDueDate(task.dueDate ?? '');
-      })
-      .catch((e: unknown) => {
-        if (!cancelled) {
-          Alert.alert('Ошибка', e instanceof ApiError ? e.message : 'Не удалось загрузить задачу');
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [taskId]);
-
-  async function handleSave() {
-    if (!title.trim()) {
-      Alert.alert('Ошибка', 'Название обязательно');
-      return;
-    }
-
-    setBusy(true);
-
-    const payload = {
-      title: title.trim(),
-      description: description.trim() === '' ? null : description.trim(),
-      priority,
-      status,
-      dueDate: dueDate === '' ? null : dueDate,
-    };
-
-    try {
-      if (taskId === undefined) {
-        await tasksApi.create(payload);
-      } else {
-        await tasksApi.update(taskId, payload);
-      }
-
-      navigation.goBack();
-    } catch (e) {
-      Alert.alert('Ошибка', e instanceof ApiError ? e.message : 'Не удалось сохранить');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleDelete() {
-    if (taskId === undefined) return;
-
-    try {
-      await tasksApi.remove(taskId);
-      navigation.goBack();
-    } catch (e) {
-      Alert.alert('Ошибка', e instanceof ApiError ? e.message : 'Не удалось удалить');
-    }
-  }
-
-  if (loading) {
-    return <View style={styles.flex} />;
-  }
-
-  return (
-    <ScrollView style={styles.flex} contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-      <TextInput style={styles.input} placeholder="Название *" value={title} onChangeText={setTitle} />
-      <TextInput
-        style={[styles.input, styles.multiline]}
-        placeholder="Описание"
-        value={description}
-        onChangeText={setDescription}
-        multiline
-        numberOfLines={4}
-      />
-
-      <Text style={styles.label}>Срок (ГГГГ-ММ-ДД)</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="2026-10-15"
-        value={dueDate}
-        onChangeText={setDueDate}
-        autoCapitalize="none"
-      />
-
-      <Text style={styles.label}>Приоритет</Text>
-      <View style={styles.chips}>
-        {PRIORITIES.map((value) => (
-          <TouchableOpacity
-            key={value}
-            style={[styles.chip, priority === value && styles.chipActive]}
-            onPress={() => setPriority(value)}
-          >
-            <Text style={[styles.chipText, priority === value && styles.chipTextActive]}>
-              {PRIORITY_LABELS[value]}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <Text style={styles.label}>Статус</Text>
-      <View style={styles.chips}>
-        {STATUSES.map((value) => (
-          <TouchableOpacity
-            key={value}
-            style={[styles.chip, status === value && styles.chipActive]}
-            onPress={() => setStatus(value)}
-          >
-            <Text style={[styles.chipText, status === value && styles.chipTextActive]}>
-              {STATUS_LABELS[value]}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      <TouchableOpacity style={[styles.button, busy && styles.buttonDisabled]} onPress={handleSave} disabled={busy}>
-        <Text style={styles.buttonText}>{busy ? 'Сохраняем…' : 'Сохранить'}</Text>
-      </TouchableOpacity>
-
-      {taskId !== undefined && (
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.deleteText}>Удалить задачу</Text>
-        </TouchableOpacity>
-      )}
-    </ScrollView>
-  );
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#F1F6F2' },
-  container: { padding: 16, paddingBottom: 48 },
-  label: { marginTop: 12, marginBottom: 8, color: '#6D797F', fontSize: 14 },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#DDE3E0',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 16,
-    marginBottom: 12,
-  },
-  multiline: { minHeight: 96, textAlignVertical: 'top' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 },
-  chip: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#DDE3E0',
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  chipActive: { backgroundColor: '#0F9346', borderColor: '#0F9346' },
-  chipText: { color: '#364046' },
-  chipTextActive: { color: '#FFFFFF' },
-  button: {
-    backgroundColor: '#0F9346',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
-  deleteButton: { marginTop: 12, padding: 16, alignItems: 'center' },
-  deleteText: { color: '#D13C3C', fontSize: 16 },
-});
+  const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 ```
 
-# 5. Скриншоты для сдачи (140–150 мин)
+`reloadKey` здесь — не украшение: он заставляет `useEffect` перезапуститься
+после любого изменения данных. Один счётчик вместо пяти зависимостей в
+массиве эффекта.
 
-Скриншоты обязательны по заданию. Снимайте **на устройстве или эмуляторе**,
-не в браузере.
+![[images/mob23-s1-state.png]]
+*Восемь состояний одного экрана — все они нужны для работы списка*
 
-```bash
-mkdir -p docs/screenshots
+# Шаг 2. Данные приходят одним экраном
+
+```javascript
+useEffect(() => {
+  Promise.all([
+    api.listTasks({ q, status, sort: 'dueDate', order: 'asc', pageSize: 30 }),
+    api.summary(),
+  ])
+    .then(([list, sum]) => {
+      setData(list);
+      setSummary(sum);
+    })
+    .catch((e) => setError(e.message));
+}, [q, status, reloadKey]);
 ```
 
-Снимите 5–6 экранов:
+Два запроса идут параллельно, а не по очереди: на медленной сети разница
+заметна. Сортировка зашита в параметры — на телефоне сортировку некуда
+вынести, поэтому пользователь видит задачи по ближайшему сроку.
 
-| Файл | Что на нём |
-|---|---|
-| `mobile-login.png` | экран входа |
-| `mobile-tasks.png` | список задач |
-| `mobile-task-form.png` | форма создания/редактирования |
-| `mobile-task-done.png` | задача отмечена выполненной |
-| `mobile-filters.png` | список с фильтром |
+![[images/mob23-s2-summary.png]]
+*Один эффект обновляет и список, и сводку — они не могут разойтись*
 
-Способ для Android-эмулятора:
+# Шаг 3. Карточка задачи
 
-```bash
-adb exec-out screencap -p > docs/screenshots/mobile-tasks.png
+```jsx
+<Text style={[styles.itemTitle, item.status === 'done' ? styles.itemTitleDone : null]}>
+  {item.title}
+</Text>
+<Text style={styles.badge}>{STATUS_LABELS[item.status]}</Text>
+<Text style={styles.badge}>{PRIORITY_LABELS[item.status]}</Text>
+{item.dueDate ? <Text style={styles.badge}>до {item.dueDate}</Text> : null}
 ```
 
-Для физического телефона — кнопки питания + громкости, затем перенесите файл
-в репозиторий.
+Условный стиль в массиве — приём React Native: при выборе одного из двух
+объектов второй отбрасывается. Плоский HTML здесь не работает, поэтому
+используют массив из стилей и `null`.
 
-Добавьте скриншоты в README раздела «Mobile-клиент».
+![[images/mob23-s3-card.png]]
+*Зачёркивание, три бейджа и две кнопки — вся карточка на экране телефона*
+
+# Шаг 4. Список после входа
+
+![[images/mob23-s4-list.png]]
+*Сводка сверху, поиск, чипы и карточки задач*
+
+# Шаг 5. Фильтр-чип
+
+Нажмите «В работе»:
+
+![[images/mob23-s5-filter.png]]
+*Остались только задачи в работе, чип подсвечен*
+
+Фильтр меняет один параметр запроса — код экрана при этом не меняется
+вообще. На узком экране чипы удобнее выпадающего списка: попасть пальцем
+в список на телефоне заметно труднее.
+
+# Шаг 6. Поиск
+
+Введите «ER»:
+
+![[images/mob23-s6-search.png]]
+*Осталась одна задача, содержащая это слово*
+
+# Шаг 7. Форма создания
+
+Нажмите «Новая задача»:
+
+![[images/mob23-s7-form.png]]
+*Форма раскрылась над списком: одно поле и кнопка*
+
+На телефоне форма не должна быть отдельным экраном: пользователь теряет
+контекст списка и возвращается назад. Здесь форма раскрывается на месте и
+одним касанием закрывается.
+
+# Шаг 8. Задача создана
+
+![[images/mob23-s8-created.png]]
+*Новая задача первой в списке, сводка показывает 7*
+
+# Шаг 9. Отметка выполнения
+
+Нажмите «Выполнено» на карточке:
+
+![[images/mob23-s9-done.png]]
+*Заголовок зачёркнут, кнопка стала «Вернуть в работу», счётчик вырос до 3*
+
+Кнопка переключает состояние обратно — отмена ошибки занимает одно
+касание. Отдельного подтверждения не нужно: операция обратима.
+
+# Шаг 10. Пустое состояние
+
+Введите в поиск то, чего нет:
+
+![[images/mob23-s10-empty.png]]
+*«Задач по этим условиям нет» — список пуст, но экран не выглядит сломанным*
 
 # Проверка
 
-1. `npx expo start` → приложение работает на устройстве или эмуляторе.
-2. Вход и регистрация работают, ошибки показываются в `Alert`.
-3. Список загружается при старте, кнопка фильтра перезапрашивает данные,
-   «потянуть вниз» обновляет.
-4. Галочка отмечает задачу выполненной — состояние обновляется после ответа API.
-5. Нажатие на карточку открывает форму с заполненными полями.
-6. Создание новой задачи возвращает на список, задача есть.
-7. Удаление — по долгому нажатию, с подтверждением.
-8. Закрытие и запуск приложения → пользователь остаётся внутри (токен в
-   `SecureStore`).
-9. Скриншоты сняты и лежат в `docs/screenshots/`.
-
-```bash
-# токен не должен попасть в бандл читаемым файлом
-grep -r "eyJhbGciOi" src/mobile/ 2>/dev/null
-# пусто
-```
+| Проверка | Ожидание |
+|---|---|
+| ширина 390 px | один столбец, читаемые подписи |
+| чип «В работе» | в списке только такие задачи |
+| поиск по подстроке | список сужается |
+| «Новая задача» | форма раскрывается на месте |
+| сохранение | задача первая в списке, сводка пересчитана |
+| «Выполнено» | зачёркивание и рост счётчика |
+| «Вернуть в работу» | зачёркивание снимается |
+| поиск без совпадений | понятное сообщение |
+| долгий ответ | экран не подвисает: кнопки блокируются |
 
 # Коммит
 
 ```bash
-git add src/mobile docs/screenshots
-git commit -m "Mobile-клиент: навигация, экраны входа/списка/формы, скриншоты"
+git add src/mobile
+git commit -m "Мобильный клиент: список задач, фильтры-чипы, поиск и создание"
 ```
 
 # Если что-то не получилось
 
 | Симптом | Что делать |
 |---|---|
-| `useState` вместо `useEffect` для загрузки | исправьте хук, иначе данные не загрузятся |
-| Клавиатура закрывает кнопку | оберните в `KeyboardAvoidingView` + `ScrollView` |
-| `Alert.alert` не появляется | проверьте `enabled` у кнопки |
-| Задача не обновляется после переключения | после мутации вызывайте `load()` заново |
-| Скриншот через `adb` пустой | эмулятор должен быть запущен; `adb devices` покажет состояние |
-| `secure-store` не работает на web | проверяйте на устройстве; в web используйте `localStorage` |
+| `Text strings must be rendered within a <Text>` | строка оказалась вне `Text` — оберните |
+| Стиль не применяется | в массиве стилей остался `null` вместо второго стиля |
+| `VirtualizedList: missing keys` | не задан `keyExtractor` или `key` в `FlatList` |
+| Фильтр меняется, список нет | забыли пробросить `status` в `useEffect`-зависимости |
+| Сводка не обновляется | она приходит в том же `Promise.all`, проверьте оба `.then` |
+| Список не перерисовывается | нужен `reloadKey` в зависимостях эффекта |
+| Форма перекрывает карточки | у формы нет отступа `marginBottom` |
+| Текст не помещается на телефоне | задан фиксированный размер шрифта — используйте стили из темы |
 
-# Итог сессии 8
+# Что должно быть в репозитории к концу сессии 4
 
-Раздел «Mobile-клиент — 15 баллов»:
+- [ ] `FlatList` с задачами и `keyExtractor`
+- [ ] Фильтры-чипы, меняющие параметр запроса
+- [ ] Поиск с обновлением списка
+- [ ] Создание задачи на месте, без отдельного экрана
+- [ ] Пустое состояние
 
-- [x] React Native, приложение запускается на устройстве или эмуляторе
-- [x] 3 экрана: вход, список, создание/редактирование
-- [x] авторизация, токен сохраняется между запусками (`SecureStore`)
-- [x] создание, изменение, отметка выполнения, удаление
-- [x] скриншоты приложения в репозитории
+---
 
-## Иллюстрации
-
-![[images/mob23-list.png]]
-*Список задач: сводка, поиск, фильтры-чипы, карточки*
-
-![[images/mob23-filter.png]]
-*Фильтр-чип меняет запрос к API*
-
-![[images/mob23-create.png]]
-*Создание задачи на телефоне*
-
-![[images/mob23-created.png]]
-*Задача появилась в списке, сводка пересчитана*
-
-![[images/mob23-done.png]]
-*Выполненная задача зачёркнута*
-
-![[gifs/mobile-scenario.gif]]
-*Мобильный сценарий: вход, фильтр, создание, выполнение, удаление*
+Дальше: [24-Документирование-README-и-Postman](24-Документирование-README-и-Postman)
