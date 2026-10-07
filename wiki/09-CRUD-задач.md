@@ -1,311 +1,279 @@
-Сессия 4. Backend: CRUD задач · 0–55 мин
+Сессия 2. Backend: CRUD задач · 150–210 мин
 
-# 1. Валидатор входных данных (0–10 мин)
+# Что делаем на этой странице
 
-`src/api/TaskPlanner.Core/Validators/TaskValidators.cs`:
+Четыре операции над задачей: создать, прочитать, изменить, удалить. Каждая
+должна отдавать конверт со страницы [06](06-Единый-формат-ответа-и-ошибки) и
+не давать доступа к чужой задаче — иначе это будет дыра в изоляции данных
+(страница [08](08-Изоляция-данных)).
+
+Все маршруты закрыты `RequireAuthorization()`: без токена они не видны вообще.
+
+| Метод | Путь | Что делает | Успех |
+|---|---|---|---|
+| `POST` | `/api/tasks` | создать задачу | `201` |
+| `GET` | `/api/tasks/{id}` | прочитать одну | `200` |
+| `PUT` | `/api/tasks/{id}` | изменить | `200` |
+| `DELETE` | `/api/tasks/{id}` | удалить | `200` с `data: null` |
+
+# Шаг 1. Создание задачи
+
+Сначала код обработчика `api/TaskPlanner.Api/Program.cs`:
 
 ```csharp
-using FluentValidation;
-using TaskPlanner.Core.Dtos;
-
-namespace TaskPlanner.Core.Validators;
-
-public class TaskInputValidator : AbstractValidator<TaskInput>
+app.MapPost("/api/tasks", async (
+    System.Security.Claims.ClaimsPrincipal user, Data.TaskPlannerContext db,
+    Contracts.TaskInput input) =>
 {
-    public TaskInputValidator()
+    var errors = Api.Validate(input);
+    if (errors.Count > 0)
+        return Api.Fail(400, "Проверьте поля: " + string.Join(", ", errors), "VALIDATION_ERROR");
+
+    var task = new Models.TaskItem
     {
-        RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("Название задачи обязательно")
-            .MaximumLength(200).WithMessage("Название не длиннее 200 символов")
-            .Must(title => !string.IsNullOrWhiteSpace(title))
-            .WithMessage("Название не может состоять из пробелов");
-
-        RuleFor(x => x.Description)
-            .MaximumLength(5000).WithMessage("Описание не длиннее 5000 символов")
-            .When(x => x.Description is not null);
-
-        RuleFor(x => x.DueDate)
-            .Must(dueDate => dueDate is null || dueDate.Value >= new DateOnly(2000, 1, 1))
-            .WithMessage("Срок не может быть раньше 2000 года");
-    }
-}
+        UserId = Api.CurrentUserId(user),
+        Title = input.Title!.Trim(),
+        Status = input.Status ?? "new",
+        Priority = input.Priority ?? "medium",
+        DueDate = Api.ParseDate(input.DueDate),
+        // DEFAULT NOW() из БД в сущность не попадает — проставляем сами
+        CreatedAt = DateTimeOffset.UtcNow,
+        UpdatedAt = DateTimeOffset.UtcNow,
+    };
+    db.Tasks.Add(task);
+    await db.SaveChangesAsync();
+    return Results.Json(Api.Envelope(task.ToDto()), statusCode: 201);
+}).RequireAuthorization().WithName("CreateTask").WithTags("Tasks");
 ```
 
-> **Замечание:** ограничение длины `title` в 200 символов дублирует `VARCHAR(200)`
-> в базе. Это нормально: код даёт понятное сообщение пользователю, база —
-> гарантию. Проверка только в коде не считается ограничением, только в базе —
-> не защищает от прямых вставок.
+Три момента, на которых спотыкаются чаще всего:
 
-# 2. Изменение и удаление в сервисе (10–30 мин)
+- `UserId` берётся из токена, а не из тела запроса — иначе можно создать
+  задачу «на чужого пользователя»;
+- `CreatedAt` и `UpdatedAt` заполняются в коде: значение по умолчанию из БД
+  в сущность не возвращается, и в ответе будет `0001-01-01`;
+- `status = 'done'` требует заполнить `completedAt` — об этом на странице
+  [03](03-Скрипт-schema-sql), ограничение `ck_tasks_completed_at` не даст
+  сохранить половину.
 
-Добавьте в `src/api/TaskPlanner.Api/Services/ITaskService.cs` два метода:
-
-```csharp
-Task<TaskDto> UpdateAsync(long userId, long id, TaskInput input, CancellationToken cancellationToken);
-
-Task DeleteAsync(long userId, long id, CancellationToken cancellationToken);
-```
-
-И в `TaskService` — `partial`-часть с методами изменения:
-
-`src/api/TaskPlanner.Api/Services/TaskService.Update.cs`:
-
-```csharp
-using Microsoft.EntityFrameworkCore;
-using TaskPlanner.Api.Data;
-using TaskPlanner.Api.Mappers;
-using TaskPlanner.Core.Dtos;
-using TaskPlanner.Core.Entities;
-using TaskPlanner.Core.Enums;
-using TaskPlanner.Core.Exceptions;
-
-namespace TaskPlanner.Api.Services;
-
-public partial class TaskService
-{
-    public async Task<TaskDto> UpdateAsync(
-        long userId,
-        long id,
-        TaskInput input,
-        CancellationToken cancellationToken)
-    {
-        var task = await db.Tasks
-            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, cancellationToken);
-
-        if (task is null)
-        {
-            throw ApiException.NotFound("Задача не найдена");
-        }
-
-        var now = DateTimeOffset.UtcNow;
-
-        task.Title = input.Title.Trim();
-        task.Description = string.IsNullOrWhiteSpace(input.Description)
-            ? null
-            : input.Description.Trim();
-        task.Priority = input.Priority;
-        task.DueDate = input.DueDate;
-        task.CategoryId = input.CategoryId;
-
-        // completed_at и status меняем в одном объекте и сохраняем один раз.
-        // CHECK ck_tasks_completed_at не допускает промежуточного состояния,
-        // в котором статус и дата расходятся.
-        if (input.Status != task.Status)
-        {
-            task.Status = input.Status;
-            task.CompletedAt = input.Status == TaskStatus.Done ? now : null;
-        }
-
-        task.UpdatedAt = now;
-
-        await db.SaveChangesAsync(cancellationToken);
-
-        logger.LogInformation(
-            "Пользователь {UserId} изменил задачу {TaskId}", userId, id);
-
-        return task.ToDto();
-    }
-
-    public async Task DeleteAsync(
-        long userId,
-        long id,
-        CancellationToken cancellationToken)
-    {
-        var task = await db.Tasks
-            .FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId, cancellationToken);
-
-        if (task is null)
-        {
-            throw ApiException.NotFound("Задача не найдена");
-        }
-
-        db.Tasks.Remove(task);
-        await db.SaveChangesAsync(cancellationToken);
-
-        logger.LogInformation(
-            "Пользователь {UserId} удалил задачу {TaskId}", userId, id);
-    }
-}
-```
-
-> **Замечание:** файл называется `TaskService.Update.cs`, а класс объявлен как
-> `public partial class TaskService`. Такой приём дробит длинный класс на
-> части по операциям. Если предпочитаете один файл — просто допишите методы
-> в `TaskService.cs`, объявив класс как `partial` и в том, и в другом месте.
-
-# 3. Контроллер: полный CRUD (30–45 мин)
-
-Замените `src/api/TaskPlanner.Api/Controllers/TasksController.cs`:
-
-```csharp
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.Annotations;
-using TaskPlanner.Api.Infrastructure;
-using TaskPlanner.Api.Services;
-using TaskPlanner.Core.Common;
-using TaskPlanner.Core.Dtos;
-
-namespace TaskPlanner.Api.Controllers;
-
-[ApiController]
-[Route("api/tasks")]
-[Authorize]
-public class TasksController(ITaskService taskService, ICurrentUser currentUser) : ControllerBase
-{
-    /// <summary>Список задач текущего пользователя.</summary>
-    [HttpGet]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<TaskDto>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
-    {
-        var tasks = await taskService.GetAllAsync(currentUser.GetUserId(), cancellationToken);
-
-        return Ok(ApiResponse<IReadOnlyList<TaskDto>>.Ok(tasks));
-    }
-
-    /// <summary>Получить задачу по идентификатору.</summary>
-    [HttpGet("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<TaskDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(long id, CancellationToken cancellationToken)
-    {
-        var task = await taskService.GetByIdAsync(currentUser.GetUserId(), id, cancellationToken);
-
-        return Ok(ApiResponse<TaskDto>.Ok(task));
-    }
-
-    /// <summary>Создать задачу.</summary>
-    [HttpPost]
-    [ProducesResponseType(typeof(ApiResponse<TaskDto>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create(
-        [FromBody] TaskInput input,
-        CancellationToken cancellationToken)
-    {
-        var task = await taskService.CreateAsync(
-            currentUser.GetUserId(), input, cancellationToken);
-
-        return Created($"/api/tasks/{task.Id}", ApiResponse<TaskDto>.Ok(task, "Задача создана"));
-    }
-
-    /// <summary>Изменить задачу.</summary>
-    [HttpPut("{id:long}")]
-    [ProducesResponseType(typeof(ApiResponse<TaskDto>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(
-        long id,
-        [FromBody] TaskInput input,
-        CancellationToken cancellationToken)
-    {
-        var task = await taskService.UpdateAsync(
-            currentUser.GetUserId(), id, input, cancellationToken);
-
-        return Ok(ApiResponse<TaskDto>.Ok(task, "Задача обновлена"));
-    }
-
-    /// <summary>Удалить задачу.</summary>
-    [HttpDelete("{id:long}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(ApiResponse<object?>), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(long id, CancellationToken cancellationToken)
-    {
-        await taskService.DeleteAsync(currentUser.GetUserId(), id, cancellationToken);
-
-        // 204 = No Content: тела ответа нет вообще.
-        return NoContent();
-    }
-}
-```
-
-# 4. Статус ответа при удалении (45–50 мин)
-
-По контракту `DELETE` возвращает **204 без тела**. Обёртка ответа при этом
-не используется — отправлять `{"success":true,...}` вместе с `204` нельзя:
-`204` по стандарту HTTP не допускает тела, клиенты и прокси его вырежут.
-
-| Код | Когда | Тело |
-|---|---|---|
-| `204` | удаление прошло | нет |
-| `404` | задачи нет или она чужая | обёртка с `error_code: NOT_FOUND` |
-| `401` | нет токена | обёртка с `error_code: UNAUTHORIZED` |
-
-# 5. Клиентский `fetch` (50–55 мин)
-
-Пригодится всем клиентам. `src/web/src/api/client.ts` создайте позже, а пока
-проверьте API так:
+Теперь проверьте живой запрос:
 
 ```bash
-API=http://localhost:5000
-
-TOKEN=$(curl -s -X POST $API/api/auth/login \
+curl -s -X POST http://localhost:5000/api/tasks \
+  -H "Authorization: Bearer $TOKEN" \
   -H 'Content-Type: application/json' \
-  -d '{"email":"student@college.ru","password":"Passw0rd123"}' \
-  | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['token'])")
-
-# создать
-NEW=$(curl -s -X POST $API/api/tasks -H "Authorization: Bearer $TOKEN" \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"Проверка CRUD","description":"из curl","priority":"high","dueDate":"2026-12-31"}')
-echo "$NEW"
-ID=$(echo "$NEW" | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['id'])")
-echo "id=$ID"
-
-# прочитать
-curl -s $API/api/tasks/$ID -H "Authorization: Bearer $TOKEN"
-
-# изменить
-curl -s -X PUT $API/api/tasks/$ID -H "Authorization: Bearer $TOKEN" \
-  -H 'Content-Type: application/json' \
-  -d '{"title":"Проверка CRUD (изменено)","priority":"low"}'
-
-# отметить выполненной
-curl -s -X PATCH $API/api/tasks/$ID/complete -H "Authorization: Bearer $TOKEN"
-
-# удалить
-curl -s -i -X DELETE $API/api/tasks/$ID -H "Authorization: Bearer $TOKEN" | head -1
-# HTTP/1.1 204 No Content
+  -d '{"title":"Собрать дистрибутив клиента","description":"Инструкция из README","priority":"high","dueDate":"2026-12-01"}'
 ```
+
+![[images/api09-s1-create-201.png]]
+*`201`: задача создана, `id` присвоен базой, `completedAt: null`*
+
+# Шаг 2. Чтение одной задачи
+
+```csharp
+app.MapGet("/api/tasks/{id:long}", async (
+    System.Security.Claims.ClaimsPrincipal user, Data.TaskPlannerContext db, long id) =>
+{
+    var task = await db.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+    if (task is null) return Api.Fail(404, "Задача не найдена", "NOT_FOUND");
+    if (task.UserId != Api.CurrentUserId(user))
+        return Api.Fail(403, "Нет доступа к чужой задаче", "FORBIDDEN");
+    return Api.Ok(task.ToDto());
+}).RequireAuthorization().WithName("GetTask").WithTags("Tasks");
+```
+
+Проверка владельца стоит **после** проверки существования: так клиент получает
+`404` для несуществующей задачи и `403` для чужой — два разных случая, которые
+проверяющий различает.
+
+```bash
+curl -s http://localhost:5000/api/tasks/$ID -H "Authorization: Bearer $TOKEN"
+```
+
+![[images/api09-s2-read-200.png]]
+*`200`: та же задача, что создали на прошлом шаге*
+
+# Шаг 3. Изменение задачи
+
+```csharp
+task.Title = input.Title!.Trim();
+task.Description = input.Description;
+task.Status = input.Status ?? task.Status;
+task.Priority = input.Priority ?? task.Priority;
+task.DueDate = Api.ParseDate(input.DueDate);
+task.CompletedAt = task.Status == "done" ? task.CompletedAt ?? DateTimeOffset.UtcNow : null;
+task.UpdatedAt = DateTimeOffset.UtcNow;
+```
+
+`?? task.Status` означает «если поле не прислали — оставь как было». Иначе
+клиент, который отправляет только название, случайно сбросит статус.
+
+Одна строка требует внимания: при переводе в `done` дата выполнения
+проставляется только если её ещё нет, а при уходе из `done` — обнуляется.
+Иначе ограничение базы отклонит запрос.
+
+```bash
+curl -s -X PUT http://localhost:5000/api/tasks/$ID \
+  -H "Authorization: Bearer $TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Собрать дистрибутив клиента","priority":"low","status":"in_progress","dueDate":"2026-11-15"}'
+```
+
+![[images/api09-s3-update-200.png]]
+*`200`: `priority` стала `low`, статус — `in_progress`, `dueDate` сдвинулся*
+
+# Шаг 4. Что реально изменилось
+
+Прочитайте задачу ещё раз и сравните с прошлым шагом:
+
+```bash
+curl -s http://localhost:5000/api/tasks/$ID -H "Authorization: Bearer $TOKEN"
+```
+
+![[images/api09-s4-read-after-update.png]]
+*`updatedAt` новее `createdAt`, остальные поля соответствуют запросу*
+
+# Шаг 5. Удаление
+
+```csharp
+app.MapDelete("/api/tasks/{id:long}", async (
+    System.Security.Claims.ClaimsPrincipal user, Data.TaskPlannerContext db, long id) =>
+{
+    var task = await db.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+    if (task is null) return Api.Fail(404, "Задача не найдена", "NOT_FOUND");
+    if (task.UserId != Api.CurrentUserId(user))
+        return Api.Fail(403, "Нет доступа к чужой задаче", "FORBIDDEN");
+
+    db.Tasks.Remove(task);
+    await db.SaveChangesAsync();
+    return Api.Ok<object?>(null);
+}).RequireAuthorization().WithName("DeleteTask").WithTags("Tasks");
+```
+
+Успех отдаётся как `200` с `data: null`, а не `204 No Content`. Причина
+практическая: клиенту нужен разобранный JSON. Если отдавать `204`, придётся
+оборачивать вызов в проверку статуса в каждом из трёх клиентов.
+
+```bash
+curl -s -X DELETE http://localhost:5000/api/tasks/$ID \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+![[images/api09-s5-delete.png]]
+*`200` с `data: null` — тот же конверт, что и у остальных методов*
+
+# Шаг 6. Удалённой задачи больше нет
+
+```bash
+curl -s http://localhost:5000/api/tasks/$ID -H "Authorization: Bearer $TOKEN"
+```
+
+![[images/api09-s6-read-deleted-404.png]]
+*`404` и `NOT_FOUND`: удаление завершилось, строка исчезла из базы*
+
+# Шаг 7. Один обработчик — один результат
+
+Сравните четыре обработчика: в каждом одинаковые строки проверки. Это не
+копипаст ради копипаста: если забыть проверку владения в одном методе, дыра
+появится именно там.
+
+```csharp
+var task = await db.Tasks.FirstOrDefaultAsync(t => t.Id == id);
+if (task is null) return Api.Fail(404, "Задача не найдена", "NOT_FOUND");
+if (task.UserId != Api.CurrentUserId(user))
+    return Api.Fail(403, "Нет доступа к чужой задаче", "FORBIDDEN");
+```
+
+![[images/api09-s7-code-create.png]]
+*Создание: `Validate`, заполнение полей из токена и входа, `201`*
+
+# Шаг 8. Клиентский слой
+
+Все вызовы идут через одну функцию — она разбирает конверт и превращает
+ошибку в исключение с кодом:
+
+```javascript
+async function request(method, path, body) {
+  const token = getToken();
+  let response;
+  try {
+    response = await fetch(path, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    });
+  } catch {
+    // Офлайн или API не поднят: сообщение пользователю, а не браузерное
+    throw new Error('Нет связи с сервером. Проверьте подключение.');
+  }
+  // ...
+  if (!response.ok || !payload?.success) {
+    const error = new Error(payload?.message ?? `Ошибка ${response.status}`);
+    error.code = payload?.error_code ?? String(response.status);
+    throw error;
+  }
+  return payload.data;
+}
+```
+
+![[images/api09-s11-client-request.png]]
+*Одна функция на все методы: токен, конверт, код ошибки*
+
+# Шаг 9. Четыре метода клиента
+
+```javascript
+createTask: (body) => request('POST', '/api/tasks', body),
+updateTask: (id, body) => request('PUT', `/api/tasks/${id}`, body),
+deleteTask: (id) => request('DELETE', `/api/tasks/${id}`),
+toggleDone: (id, done) => request('PATCH', `/api/tasks/${id}/complete`, { done }),
+```
+
+![[images/api09-s12-client-crud.png]]
+*Объект `api` — весь контракт клиента в одном месте*
 
 # Проверка
 
-```bash
-cd src && dotnet build
-```
+Пройдите таблицу ещё раз, теперь со своими данными:
 
-Полный CRUD через Swagger UI (`http://localhost:5000/swagger`):
-
-| Шаг | Ожидание |
+| Проверка | Ожидание |
 |---|---|
 | `POST /api/tasks` без токена | `401`, `UNAUTHORIZED` |
-| `POST /api/tasks` с `title: ""` | `400`, `VALIDATION_ERROR` |
-| `POST /api/tasks` с `title: "Ок"` | `201`, в `data` — `id`, `createdAt`, `completedAt: null` |
+| `POST` с `title: ""` | `400`, `VALIDATION_ERROR` |
+| `POST` с `title: "Ок"` | `201`, в `data` — `id` и `createdAt` |
 | `PUT` с другим названием | `200`, `updatedAt` новее `createdAt` |
-| `DELETE` | `204`, тела нет |
+| `PUT` чужой задачи | `403`, `FORBIDDEN` |
+| `DELETE` | `200`, `data: null` |
 | `GET` удалённой задачи | `404`, `NOT_FOUND` |
-
-Проверка изоляции: создайте задачу вторым пользователем и попробуйте
-изменить её первым — тоже `404`, не `403`.
 
 # Коммит
 
 ```bash
 git add src
-git commit -m "Backend: полный CRUD задач с проверкой владельца"
+git commit -m "Backend: CRUD задач с проверкой владельца на каждом маршруте"
 ```
 
 # Если что-то не получилось
 
 | Симптом | Что делать |
 |---|---|
-| `500` на `DELETE` | забыли `return NoContent();` или вернули `Ok(...)` вместе с `204` |
-| `400 invalid_error про completed_at` | при `status=done` не выставлен `CompletedAt`, либо наоборот |
-| `title` в БД обрезан молча | забыли `MaximumLength(200)` в валидаторе |
-| `PUT` не меняет `status` | в методе условие `if (input.Status != task.Status)` — при одинаковом статусе дата не трогается, это правильно |
-| Компилятор: `TaskService` уже определён | не объявили класс как `partial` в обоих файлах |
-| `404` при `PUT` своей задачи | в предикате `x.UserId == userId` и `currentUser.GetUserId()` верный, проверьте токен |
+| `500` на `DELETE` | забыли `SaveChangesAsync()` или возвращаете объект, который EF не смог сохранить |
+| `400` при создании выполненной задачи | при `status = "done"` не проставлен `completedAt` либо наоборот |
+| `title` в базе обрезан молча | в схеме `VARCHAR(200)`, а проверка длины живёт в `Validate` |
+| `PUT` сбрасывает статус | в коде `input.Status ?? task.Status`, а не `input.Status` |
+| `updatedAt` не меняется | забыли присвоить `UpdatedAt = DateTimeOffset.UtcNow` перед `SaveChangesAsync` |
+| `404` вместо `403` на чужой задаче | вы сравниваете владельца только через `FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId)` — тогда клиент не может отличить «нет» от «нельзя» |
+| Клиент показывает `[object Object]` | наружу отдавайте `payload.data`, а не весь конверт |
 
-## Иллюстрации
+# Что должно быть в репозитории к концу сессии 2
 
-![[images/api09-create-task.png]]
-*POST /api/tasks: 201 и созданная задача в общем формате*
+- [ ] `POST /api/tasks` с `201` и проверкой полей
+- [ ] `GET`, `PUT`, `DELETE /api/tasks/{id}` с проверкой владельца
+- [ ] `DELETE` отдаёт `200` с `data: null`
+- [ ] Общая функция запроса в клиенте, разбирающая конверт
+
+---
+
+Дальше: [10-Отметка-выполнения-и-сводка](10-Отметка-выполнения-и-сводка)
