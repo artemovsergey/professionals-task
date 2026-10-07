@@ -9,8 +9,7 @@
 Файлы для работы: `db/schema.sql` (схема) и `db/check_constraints.sql`
 (проверка ограничений, страница [04](04-Тестовые-данные-и-проверка-ограничений)).
 
-# 1. Подготовка базы (20–25 мин)
-
+# Перед началом
 ```bash
 createdb -h 127.0.0.1 -U taskplanner taskplanner
 ```
@@ -21,8 +20,7 @@ createdb -h 127.0.0.1 -U taskplanner taskplanner
 Скрипт должен быть **повторяемым**: сначала сносятся таблицы, потом создаются
 заново. Иначе при втором запуске будет ошибка `relation "tasks" already exists`.
 
-# 2. Шаг 1. Снос таблиц (25 мин)
-
+# Шаг 1. Снос таблиц
 ```sql
 DROP TABLE IF EXISTS tasks, categories, users, schema_version CASCADE;
 ```
@@ -33,8 +31,7 @@ DROP TABLE IF EXISTS tasks, categories, users, schema_version CASCADE;
 ![[images/db03-s1-drop.png]]
 *Снос таблиц выполнен, CloudBeaver показывает `Status: Executed`*
 
-# 3. Шаг 2. Версия схемы (30 мин)
-
+# Шаг 2. Версия схемы
 ```sql
 CREATE TABLE schema_version (
     version    VARCHAR(32) NOT NULL,
@@ -48,8 +45,7 @@ CREATE TABLE schema_version (
 ![[images/db03-s2-version-table.png]]
 *Таблица `schema_version` создана*
 
-# 4. Шаг 3. Запись версии (32 мин)
-
+# Шаг 3. Запись версии
 ```sql
 INSERT INTO schema_version (version) VALUES ('1.0.0');
 SELECT * FROM schema_version;
@@ -58,8 +54,7 @@ SELECT * FROM schema_version;
 ![[images/db03-s3-version-row.png]]
 *Версия `1.0.0` записана вместе со временем применения*
 
-# 5. Шаг 4. Таблица пользователей (35–45 мин)
-
+# Шаг 4. Таблица пользователей
 ```sql
 CREATE TABLE users (
     id            BIGSERIAL    PRIMARY KEY,
@@ -90,8 +85,7 @@ CREATE TABLE users (
 ![[images/db03-s4-users.png]]
 *Таблица `users` с тремя ограничениями*
 
-# 6. Шаг 5. Первая запись (45 мин)
-
+# Шаг 5. Первая запись
 ```sql
 INSERT INTO users (email, password_hash, full_name)
 VALUES ('teacher@college.ru', '$2b$10$hashed', 'Иван Петров');
@@ -103,8 +97,7 @@ SELECT id, email, full_name FROM users;
 ![[images/db03-s5-users-row.png]]
 *Пользователь создан, `id` присвоен последовательностью*
 
-# 7. Шаг 6. Дубль email (46 мин)
-
+# Шаг 6. Дубль email
 ```sql
 INSERT INTO users (email, password_hash, full_name)
 VALUES ('teacher@college.ru', '$2b$10$hashed', 'Второй Иван');
@@ -113,8 +106,7 @@ VALUES ('teacher@college.ru', '$2b$10$hashed', 'Второй Иван');
 ![[images/db03-s6-users-email-error.png]]
 *Отказ: `new row for relation "users" violates unique constraint "uq_users_email"`*
 
-# 8. Шаг 7. Имя из пробелов (47 мин)
-
+# Шаг 7. Имя из пробелов
 ```sql
 INSERT INTO users (email, password_hash, full_name)
 VALUES ('spaces@college.ru', '$2b$10$hashed', '   ');
@@ -123,8 +115,7 @@ VALUES ('spaces@college.ru', '$2b$10$hashed', '   ');
 ![[images/db03-s7-users-name-error.png]]
 *Отказ: `violates check constraint "ck_users_full_name"`*
 
-# 9. Шаг 8. Таблица категорий (48–52 мин)
-
+# Шаг 8. Таблица категорий
 ```sql
 CREATE TABLE categories (
     id      BIGSERIAL    PRIMARY KEY,
@@ -147,8 +138,7 @@ CREATE TABLE categories (
 ![[images/db03-s8-categories.png]]
 *Категории привязаны к пользователю каскадом, имя уникально внутри пользователя*
 
-# 10. Шаг 9. Таблица задач (52–62 мин)
-
+# Шаг 9. Таблица задач
 ```sql
 CREATE TABLE tasks (
     id           BIGSERIAL    PRIMARY KEY,
@@ -178,8 +168,7 @@ CREATE TABLE tasks (
 ![[images/db03-s9-tasks.png]]
 *Задачи: статусы и приоритеты ограничены списками значений*
 
-# 11. Шаг 10. Согласованность status и completed_at (62–66 мин)
-
+# Шаг 10. Согласованность status и completed_at
 ```sql
 ALTER TABLE tasks
     ADD CONSTRAINT ck_tasks_completed_at
@@ -204,8 +193,7 @@ ALTER TABLE tasks
 ![[images/db03-s10-completed-check.png]]
 *Ограничение добавлено отдельным `ALTER TABLE`*
 
-# 12. Шаг 11. Попытка выполнить задачу без даты (66 мин)
-
+# Шаг 11. Попытка выполнить задачу без даты
 ```sql
 INSERT INTO tasks (user_id, title, status)
 SELECT id, 'Сдать лабораторную', 'done'
@@ -215,8 +203,7 @@ FROM users WHERE email = 'teacher@college.ru';
 ![[images/db03-s11-completed-error.png]]
 *Отказ: `violates check constraint "ck_tasks_completed_at"`*
 
-# 13. Шаг 12. Корректная выполненная задача (67 мин)
-
+# Шаг 12. Корректная выполненная задача
 ```sql
 INSERT INTO tasks (user_id, title, status, completed_at)
 SELECT id, 'Сдать лабораторную', 'done', NOW()
@@ -227,8 +214,7 @@ SELECT id, title, status, completed_at FROM tasks;
 ![[images/db03-s12-tasks-row.png]]
 *Задача со статусом `done` сохранилась вместе с датой выполнения*
 
-# 14. Шаг 13. Категория задачи (68–70 мин)
-
+# Шаг 13. Категория задачи
 ```sql
 ALTER TABLE tasks ADD COLUMN category_id BIGINT NULL;
 ```
@@ -239,8 +225,7 @@ ALTER TABLE tasks ADD COLUMN category_id BIGINT NULL;
 ![[images/db03-s13-category-column.png]]
 *Колонка `category_id` появилась в `tasks`*
 
-# 15. Шаг 14. Связь с категорией (70–72 мин)
-
+# Шаг 14. Связь с категорией
 ```sql
 ALTER TABLE tasks
     ADD CONSTRAINT fk_tasks_category
@@ -257,8 +242,7 @@ ALTER TABLE tasks
 ![[images/db03-s14-category-fk.png]]
 *Внешний ключ на `category_id` с мягким удалением*
 
-# 16. Шаг 15. Индексы (72–78 мин)
-
+# Шаг 15. Индексы
 ```sql
 CREATE INDEX ix_tasks_user_id ON tasks (user_id);
 CREATE INDEX ix_tasks_status ON tasks (status);
@@ -273,8 +257,7 @@ CREATE INDEX ix_tasks_created_at ON tasks (created_at);
 ![[images/db03-s15-indexes.png]]
 *Четыре индекса созданы*
 
-# 17. Шаг 16. Проверка, что индексы действительно есть (78 мин)
-
+# Шаг 16. Проверка, что индексы действительно есть
 ```sql
 SELECT indexname, indexdef FROM pg_indexes
 WHERE tablename = 'tasks' ORDER BY indexname;
@@ -283,8 +266,7 @@ WHERE tablename = 'tasks' ORDER BY indexname;
 ![[images/db03-s16-indexes-list.png]]
 *Системный каталог показывает четыре индекса и индекс первичного ключа*
 
-# 18. Шаг 17. Данные перед каскадным удалением (79–82 мин)
-
+# Шаг 17. Данные перед каскадным удалением
 ```sql
 INSERT INTO categories (user_id, name)
 SELECT id, 'Учёба' FROM users WHERE email = 'teacher@college.ru';
@@ -298,8 +280,7 @@ SELECT (SELECT count(*) FROM tasks)      AS tasks,
 ![[images/db03-s17-cascade-before.png]]
 *Перед удалением: одна задача и одна категория*
 
-# 19. Шаг 18. Каскадное удаление (82–84 мин)
-
+# Шаг 18. Каскадное удаление
 ```sql
 DELETE FROM users WHERE email = 'teacher@college.ru';
 SELECT (SELECT count(*) FROM tasks)      AS tasks,
@@ -309,8 +290,7 @@ SELECT (SELECT count(*) FROM tasks)      AS tasks,
 ![[images/db03-s18-cascade-after.png]]
 *После удаления пользователя обе таблицы пусты — сработал `CASCADE`*
 
-# 20. Шаг 19. Задача с категорией (85–87 мин)
-
+# Шаг 19. Задача с категорией
 ```sql
 INSERT INTO users (email, password_hash, full_name)
 VALUES ('setnull@college.ru', '$2b$10$hashed', 'Мария Соколова');
@@ -326,8 +306,7 @@ SELECT id, title, category_id FROM tasks;
 ![[images/db03-s19-setnull-before.png]]
 *Задача привязана к категории «Учёба»*
 
-# 21. Шаг 20. Удаление категории (87–88 мин)
-
+# Шаг 20. Удаление категории
 ```sql
 DELETE FROM categories
 WHERE name = 'Учёба'
@@ -338,8 +317,7 @@ SELECT id, title, category_id FROM tasks;
 ![[images/db03-s20-setnull-after.png]]
 *Задача осталась, `category_id` стал `NULL` — это и есть `SET NULL`*
 
-# 22. Шаг 21. Уборка (88 мин)
-
+# Шаг 21. Уборка
 ```sql
 DELETE FROM users WHERE email = 'setnull@college.ru';
 ```

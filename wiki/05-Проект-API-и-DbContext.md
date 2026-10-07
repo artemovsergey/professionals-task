@@ -10,8 +10,7 @@
 базы берётся из `db/schema.sql` со страницы [03](03-Скрипт-schema-sql) —
 миграции для этого задания не обязательны.
 
-# 1. Шаг 1. Solution (5 мин)
-
+# Шаг 1. Solution
 ```bash
 cd src
 dotnet new sln -n TaskPlanner
@@ -20,8 +19,7 @@ dotnet new sln -n TaskPlanner
 ![[images/api05-s1-sln.png]]
 *Solution создан: `The template "Solution File" was created successfully`*
 
-# 2. Шаг 2. Два проекта (5–20 мин)
-
+# Шаг 2. Два проекта
 ```bash
 dotnet new webapi -n TaskPlanner.Api   -o api/TaskPlanner.Api   -f net9.0 --use-controllers
 dotnet new xunit   -n TaskPlanner.Tests -o api/TaskPlanner.Tests -f net9.0
@@ -33,8 +31,7 @@ dotnet new xunit   -n TaskPlanner.Tests -o api/TaskPlanner.Tests -f net9.0
 ![[images/api05-s2-projects.png]]
 *Шаблоны `webapi` и `xUnit` созданы, восстановление зависимостей прошло*
 
-# 3. Шаг 3. Проекты в solution и ссылка на API (20–25 мин)
-
+# Шаг 3. Проекты в solution и ссылка на API
 ```bash
 dotnet sln TaskPlanner.sln add api/TaskPlanner.Api api/TaskPlanner.Tests
 dotnet add api/TaskPlanner.Tests reference api/TaskPlanner.Api
@@ -47,8 +44,7 @@ dotnet sln TaskPlanner.sln list
 ![[images/api05-s3-sln.png]]
 *Оба проекта в solution, ссылка добавлена, `dotnet sln list` их показывает*
 
-# 4. Шаг 4. Пакеты API (25–40 мин)
-
+# Шаг 4. Пакеты API
 ```bash
 cd api/TaskPlanner.Api
 dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL -v 9.0.0
@@ -66,8 +62,7 @@ JWT, хеширование паролей и Swagger UI.
 ![[images/api05-s4-packages-api.png]]
 *Пакеты добавлены: `PackageReference for package ... added to file`*
 
-# 5. Шаг 5. Пакеты тестов (40–45 мин)
-
+# Шаг 5. Пакеты тестов
 ```bash
 cd ../TaskPlanner.Tests
 dotnet add package Microsoft.AspNetCore.Mvc.Testing -v 9.0.0
@@ -80,8 +75,7 @@ dotnet add package FluentAssertions -v 7.0.0
 ![[images/api05-s5-packages-tests.png]]
 *Пакеты тестов добавлены в `TaskPlanner.Tests.csproj`*
 
-# 6. Шаг 6. Сборка (45–50 мин)
-
+# Шаг 6. Сборка
 ```bash
 cd ../..
 dotnet build
@@ -90,8 +84,7 @@ dotnet build
 ![[images/api05-s6-build.png]]
 *`Build succeeded`: собраны обе DLL — API и тесты*
 
-# 7. Шаг 7. Сущность пользователя (50–55 мин)
-
+# Шаг 7. Сущность пользователя
 `api/TaskPlanner.Api/Models/Entities.cs`:
 
 ```csharp
@@ -111,8 +104,7 @@ public class User
 ![[images/api05-s7-user.png]]
 *`User`: пять свойств, названия совпадают с колонками из `schema.sql`*
 
-# 8. Шаг 8. Сущность задачи (55–60 мин)
-
+# Шаг 8. Сущность задачи
 ```csharp
 public class TaskItem
 {
@@ -142,8 +134,7 @@ public class TaskItem
 ![[images/api05-s8-taskitem.png]]
 *`TaskItem`: двенадцать свойств, `Status` и `Priority` — строки*
 
-# 9. Шаг 9. Контекст и наборы сущностей (60–62 мин)
-
+# Шаг 9. Контекст и наборы сущностей
 `api/TaskPlanner.Api/Data/TaskPlannerContext.cs`:
 
 ```csharp
@@ -161,8 +152,7 @@ public class TaskPlannerContext(DbContextOptions<TaskPlannerContext> options)
 ![[images/api05-s9-dbsets.png]]
 *Контекст объявляет `Users`, `Tasks`, `Categories`*
 
-# 10. Шаг 10. Отображение users (62–65 мин)
-
+# Шаг 10. Отображение users
 ```csharp
 b.Entity<Models.User>(e =>
 {
@@ -183,8 +173,7 @@ b.Entity<Models.User>(e =>
 ![[images/api05-s10-users-mapping.png]]
 *Каждое свойство связано с колонкой своей таблицы*
 
-# 11. Шаг 11. Отображение tasks (65–68 мин)
-
+# Шаг 11. Отображение tasks
 ```csharp
 b.Entity<Models.TaskItem>(e =>
 {
@@ -211,8 +200,7 @@ CHECK-ограничения из `schema.sql` переносить в `OnModelC
 ![[images/api05-s11-tasks-mapping.png]]
 *`tasks`: двенадцать колонок, имена совпадают со скриптом*
 
-# 12. Шаг 12. Подключение контекста (68–70 мин)
-
+# Шаг 12. Подключение контекста
 `api/TaskPlanner.Api/Program.cs`:
 
 ```csharp
@@ -226,8 +214,7 @@ builder.Services.AddDbContext<TaskPlanner.Api.Data.TaskPlannerContext>(o =>
 ![[images/api05-s12-program-db.png]]
 *Контекст зарегистрирован в DI через `AddDbContext`*
 
-# 13. Шаг 13. Swagger (70–73 мин)
-
+# Шаг 13. Swagger
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(o =>
@@ -245,8 +232,7 @@ Swagger нужен не для красоты: без него нельзя по
 ![[images/api05-s13-program-swagger.png]]
 *Документация API включена в сборку*
 
-# 14. Шаг 14. Конверт ответа (73–75 мин)
-
+# Шаг 14. Конверт ответа
 `api/TaskPlanner.Api/Contracts/Contracts.cs`:
 
 ```csharp
