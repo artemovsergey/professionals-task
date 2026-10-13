@@ -272,7 +272,7 @@ def render_home():
                "и только в браузере без авторизации.")
     out.append("4. **Формат ответа API единый:** "
                "`{ \"success\", \"data\", \"message\", \"error_code\" }` — "
-               "см. [12-Каркас-API-и-обёртка-ответа](12-Каркас-API-и-обёртка-ответа).")
+               "см. [13-Формат-ответа-и-обработка-ошибок](13-Формат-ответа-и-обработка-ошибок).")
     out.append("5. **Номер заявки** формируется автоматически в формате "
                "`Z-YYYY-XXXX` — см. "
                "[19-Генерация-номера-заявки](19-Генерация-номера-заявки).")
@@ -303,6 +303,83 @@ def render_sidebar():
             if p["n"] in sprint["pages"]:
                 out.append("  - %s" % page_link(p["n"], p["ti"]))
         out.append("")
+    return "\n".join(out)
+
+
+def render_checklist():
+    """Чек-лист захвата: что снять на каждой странице.
+
+    Строится из тех же данных, что и страницы, поэтому расхождение
+    между чек-листом и подписями к картинкам невозможно по построению.
+    """
+    out = []
+    out.append("# Чек-лист захвата скриншотов и гиф")
+    out.append("")
+    out.append("Файл собран генератором `tools/wiki/gen_pages.py` из данных "
+               "`tools/wiki/sprints.py`. Правьте источник, а не этот файл — "
+               "иначе чек-лист разойдётся со страницами при следующей сборке.")
+    out.append("")
+    total_png = sum(1 for p in PAGES for s in p["steps"] if s.get("png"))
+    total_gif = sum(1 for p in PAGES for s in p["steps"] if s.get("gif"))
+    out.append("**Всего:** %d страниц, %d скриншотов, %d гифок."
+               % (len(PAGES), total_png, total_gif))
+    out.append("")
+
+    for sprint in SPRINTS:
+        pages = [p for p in PAGES if p["n"] in sprint["pages"]]
+        if not pages:
+            continue
+        out.append("## Спринт %d. %s"
+                   % (sprint["id"], sprint["name"]))
+        out.append("")
+        out.append("| Стр. | Шаг | Что снять | Файл скриншота | Файл гифки |")
+        out.append("|---|---|---|---|---|")
+        for p in pages:
+            if not any(s.get("png") or s.get("gif") for s in p["steps"]):
+                out.append("| %02d | — | %s | — | — |"
+                           % (p["n"], p["ti"]))
+                continue
+            first = True
+            for idx, step in enumerate(p["steps"], start=1):
+                if not step.get("png") and not step.get("gif"):
+                    continue
+                out.append("| %s | %s | %s | %s | %s |" % (
+                    ("%02d" % p["n"]) if first else "",
+                    ("%d. %s" % (idx, step["t"])) if first else "",
+                    step.get("b", "").split(". ")[0][:90].replace("|", "/"),
+                    "`images/%02d-%s.png`" % (p["n"], step["png"]) if step.get("png") else "—",
+                    "`gifs/%02d-%s.gif`" % (p["n"], step["gif"]) if step.get("gif") else "—",
+                ))
+                first = False
+        out.append("")
+
+    out.append("---")
+    out.append("")
+    out.append("## Как снимать")
+    out.append("")
+    out.append("```bash")
+    out.append("# Один кадр — для статичной иллюстрации")
+    out.append("python3 tools/capture/rec.py --name 07-schema-equipment --single")
+    out.append("")
+    out.append("# Короткая запись — для гифки")
+    out.append("python3 tools/capture/rec.py --name 07-schema-run --seconds 8 --delay 2")
+    out.append("")
+    out.append("# Запуск команды шага и снимок окна терминала с её выводом")
+    out.append("NO_SHOT= python3 tools/capture/run-page.sh 07-schema-run psql -f db/schema.sql")
+    out.append("")
+    out.append("# Гифка из готовых кадров, если снимали поштучно")
+    out.append("python3 tools/capture/make-gifs.py /tmp/07-*.png -o wiki/gifs/07-schema-run.gif")
+    out.append("```")
+    out.append("")
+    out.append("## Перед коммитом")
+    out.append("")
+    out.append("- [ ] Файл называется по схеме `images/NN-<slug>.png` / `gifs/NN-<slug>.gif`.")
+    out.append("- [ ] На скриншоте видно результат шага, а не пустой экран.")
+    out.append("- [ ] В кадре нет лишних окон, уведомлений и курсора в текстовом поле.")
+    out.append("- [ ] Текст на скриншоте читается без увеличения.")
+    out.append("- [ ] Подпись под картинкой совпадает с `cap` в `sprints.py`.")
+    out.append("- [ ] Гифка короче 10 секунд и меньше 5 МБ.")
+    out.append("")
     return "\n".join(out)
 
 
@@ -338,18 +415,21 @@ def check(out_dir):
     if covered != list(range(1, EXPECTED_PAGES + 1)):
         problems.append("диапазоны спринтов не покрывают 1..%d ровно по одному разу" % EXPECTED_PAGES)
 
-    # ссылки на другие страницы существуют
+    # ссылки на другие страницы существуют.
+    # Генератор пишет ссылки БЕЗ расширения (.md) — так их понимают и
+    # GitHub Wiki, и Obsidian, и Gogs. Расшижение допускается, но не нужно.
     valid = {n[:-3] for n in names}
-    link_re = re.compile(r"\]\(([^)#]+?)\.md\)")
+    link_re = re.compile(r"\]\(([^)#]+?)(?:\.md)?\)")
     for name in sorted(valid) + ["Home.md", "_Sidebar.md"]:
         text = (out_dir / name).read_text(encoding="utf-8") if (out_dir / name).exists() else ""
         if not text:
             continue
         for target in link_re.findall(text):
-            if target.startswith(("http", "docs/", "criteria")):
+            if target.startswith(("http", "docs/", "criteria", "assets/",
+                                "images/", "gifs/", "..", "#")):
                 continue
             if target not in valid and target != "Home":
-                problems.append("битая ссылка в %s: %s.md" % (name, target))
+                problems.append("битая ссылка в %s: %s" % (name, target))
 
     # каждое объявленное медиа уникально; скриншоты и гифки лежат
     # в разных каталогах, поэтому одинаковый slug в png и gif — не дубль
@@ -384,6 +464,8 @@ def main():
                         help="каталог для записи (по умолчанию ../wiki от этого файла)")
     parser.add_argument("--check", action="store_true",
                         help="только проверить, ничего не записывать")
+    parser.add_argument("--checklist", default=None,
+                        help="куда писать чек-лист захвата (по умолчанию docs/capture-checklist.md)")
     args = parser.parse_args()
 
     out_dir = Path(args.out) if args.out else Path(__file__).resolve().parents[2] / "wiki"
@@ -411,6 +493,12 @@ def main():
 
     (out_dir / "Home.md").write_text(render_home(), encoding="utf-8")
     (out_dir / "_Sidebar.md").write_text(render_sidebar(), encoding="utf-8")
+
+    checklist = Path(args.checklist) if args.checklist else (
+        out_dir.parent / "docs" / "capture-checklist.md")
+    checklist.parent.mkdir(parents=True, exist_ok=True)
+    checklist.write_text(render_checklist(), encoding="utf-8")
+    print("Чек-лист захвата: %s" % checklist)
 
     stale.write_text("\n".join(removed) + ("\n" if removed else ""), encoding="utf-8")
 
