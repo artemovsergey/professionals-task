@@ -23,9 +23,10 @@ WIKI_SRC="$PROJECT_DIR/wiki"
 WORK_DIR="$(mktemp -d)"
 DRY_RUN=false
 
-# Скриншоты и gif не хранятся в репозитории задания: они лежат в
-# репозитории эталона (professionals-reference), оттуда и копируются в вики.
-ASSETS_DIR="${ASSETS_DIR:-$PROJECT_DIR/../professionals-reference/shots}"
+# Скриншоты и гифки лежат рядом со страницами — в каталогах wiki/images
+# и wiki/gifs. Отдельный ASSETS_DIR нужен только если медиа собраны
+# вне репозитория (например, пока вики ещё не опубликована).
+ASSETS_DIR="${ASSETS_DIR:-$WIKI_SRC}"
 
 if [ "${1:-}" = "--dry-run" ]; then
   DRY_RUN=true
@@ -113,14 +114,27 @@ find . -maxdepth 1 -name '*.md' -delete
 cp "$WIKI_SRC"/*.md .
 
 echo "==> Копирую иллюстрации из $ASSETS_DIR"
-if [ -d "$ASSETS_DIR" ]; then
-  rm -rf images gifs
-  mkdir -p images gifs
-  find "$ASSETS_DIR" -maxdepth 1 -name '*.png' -exec cp {} images/ \;
-  find "$ASSETS_DIR" -maxdepth 1 -name '*.gif' -exec cp {} gifs/ \;
-  echo "    картинок: $(ls images | wc -l), gif: $(ls gifs | wc -l)"
+# Каталог images или gifs создаём только если в источнике есть файлы
+# соответствующего типа. Пустой каталог в вики GitHub не показывает,
+# но он остаётся в истории и мешает при просмотре diff.
+copy_assets() {
+  ext="$1"
+  dest="$2"
+  if ! find "$ASSETS_DIR" -maxdepth 1 -name "*.$ext" -print -quit | grep -q .; then
+    echo "    $ext не найдены — каталог $dest пропущен"
+    return 0
+  fi
+  rm -rf "$dest"
+  mkdir -p "$dest"
+  find "$ASSETS_DIR" -maxdepth 1 -name "*.$ext" -exec cp {} "$dest/" \;
+  echo "    $dest: $(find "$dest" -maxdepth 1 -type f | wc -l) файл(ов)"
+}
+
+if [ ! -d "$ASSETS_DIR" ]; then
+  echo "    каталога $ASSETS_DIR нет — иллюстрации не попадут в вики" >&2
 else
-  echo "    каталога нет — иллюстрации не попадут в вики" >&2
+  copy_assets png images
+  copy_assets gif gifs
 fi
 
 echo "==> Изменения:"
@@ -138,7 +152,7 @@ if git diff --quiet --cached 2>/dev/null && [ -z "$(git status --porcelain)" ]; 
 fi
 
 git add -A
-git commit -m "Wiki отбора: 28 страниц по сессиям (сессии 0–9)"
+git commit -m "Wiki ТОиР-Проф: 54 страницы по 24 спринтам"
 
 echo "==> Пушу"
 git push origin "HEAD:$DEFAULT_BRANCH"
