@@ -42,3 +42,6 @@ desktop.ini
 
 # Служебное окружение агентов
 .playwright-mcp/
+
+# Служебные файлы генератора вики
+wiki/.stale-targets.txt
