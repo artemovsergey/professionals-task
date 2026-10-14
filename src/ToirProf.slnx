@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/api/">
+    <Project Path="api/ToirProf.Api.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/ToirProf.Tests.csproj" />
+  </Folder>
+  <Project Path="ToirProf.Shared/ToirProf.Shared.csproj" />
+</Solution>
