@@ -2,6 +2,9 @@
   <Folder Name="/api/">
     <Project Path="api/ToirProf.Api.csproj" />
   </Folder>
+  <Folder Name="/desktop/">
+    <Project Path="desktop/ToirProf.Desktop.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
     <Project Path="Tests/ToirProf.Tests.csproj" />
   </Folder>
