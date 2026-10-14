@@ -1,0 +1,296 @@
+<mxfile host="app.diagrams.net" modified="2026-10-14T09:00:00.000Z" agent="ToirProf" version="24.7.17" type="device">
+  <diagram id="toirprof-er" name="ER-диаграмма ТОиР-Проф">
+    <mxGraphModel dx="2400" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="ТОиР-Проф — ER-диаграмма (13 таблиц)" style="text;html=1;align=left;verticalAlign=middle;fontSize=22;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="700" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-roles" value="roles" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="110" width="220" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="t-roles-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-roles">
+          <mxGeometry y="30" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-roles-1" value="code : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-roles">
+          <mxGeometry y="56" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-roles-2" value="name : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-roles">
+          <mxGeometry y="82" width="220" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-users" value="users" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="270" width="240" height="162" as="geometry" />
+        </mxCell>
+        <mxCell id="t-users-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-users">
+          <mxGeometry y="30" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-users-1" value="username : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-users">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-users-2" value="password_hash : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-users">
+          <mxGeometry y="82" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-users-3" value="full_name : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-users">
+          <mxGeometry y="108" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-users-4" value="role_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-users">
+          <mxGeometry y="134" width="240" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-workshops" value="workshops" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="340" y="110" width="220" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="t-workshops-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-workshops">
+          <mxGeometry y="30" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-workshops-1" value="code : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-workshops">
+          <mxGeometry y="56" width="220" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-mtypes" value="maintenance_types" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="620" y="110" width="240" height="136" as="geometry" />
+        </mxCell>
+        <mxCell id="t-mtypes-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-mtypes">
+          <mxGeometry y="30" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-mtypes-1" value="code : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-mtypes">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-mtypes-2" value="name : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-mtypes">
+          <mxGeometry y="82" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-mtypes-3" value="interval_days : int &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-mtypes">
+          <mxGeometry y="108" width="240" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-equipment" value="equipment" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="340" y="300" width="260" height="214" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="30" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-1" value="inventory_number : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="56" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-2" value="name : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="82" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-3" value="workshop_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="108" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-4" value="status : equipment_status" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="134" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-5" value="criticality : int &lt;CHECK 1..5&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="160" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-equipment-6" value="commission_date : date &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+          <mxGeometry y="186" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-schedule" value="maintenance_schedule" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="680" y="320" width="280" height="214" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="30" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-1" value="equipment_id : uuid &lt;FK CASCADE&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="56" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-2" value="maintenance_type_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="82" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-3" value="planned_date : date" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="108" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-4" value="completed_date : date" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="134" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-5" value="next_planned_date : date" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="160" width="280" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-schedule-6" value="status : varchar &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-schedule">
+          <mxGeometry y="186" width="280" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-crews" value="crews" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="110" width="230" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="t-crews-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-crews">
+          <mxGeometry y="30" width="230" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-crews-1" value="code : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-crews">
+          <mxGeometry y="56" width="230" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-crews-2" value="name : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-crews">
+          <mxGeometry y="82" width="230" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-crewmembers" value="crew_members" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="280" width="230" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="t-crewmembers-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-crewmembers">
+          <mxGeometry y="30" width="230" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-crewmembers-1" value="crew_id, user_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-crewmembers">
+          <mxGeometry y="56" width="230" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-materials" value="materials" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="110" width="240" height="188" as="geometry" />
+        </mxCell>
+        <mxCell id="t-materials-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-materials">
+          <mxGeometry y="30" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-materials-1" value="sku : varchar &lt;U&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-materials">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-materials-2" value="name : varchar" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-materials">
+          <mxGeometry y="82" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-materials-3" value="price : numeric(14,2)" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-materials">
+          <mxGeometry y="108" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-materials-4" value="stock : int &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-materials">
+          <mxGeometry y="134" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-materials-5" value="min_stock : int &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-materials">
+          <mxGeometry y="160" width="240" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-wo" value="work_orders" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="340" y="640" width="300" height="346" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="30" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-1" value="number : varchar &lt;U, CHECK Z-YYYY-XXXX&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="56" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-2" value="equipment_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="82" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-3" value="maintenance_type_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="108" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-4" value="schedule_id : uuid &lt;FK SET NULL&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="134" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-5" value="crew_id : uuid &lt;FK SET NULL&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="160" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-6" value="status : work_order_status" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="186" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-7" value="priority : work_order_priority" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="212" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-8" value="planned_start, planned_end : date &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="238" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-9" value="actual_start, actual_end : timestamptz &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="264" width="300" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wo-10" value="downtime_hours : numeric &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+          <mxGeometry y="290" width="300" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-wom" value="work_order_materials" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="700" y="660" width="290" height="162" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wom-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wom">
+          <mxGeometry y="30" width="290" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wom-1" value="work_order_id : uuid &lt;FK CASCADE&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wom">
+          <mxGeometry y="56" width="290" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wom-2" value="material_id : uuid &lt;FK RESTRICT&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wom">
+          <mxGeometry y="82" width="290" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wom-3" value="quantity : int &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wom">
+          <mxGeometry y="108" width="290" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-wom-4" value="unit_price : numeric(14,2)" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wom">
+          <mxGeometry y="134" width="290" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-log" value="operation_log" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="640" width="260" height="162" as="geometry" />
+        </mxCell>
+        <mxCell id="t-log-pk" value="id : uuid &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-log">
+          <mxGeometry y="30" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-log-1" value="user_id : uuid &lt;FK SET NULL&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-log">
+          <mxGeometry y="56" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-log-2" value="table_name, record_id : uuid" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-log">
+          <mxGeometry y="82" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-log-3" value="operation : varchar &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-log">
+          <mxGeometry y="108" width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-log-4" value="old_values, new_values : jsonb" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-log">
+          <mxGeometry y="134" width="260" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t-counters" value="work_order_counters" style="shape=table;html=1;whiteSpace=wrap;container=1;collapsible=0;fixedSize=1;fontStyle=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="640" width="240" height="84" as="geometry" />
+        </mxCell>
+        <mxCell id="t-counters-pk" value="year : smallint &lt;PK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-counters">
+          <mxGeometry y="30" width="240" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="t-counters-1" value="last_value : int &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-counters">
+          <mxGeometry y="56" width="240" height="26" as="geometry" />
+        </mxCell>
+
+        <mxCell id="r1" value="1 : N" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-roles" target="t-users">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" value="1 : N" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-workshops" target="t-equipment">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" value="1 : N" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-mtypes" target="t-schedule">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" value="1 : N&#10;(CASCADE)" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-equipment" target="t-schedule">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r5" value="1 : N&#10;(CASCADE)" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-crews" target="t-crewmembers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" value="1 : N&#10;(CASCADE)" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-users" target="t-crewmembers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" value="1 : N" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-equipment" target="t-wo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r8" value="0..1 : 1" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-schedule" target="t-wo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r9" value="0..1 : 1" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.2;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-crews" target="t-wo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r10" value="1 : N&#10;(CASCADE)" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-wo" target="t-wom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r11" value="1 : N" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-materials" target="t-wom">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r12" value="0..1 : N&#10;(аудит, триггер)" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;dashed=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-users" target="t-log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r13" value="1 : N" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=0;dashed=1;exitX=1;exitY=0.2;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="t-wo" target="t-log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="Условные обозначения:  &lt;U&gt; — UNIQUE,  &lt;FK&gt; — внешний ключ,  &lt;CHECK&gt; — ограничение CHECK.&#10;Сплошные связи хранятся в схеме; пунктирные поддерживаются триггерами (аудит) и кодом API (счётчик номеров).&#10;Зелёный — справочники, жёлтый — учётные данные, синий — заявки, серый — связующие таблицы, фиолетовый — журнал." style="shape=note;whiteSpace=wrap;html=1;align=left;verticalAlign=top;size=12;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="720" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
