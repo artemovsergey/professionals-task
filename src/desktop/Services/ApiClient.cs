@@ -100,6 +100,9 @@ public sealed class ApiClient : IDisposable
 
     public bool HasSession => _tokens.HasSession;
 
+    /// <summary>Сколько операций ждут отправки — показывается в верхней панели.</summary>
+    public int PendingQueueCount => _queue.PendingCount;
+
     /// <summary>
     /// Вход в систему. Три неудачи подряд закрывают форму на
     /// <see cref="AutoBlockSeconds"/> секунд: так демонстрация не

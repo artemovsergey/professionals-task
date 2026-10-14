@@ -1,20 +1,159 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:ToirProf.Desktop.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="ToirProf.Desktop.Views.MainWindow"
-        x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="ToirProf.Desktop">
+        Title="{Binding WindowTitle}"
+        Width="1360"
+        Height="860"
+        MinWidth="1024"
+        MinHeight="720"
+        WindowStartupLocation="CenterScreen">
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+    <Window.KeyBindings>
+        <KeyBinding Gesture="F5" Command="{Binding RefreshCommand}" />
+        <KeyBinding Gesture="Ctrl+R" Command="{Binding RefreshCommand}" />
+    </Window.KeyBindings>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <!--  Корневой Border задаёт фон всего окна и наследуемый шрифт.
+         В Avalonia 12 Window — это TopLevel, а не Control, и у него нет
+         свойства Background, поэтому фон красится именно так.
+         FontFamily и FontSize наследуемые: доходят до всех потомков.  -->
+    <Border Background="{DynamicResource BgBrush}"
+            TextElement.FontFamily="{DynamicResource UiFont}"
+            TextElement.FontSize="13">
+    <Grid RowDefinitions="Auto,*">
 
+        <!--  ================= верхняя панель =================  -->
+        <Border Grid.Row="0" Classes="topbar">
+            <Grid ColumnDefinitions="Auto,*,Auto" Margin="16,10">
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                    <Border Classes="badge" Background="{StaticResource AccentBrush}">
+                        <TextBlock Text="ТП" Foreground="White" FontWeight="Bold" />
+                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="{Binding CurrentScreenTitle}" Classes="h2" />
+                        <TextBlock Text="{Binding StatusText}" Classes="caption" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button Content="Обновить"
+                            Command="{Binding RefreshCommand}"
+                            IsEnabled="{Binding !IsBusy}"
+                            ToolTip.Tip="Обновить данные активного экрана (F5)" />
+                    <Button Content="Выход"
+                            Classes="danger"
+                            Command="{Binding LogoutCommand}"
+                            IsVisible="{Binding IsLoggedIn}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!--  ================= рабочая область =================  -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+
+            <!--  Боковое меню. Скрыто на экране входа: там ещё нет роли,
+                  и показывать пункты было бы обещанием, которое клиент
+                  выполнить не сможет.  -->
+            <Border Grid.Column="0" Classes="sidebar" Width="228" IsVisible="{Binding IsLoggedIn}">
+                <DockPanel LastChildFill="True">
+
+                    <Border DockPanel.Dock="Top" Padding="16,14" BorderThickness="0,0,0,1"
+                            BorderBrush="{StaticResource BorderBrush}">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="ТОиР-Проф" Classes="h2" />
+                            <TextBlock Text="Мастер участка" Classes="caption" />
+                        </StackPanel>
+                    </Border>
+
+                    <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding VisibleMenu}" Margin="0,8">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Classes="menu"
+                                        Command="{Binding $parent[Window].DataContext.OpenByNameCommand}"
+                                        CommandParameter="{Binding Key}"
+                                        ToolTip.Tip="{Binding Title}">
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <TextBlock Text="{Binding Glyph}"
+                                                   Classes="muted"
+                                                   Width="18"
+                                                   TextAlignment="Center" />
+                                        <TextBlock Text="{Binding Title}" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock DockPanel.Dock="Bottom"
+                               Margin="16,10"
+                               Classes="caption"
+                               Text="F5 — обновить" />
+                </DockPanel>
+            </Border>
+
+            <!--  Правая часть: хлебные крошки, активный экран, тосты.  -->
+            <Panel Grid.Column="1">
+
+                <DockPanel LastChildFill="True">
+
+                    <!--  Хлебные крошки показывают раздел и экран внутри него.  -->
+                    <Border DockPanel.Dock="Top" Padding="20,10" IsVisible="{Binding IsLoggedIn}">
+                        <ItemsControl ItemsSource="{Binding Breadcrumbs}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding}" Classes="muted" />
+                                        <TextBlock Text="›" Classes="caption" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+
+                    <!--  Индикатор асинхронной загрузки. Пока идёт запрос,
+                          подпись объясняет, что именно ждёт мастер.  -->
+                    <Border DockPanel.Dock="Top" Background="{StaticResource AccentSoftBrush}"
+                            Padding="20,6" IsVisible="{Binding IsBusy}">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <ProgressBar IsIndeterminate="True" Width="90" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding BusyCaption}" Classes="muted" />
+                        </StackPanel>
+                    </Border>
+
+                    <!--  Активный экран. ViewLocator сам подставит нужное
+                          окно по типу вьюмодели: на этом месте одинаково
+                          открывается и форма входа, и любой рабочий
+                          экран — различать их оболочке не нужно.  -->
+                    <ContentControl Content="{Binding Page}" />
+                </DockPanel>
+
+                <!--  Уведомления: правый верхний угол поверх экрана,
+                    чтобы мастер не терял список из-за сообщения.  -->
+                <ItemsControl ItemsSource="{Binding Toasts}"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Top"
+                              Margin="0,16,16,0"
+                              Width="360"
+                              IsHitTestVisible="True">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Classes="toast">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{Binding Glyph}" FontWeight="Bold" Width="16" />
+                                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" MaxWidth="300" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Panel>
+        </Grid>
+    </Grid>
+    </Border>
 </Window>

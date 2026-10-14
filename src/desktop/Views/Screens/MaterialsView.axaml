@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="640"
+             x:Class="ToirProf.Desktop.Views.Screens.MaterialsView">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="18">
+
+        <!-- заголовок -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <StackPanel Grid.Column="0" Spacing="2">
+                <TextBlock Classes="h1" Text="Материалы и ЗИП" />
+                <TextBlock Classes="muted" Text="Остаток склада, приход и дефицитные позиции" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                        VerticalAlignment="Center">
+                <Button Content="Дефицит" Command="{Binding ShowShortagesCommand}" Classes="danger" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" Classes="primary" />
+            </StackPanel>
+        </Grid>
+
+        <!-- фильтры -->
+        <Border Grid.Row="1" Classes="card" Padding="12" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" Spacing="14">
+                <CheckBox Content="Показывать отключённые"
+                          IsChecked="{Binding IncludeInactive}" />
+                <CheckBox Content="Только дефицитные"
+                          IsChecked="{Binding OnlyShortage}" />
+                <Button Content="Применить" Command="{Binding RefreshCommand}" />
+            </StackPanel>
+        </Border>
+
+        <!-- таблица и приход -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,320">
+            <Border Grid.Column="0" Classes="card" Padding="0">
+                <DataGrid ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected}"
+                          AutoGenerateColumns="False" IsReadOnly="True"
+                          GridLinesVisibility="Horizontal" CanUserReorderColumns="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Артикул" Binding="{Binding Sku}" Width="130" />
+                        <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Ед." Binding="{Binding Unit}" Width="60" />
+                        <DataGridTextColumn Header="Цена" Binding="{Binding Price}" Width="100" />
+                        <DataGridTextColumn Header="Остаток" Binding="{Binding Stock}" Width="90" />
+                        <DataGridTextColumn Header="Мин." Binding="{Binding MinStock}" Width="80" />
+                        <DataGridCheckBoxColumn Header="Активен" Binding="{Binding IsActive}" Width="80" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <Border Grid.Column="1" Classes="card" Margin="12,0,0,0" Padding="14">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="h2" Text="Приход на склад" />
+
+                    <Border IsVisible="{Binding !Selected}"
+                            Background="{DynamicResource SurfaceAltBrush}"
+                            CornerRadius="6" Padding="12">
+                        <TextBlock Classes="muted" TextWrapping="Wrap"
+                                   Text="Выберите позицию в таблице слева, чтобы оформить приход." />
+                    </Border>
+
+                    <StackPanel Spacing="10" IsVisible="{Binding Selected}">
+                        <TextBlock Classes="caption" Text="Позиция" />
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Selected.Name}" />
+                        <TextBlock Classes="muted"
+                                   Text="{Binding Selected.Sku, StringFormat='Артикул: {0}'}" />
+
+                        <TextBlock Classes="caption" Text="Текущий остаток" Margin="0,6,0,0" />
+                        <TextBlock FontSize="18" FontWeight="SemiBold"
+                                   Text="{Binding Selected.Stock}" />
+
+                        <TextBlock Classes="caption" Text="Количество к приходу" Margin="0,6,0,0" />
+                        <NumericUpDown Minimum="0.001" Increment="1" FormatString="0.###"
+                                      Value="{Binding ReceiptQuantity}" />
+
+                        <Button Content="Оформить приход" Classes="primary"
+                                Command="{Binding ReceiveCommand}" />
+                    </StackPanel>
+
+                    <Border IsVisible="{Binding ErrorText}"
+                            Background="{DynamicResource BadSoftBrush}"
+                            BorderBrush="{DynamicResource BadBrush}"
+                            BorderThickness="1" CornerRadius="6" Padding="10">
+                        <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource TextBrush}"
+                                   Text="{Binding ErrorText}" />
+                    </Border>
+
+                    <TextBlock Classes="caption" VerticalAlignment="Bottom"
+                               Text="Ответ залогового администратора, мастеру изменение остатка недоступно." />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- пагинация -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="8"
+                    HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Первая" Command="{Binding FirstPageCommand}" />
+            <Button Content="Назад" Command="{Binding PreviousPageCommand}" />
+            <TextBlock VerticalAlignment="Center" Classes="caption"
+                       Text="{Binding PageCaption}" />
+            <Button Content="Вперёд" Command="{Binding NextPageCommand}" />
+            <ComboBox ItemsSource="{Binding PageSizeOptions}"
+                      SelectedItem="{Binding PageSize}" Width="80" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ToirProf.Desktop.Views.Screens.DashboardView">
+
+    <Grid RowDefinitions="Auto,Auto,*" Margin="20,16,20,16">
+
+        <!--  Заголовок и период. Период меняется здесь же: мастер
+              смотрит на участок за конкретный месяц, а не всегда за все время.  -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+            <StackPanel Grid.Column="0" Spacing="2">
+                <TextBlock Text="Дашборд мастера" Classes="h1" />
+                <TextBlock Text="{Binding PeriodCaption}" Classes="muted" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="с" Classes="caption" VerticalAlignment="Center" />
+                <DatePicker SelectedDate="{Binding From}" />
+                <TextBlock Text="по" Classes="caption" VerticalAlignment="Center" />
+                <DatePicker SelectedDate="{Binding To}" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsBusy}" />
+            </StackPanel>
+        </Grid>
+
+        <!--  Ошибка загрузки: красная плашка с повтором. Пока она видна,
+              мастер не решает, что участок пуст.  -->
+        <Border Grid.Row="1" Classes="card"
+                Background="{StaticResource BadSoftBrush}"
+                BorderBrush="{StaticResource BadBrush}"
+                Margin="0,0,0,12"
+                IsVisible="{Binding ErrorText, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Grid.Column="0" Spacing="2">
+                    <TextBlock Text="Данные не загрузились" FontWeight="SemiBold" />
+                    <TextBlock Text="{Binding ErrorText}" Classes="muted" TextWrapping="Wrap" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="Повторить"
+                        Command="{Binding RetryCommand}"
+                        VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="2">
+            <StackPanel Spacing="14">
+
+                <!--  Шесть показателей участка.  -->
+                <ItemsControl ItemsSource="{Binding Cards}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel ItemWidth="240" Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Classes="card" Width="228" Margin="0,0,12,12">
+                                <StackPanel Spacing="4">
+                                    <TextBlock Text="{Binding Title}" Classes="caption" />
+                                    <TextBlock Text="{Binding Value}" FontSize="24" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Hint}" Classes="caption" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!--  Срез по цехам: где именно копится простой.  -->
+                <Border Classes="card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Заявки по цехам" Classes="h2" />
+                        <DataGrid ItemsSource="{Binding ByWorkshop}" AutoGenerateColumns="False" IsReadOnly="True"
+                                  GridLinesVisibility="None" MaxHeight="220">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Цех" Binding="{Binding Name}" Width="2*" />
+                                <DataGridTextColumn Header="Заявок" Binding="{Binding Total}" Width="80" />
+                                <DataGridTextColumn Header="Завершено" Binding="{Binding Completed}" Width="90" />
+                                <DataGridTextColumn Header="Простой, ч" Binding="{Binding DowntimeHours}" Width="100" />
+                                <DataGridTextColumn Header="Средний, ч" Binding="{Binding AverageDowntimeHours}" Width="100" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*">
+
+                    <!--  Статусы заявок: видно, сколько работы в работе.  -->
+                    <Border Grid.Column="0" Classes="card" Margin="0,0,7,0">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Заявки по статусам" Classes="h2" />
+                            <DataGrid ItemsSource="{Binding ByStatus}" AutoGenerateColumns="False" IsReadOnly="True"
+                                      GridLinesVisibility="None" MaxHeight="180">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="*" />
+                                    <DataGridTextColumn Header="Количество" Binding="{Binding Count}" Width="90" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+
+                    <!--  Помесячная динамика: участок сдал больше или меньше.  -->
+                    <Border Grid.Column="1" Classes="card" Margin="7,0,0,0">
+                        <StackPanel Spacing="10">
+                            <TextBlock Text="Заявки по месяцам" Classes="h2" />
+                            <DataGrid ItemsSource="{Binding ByMonth}" AutoGenerateColumns="False" IsReadOnly="True"
+                                      GridLinesVisibility="None" MaxHeight="180">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Месяц" Binding="{Binding Label}" Width="*" />
+                                    <DataGridTextColumn Header="Заявок" Binding="{Binding Count}" Width="80" />
+                                    <DataGridTextColumn Header="Простой, ч" Binding="{Binding DowntimeHours}" Width="100" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

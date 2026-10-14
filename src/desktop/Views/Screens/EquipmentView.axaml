@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ToirProf.Desktop.Views.Screens.EquipmentView">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20,16,20,16">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <TextBlock Grid.Column="0" Text="Оборудование цеха" Classes="h1" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <TextBox Text="{Binding SearchText}" Width="220"
+                         Watermark="инв. номер, название, серийный"
+                         KeyUp="OnSearchKey" />
+                <Button Content="Найти" Command="{Binding SearchCommand}" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!--  Фильтры. Выведенное из эксплуатации оборудование по умолчанию
+              скрыто: в цехе его уже нет, и в общем списке оно только мешает.  -->
+        <Border Grid.Row="1" Classes="card" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Статус" Classes="caption" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding StatusOptions}"
+                              SelectedItem="{Binding StatusFilter}" Width="200" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Критичность" Classes="caption" VerticalAlignment="Center" />
+                    <NumericUpDown Value="{Binding CriticalityFilter}" FormatString="0"
+                                   Minimum="0" Maximum="5" Increment="1" Width="90" />
+                </StackPanel>
+
+                <CheckBox Content="Показать выведенное из эксплуатации"
+                          IsChecked="{Binding IncludeRetired}" />
+
+                <Button Content="Применить" Command="{Binding ApplyFiltersCommand}" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Classes="card" Padding="0">
+            <Grid>
+                <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                          SelectionMode="Single" SelectedItem="{Binding Selected}"
+                          GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Инв. номер" Binding="{Binding InventoryNumber}" Width="120" />
+                        <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*" />
+                        <DataGridTextColumn Header="Цех" Binding="{Binding WorkshopName}" Width="130" />
+                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="150" />
+                        <DataGridTextColumn Header="Критичность" Binding="{Binding Criticality}" Width="100" />
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Text="Оборудование не найдено"
+                           Classes="muted"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding !Rows.Count}" />
+            </Grid>
+        </Border>
+
+        <!--  Пагинация и подпись: сколько всего записей и где мы сейчас.  -->
+        <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto" Margin="0,12,0,0">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <Button Content="&lt;&lt;" Command="{Binding FirstPageCommand}" />
+                <Button Content="&lt;" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}" />
+                <TextBlock Text="{Binding PageCaption}" Classes="muted" VerticalAlignment="Center" MinWidth="180" />
+                <Button Content="&gt;" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}" />
+                <ComboBox ItemsSource="{Binding PageSizeOptions}"
+                          SelectedItem="{Binding PageSize}" Width="80" Margin="12,0,0,0" />
+            </StackPanel>
+
+            <TextBlock Grid.Column="2" Text="{Binding StatusText}" Classes="caption" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

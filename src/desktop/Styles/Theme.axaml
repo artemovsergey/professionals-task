@@ -1,0 +1,50 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Палитра ТОиР-Проф.
+         Один набор кистей на всё приложение: экраны не «изобретают» свои
+         цвета, поэтому дашборд мастера и отчёты выглядят как части
+         одной системы.  -->
+
+    <!--  Основа: тёмно-серый фон, светлый текст.  -->
+    <SolidColorBrush x:Key="BgBrush" Color="#1B1F24" />
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#242A31" />
+    <SolidColorBrush x:Key="SurfaceAltBrush" Color="#2C333B" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#3A424C" />
+
+    <!--  Текст.  -->
+    <SolidColorBrush x:Key="TextBrush" Color="#E8EDF2" />
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#9AA6B2" />
+    <SolidColorBrush x:Key="TextInverseBrush" Color="#11151A" />
+
+    <!--  Акценты: синий — основной, зелёный — успех, янтарный — внимание,
+         красный — авария.  Те же четыре цвета использует и API в текстах
+         ошибок, поэтому статус на экране и в ответе читается одинаково.  -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#3D7DD6" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#26364D" />
+    <SolidColorBrush x:Key="OkBrush" Color="#3FA66B" />
+    <SolidColorBrush x:Key="OkSoftBrush" Color="#1F3A2C" />
+    <SolidColorBrush x:Key="WaitBrush" Color="#C79A2E" />
+    <SolidColorBrush x:Key="WaitSoftBrush" Color="#3C3320" />
+    <SolidColorBrush x:Key="BadBrush" Color="#D0553F" />
+    <SolidColorBrush x:Key="BadSoftBrush" Color="#43241F" />
+
+    <!--  Типографика.  -->
+    <FontFamily x:Key="UiFont">avares://ToirProf.Desktop/Assets#Inter</FontFamily>
+    <x:Double x:Key="RadiusSmall">4</x:Double>
+    <x:Double x:Key="RadiusNormal">6</x:Double>
+    <Thickness x:Key="PadNormal">12</Thickness>
+
+    <!--  Базового стиля на Selector="Control" в Avalonia 12 нет: класс
+         Control не объявляет Background/Foreground, и компилятор разметки
+         не находит их ни как обычные, ни как вложенные свойства
+         (AVLN2000). Фон окна задаётся корневым Border в MainWindow.axaml,
+         а шрифт — наследуемым FontFamily на том же корне: оба свойства
+         наследуемые, поэтому доходят до всех элементов дерева.  -->
+
+    <!--  В этом файле только кисти и метрики. Элементы <Style>
+         сюда класть нельзя: у ResourceDictionary нет сеттера для
+         содержимого (AVLN3000 «no setter for property Content of
+         type ResourceDictionary»). Стили лежат в Controls.axaml,
+         который подключается через StyleInclude.  -->
+</ResourceDictionary>

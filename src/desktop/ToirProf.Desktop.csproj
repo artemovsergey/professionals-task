@@ -4,7 +4,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Экраны подставляются в ContentControl динамически, тип данных
+         известен только в момент навигации. Объявлять x:DataType в каждом
+         из восьми файлов разметки копипастой — источник опечаток в именах
+         свойств, которые компилятор проверил бы только при сборке.
+         Классические привязки резолвятся в рантайме и дают понятную
+         пустую ячейку вместо падения при старте. -->
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,10 +19,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.3" />
+    <PackageReference Include="Avalonia" Version="12.1.0" />
+    <!--  DataGrid вынесен из ядра Avalonia в отдельный пакет: без него
+         разметка экранов не собирается («Unknown type» на <DataGrid>).  -->
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.0" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.1.0" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>

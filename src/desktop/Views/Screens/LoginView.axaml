@@ -1,0 +1,72 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ToirProf.Desktop.Views.Screens.LoginView">
+
+    <Border Background="{StaticResource BgBrush}">
+        <Border Classes="card" Width="400" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Spacing="16">
+
+                <StackPanel Spacing="4" Margin="0,0,0,4">
+                    <TextBlock Text="ТОиР-Проф" Classes="h1" />
+                    <TextBlock Text="Система учёта технического обслуживания и ремонта" Classes="muted" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Логин" Classes="caption" />
+                    <TextBox Text="{Binding Login}"
+                             Watermark="например, master"
+                             IsEnabled="{Binding !IsBusy}" />
+                </StackPanel>
+
+                <StackPanel Spacing="4">
+                    <TextBlock Text="Пароль" Classes="caption" />
+                    <TextBox Text="{Binding Password}"
+                             PasswordChar="•"
+                             Watermark="не короче 8 символов"
+                             IsEnabled="{Binding !IsBusy}" />
+                </StackPanel>
+
+                <!--  Ошибка входа: сервер вернул 401 или 404 с пояснением.  -->
+                <Border Classes="card"
+                        Background="{StaticResource BadSoftBrush}"
+                        BorderBrush="{StaticResource BadBrush}"
+                        IsVisible="{Binding LoginError, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Spacing="2">
+                        <TextBlock Text="Вход не выполнен" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding LoginError}" TextWrapping="Wrap" Classes="muted" />
+                    </StackPanel>
+                </Border>
+
+                <!--  Автоблокировка после трёх неудач: цифра идёт вниз.  -->
+                <Border Classes="card"
+                        Background="{StaticResource WaitSoftBrush}"
+                        BorderBrush="{StaticResource WaitBrush}"
+                        IsVisible="{Binding IsLoginBlocked}">
+                    <TextBlock TextWrapping="Wrap">
+                        <TextBlock.Text>
+                            <MultiBinding StringFormat="Слишком много попыток. Повторите через {0} с.">
+                                <Binding Path="BlockSeconds" />
+                            </MultiBinding>
+                        </TextBlock.Text>
+                    </TextBlock>
+                </Border>
+
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Content="Войти"
+                            Classes="primary"
+                            Command="{Binding LoginCommand}"
+                            IsEnabled="{Binding !IsBusy}"
+                            MinWidth="120" />
+                    <ProgressBar IsIndeterminate="True"
+                                 Width="90"
+                                 VerticalAlignment="Center"
+                                 IsVisible="{Binding IsBusy}" />
+                </StackPanel>
+
+                <TextBlock Classes="caption" TextWrapping="Wrap"
+                           Text="Учётные записи для проверки: master / Master123!, manager / Manager123!, admin / Admin123!" />
+
+            </StackPanel>
+        </Border>
+    </Border>
+</UserControl>

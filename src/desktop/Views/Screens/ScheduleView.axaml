@@ -1,0 +1,110 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ToirProf.Desktop.Views.Screens.ScheduleView">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20,16,20,16">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <TextBlock Grid.Column="0" Text="График планового ТО" Classes="h1" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="с" Classes="caption" VerticalAlignment="Center" />
+                <DatePicker SelectedDate="{Binding From}" />
+                <TextBlock Text="по" Classes="caption" VerticalAlignment="Center" />
+                <DatePicker SelectedDate="{Binding To}" />
+                <ComboBox ItemsSource="{Binding StatusOptions}"
+                          SelectedItem="{Binding StatusFilter}" Width="160" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Classes="card"
+                Background="{StaticResource BadSoftBrush}"
+                BorderBrush="{StaticResource BadBrush}"
+                Margin="0,0,0,12"
+                IsVisible="{Binding ErrorText, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <StackPanel Spacing="4">
+                <TextBlock Text="График не загрузился" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding ErrorText}" Classes="muted" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,320">
+
+            <Border Grid.Column="0" Classes="card" Padding="0" Margin="0,0,12,0">
+                <Grid>
+                    <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionMode="Single" SelectedItem="{Binding Selected}"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="*" />
+                            <DataGridTextColumn Header="Инв. номер" Binding="{Binding InventoryNumber}" Width="110" />
+                            <DataGridTextColumn Header="Вид ТО" Binding="{Binding MaintenanceTypeName}" Width="120" />
+                            <DataGridTextColumn Header="План" Binding="{Binding PlannedDate}" Width="100" />
+                            <DataGridTextColumn Header="Факт" Binding="{Binding CompletedDate}" Width="100" />
+                            <DataGridTextColumn Header="Следующее" Binding="{Binding NextPlannedDate}" Width="110" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="120" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Text="Записей за период нет"
+                               Classes="muted"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding !Rows.Count}" />
+                </Grid>
+            </Border>
+
+            <!--  Отметка о выполнении. Стоит справа от графика: мастер
+                  открыл строку и сразу видит, что нужно вписать.  -->
+            <Border Grid.Column="1" Classes="card">
+                <StackPanel Spacing="12">
+
+                    <TextBlock Text="Выполнение ТО" Classes="h2" />
+
+                    <TextBlock Classes="muted" TextWrapping="Wrap"
+                               Text="Выберите запись в графике, чтобы отметить выполнение." />
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Дата выполнения" Classes="caption" />
+                        <DatePicker SelectedDate="{Binding CompletedDate}" />
+                    </StackPanel>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Фактическая стоимость, ₽" Classes="caption" />
+                        <NumericUpDown Value="{Binding ActualCost}" FormatString="0.00"
+                                       Minimum="0" Increment="100" />
+                    </StackPanel>
+
+                    <Button Content="Отметить выполненным"
+                            Classes="primary"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding CompleteCommand}" />
+
+                    <Button Content="Вернуть в план"
+                            HorizontalAlignment="Stretch"
+                            Command="{Binding ReturnToPlanCommand}" />
+
+                    <Border Classes="card" Padding="0"
+                            IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding Selected.MaintenanceTypeName}" Classes="h2" />
+                            <TextBlock Text="{Binding Selected.EquipmentName}" Classes="muted" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding Selected.Notes}" Classes="caption" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="3" ColumnDefinitions="Auto,*" Margin="0,12,0,0">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <Button Content="&lt;&lt;" Command="{Binding FirstPageCommand}" />
+                <Button Content="&lt;" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}" />
+                <TextBlock Text="{Binding PageCaption}" Classes="muted" VerticalAlignment="Center" MinWidth="180" />
+                <Button Content="&gt;" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}" />
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding StatusText}" Classes="caption"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

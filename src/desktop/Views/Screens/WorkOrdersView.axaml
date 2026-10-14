@@ -1,0 +1,187 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ToirProf.Desktop.Views.Screens.WorkOrdersView">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20,16,20,16">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <TextBlock Grid.Column="0" Text="Заявки на ремонт и ТО" Classes="h1" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <TextBox Text="{Binding SearchText}" Width="240"
+                         Watermark="номер заявки, оборудование, описание" />
+                <Button Content="Найти" Command="{Binding SearchCommand}" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <Border Grid.Row="1" Classes="card" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Статус" Classes="caption" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding StatusFilter}" Width="160" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Приоритет" Classes="caption" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding PriorityFilter}" Width="140" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Бригада" Classes="caption" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding Crews}" SelectedItem="{Binding CrewFilter}" Width="180">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,360">
+
+            <Border Grid.Column="0" Classes="card" Padding="0" Margin="0,0,12,0">
+                <Grid>
+                    <DataGrid ItemsSource="{Binding Rows}" AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionMode="Single" SelectedItem="{Binding Selected}"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Номер" Binding="{Binding Number}" Width="110" />
+                            <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="*" />
+                            <DataGridTextColumn Header="Приоритет" Binding="{Binding Priority}" Width="100" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="110" />
+                            <DataGridTextColumn Header="План" Binding="{Binding PlannedStart}" Width="100" />
+                            <DataGridTextColumn Header="Простой, ч" Binding="{Binding DowntimeHours}" Width="100" />
+                            <DataGridTextColumn Header="Бригада" Binding="{Binding CrewName}" Width="110" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Text="Заявок нет"
+                               Classes="muted"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding !Rows.Count}" />
+                </Grid>
+            </Border>
+
+            <!--  Панель работы с заявкой: слева создание черновика,
+                  справа ведение выбранной заявки по её жизненному циклу.  -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+
+                <Border Grid.Row="0" Classes="card" Margin="0,0,0,12">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Новая заявка" Classes="h2" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Оборудование" Classes="caption" />
+                            <ComboBox ItemsSource="{Binding Equipment}" SelectedItem="{Binding DraftEquipment}" HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InventoryNumber}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Тема" Classes="caption" />
+                            <TextBox Text="{Binding DraftTitle}" Watermark="например, стучит подшипник" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Описание неисправности" Classes="caption" />
+                            <TextBox Text="{Binding DraftDescription}" AcceptsReturn="True" Height="64"
+                                     TextWrapping="Wrap" Watermark="что случилось и что требуется" />
+                        </StackPanel>
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Приоритет" Classes="caption" />
+                            <ComboBox ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding DraftPriority}" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <StackPanel Grid.Column="0" Spacing="4">
+                                <TextBlock Text="План начала" Classes="caption" />
+                                <DatePicker SelectedDate="{Binding DraftPlannedStart}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="План окончания" Classes="caption" />
+                                <DatePicker SelectedDate="{Binding DraftPlannedEnd}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Button Content="Создать заявку" Classes="primary" HorizontalAlignment="Stretch"
+                                Command="{Binding CreateCommand}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="1" Classes="card" Margin="0,0,0,12"
+                        IsVisible="{Binding Selected, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="{Binding Selected.Number}" Classes="h2" />
+                        <TextBlock Text="{Binding Selected.Title}" Classes="muted" TextWrapping="Wrap" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Бригада" Classes="caption" />
+                            <ComboBox ItemsSource="{Binding Crews}" SelectedItem="{Binding AssignCrew}" HorizontalAlignment="Stretch">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <Button Content="Назначить бригаду" HorizontalAlignment="Stretch"
+                                Command="{Binding AssignCrewCommand}" />
+
+                        <Button Content="В работу" HorizontalAlignment="Stretch"
+                                Command="{Binding StartCommand}" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Причина неисправности" Classes="caption" />
+                            <TextBox Text="{Binding FailureReason}" AcceptsReturn="True" Height="56" TextWrapping="Wrap"
+                                     Watermark="обязательна при завершении" />
+                        </StackPanel>
+
+                        <Button Content="Завершить" HorizontalAlignment="Stretch"
+                                Command="{Binding CompleteCommand}" />
+
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Списать материал" Classes="caption" />
+                            <Grid ColumnDefinitions="*,90" ColumnSpacing="8">
+                                <TextBox Grid.Column="0" Text="{Binding WriteOffMaterial}"
+                                         Watermark="артикул материала" />
+                                <NumericUpDown Grid.Column="1" Value="{Binding WriteOffQuantity}"
+                                               FormatString="0.##" Minimum="0" Increment="1" />
+                            </Grid>
+                        </StackPanel>
+
+                        <Button Content="Списать" HorizontalAlignment="Stretch"
+                                Command="{Binding WriteOffCommand}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Row="2" Classes="card"
+                        Background="{StaticResource BadSoftBrush}"
+                        BorderBrush="{StaticResource BadBrush}"
+                        IsVisible="{Binding ErrorText, Converter={x:Static ObjectConverters.IsNotNull}}">
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="Операция не выполнена" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding ErrorText}" Classes="muted" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="3" ColumnDefinitions="Auto,*" Margin="0,12,0,0">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                <Button Content="&lt;&lt;" Command="{Binding FirstPageCommand}" />
+                <Button Content="&lt;" Command="{Binding PreviousPageCommand}" IsEnabled="{Binding CanGoPrevious}" />
+                <TextBlock Text="{Binding PageCaption}" Classes="muted" VerticalAlignment="Center" MinWidth="180" />
+                <Button Content="&gt;" Command="{Binding NextPageCommand}" IsEnabled="{Binding CanGoNext}" />
+            </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding StatusText}" Classes="caption"
+                       HorizontalAlignment="Right" VerticalAlignment="Center" />
+        </Grid>
+    </Grid>
+</UserControl>

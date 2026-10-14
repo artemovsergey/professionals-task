@@ -2,14 +2,34 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ToirProf.Desktop.App"
              xmlns:local="using:ToirProf.Desktop"
-             RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             RequestedThemeVariant="Dark">
 
+    <!--  Шаблоны представлений: ViewLocator сам находит окно по имени
+         вьюмодели, поэтому экраны подключаются к оболочке одной строкой
+         в разметке, а не кодом.  -->
     <Application.DataTemplates>
-        <local:ViewLocator/>
+        <local:ViewLocator />
     </Application.DataTemplates>
-  
+
+    <!--  Кисти и общие ресурсы. Theme.axaml — это ResourceDictionary,
+         поэтому подключается через ResourceInclude в MergedDictionaries.
+         StyleInclude здесь не годится: он ждёт IStyle, а не словарь,
+         и сборка падает с AVLN2000.  -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://ToirProf.Desktop/Styles/Theme.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
+        <!--  Порядок важен: сначала базовый набор элементов Fluent, потом
+             наши стили — иначе FluentTheme перезапишет цвета.
+             Controls.axaml — это Styles (IStyle), Theme.axaml — словарь
+             ресурсов; путать их нельзя, типы разные.  -->
         <FluentTheme />
+        <StyleInclude Source="avares://ToirProf.Desktop/Styles/Controls.axaml" />
     </Application.Styles>
+
 </Application>

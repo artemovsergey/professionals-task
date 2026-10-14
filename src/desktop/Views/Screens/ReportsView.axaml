@@ -1,0 +1,167 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="640"
+             x:Class="ToirProf.Desktop.Views.Screens.ReportsView">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="18">
+
+        <!-- заголовок -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,12">
+            <StackPanel Grid.Column="0" Spacing="2">
+                <TextBlock Classes="h1" Text="Отчёты" />
+                <TextBlock Classes="muted" Text="{Binding PeriodCaption}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                        VerticalAlignment="Center">
+                <!--  Watermark у DatePicker в Avalonia 12 отсутствует
+                     (свойство есть только у TextBox) — подписи вынесены
+                     в ToolTip, чтобы период читался без догадок.  -->
+                <DatePicker SelectedDate="{Binding From}" ToolTip.Tip="Период: с" />
+                <DatePicker SelectedDate="{Binding To}" ToolTip.Tip="Период: по" />
+                <Button Content="Показать" Command="{Binding RefreshCommand}" />
+                <Button Content="Обновить" Command="{Binding RefreshCommand}" Classes="primary" />
+            </StackPanel>
+        </Grid>
+
+        <!-- выгрузка -->
+        <Border Grid.Row="1" Classes="card" Padding="12" Margin="0,0,0,12">
+            <StackPanel Spacing="10">
+                <TextBlock Classes="caption"
+                           Text="Вид отчёта — нажмите кнопку, чтобы получить временную ссылку" />
+
+                <!-- Кнопки вместо ComboBox: команда принимает вид отчёта
+                     параметром, а список видов — кортежи, которые в выпадающем
+                     списке отображались бы как «(downtime, Простои…)». -->
+                <WrapPanel Orientation="Horizontal">
+                    <Button Content="Простои" Margin="0,0,8,0" Classes="primary"
+                            Command="{Binding CreateLinkCommand}"
+                            CommandParameter="downtime" />
+                    <Button Content="Бригады" Margin="0,0,8,0"
+                            Command="{Binding CreateLinkCommand}"
+                            CommandParameter="crews" />
+                    <Button Content="Материалы" Margin="0,0,8,0"
+                            Command="{Binding CreateLinkCommand}"
+                            CommandParameter="materials" />
+                    <Button Content="График ТО"
+                            Command="{Binding CreateLinkCommand}"
+                            CommandParameter="plan" />
+                </WrapPanel>
+
+                <TextBlock Classes="muted"
+                           Text="Ссылка живёт 15 секунд — этого хватает, чтобы открыть или скачать файл." />
+
+                <Border IsVisible="{Binding LastLink}"
+                        Background="{DynamicResource AccentSoftBrush}"
+                        BorderBrush="{DynamicResource AccentBrush}"
+                        BorderThickness="1" CornerRadius="6" Padding="10">
+                    <StackPanel Spacing="4">
+                        <TextBlock TextWrapping="Wrap"
+                                   Text="{Binding LastLink.Url}" />
+                        <TextBlock Classes="caption"
+                                   Text="{Binding LinkSecondsLeft, StringFormat='Осталось {0} с до закрытия ссылки'}" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- сводка и блоки -->
+        <Grid Grid.Row="2" RowDefinitions="Auto,*" Margin="0,0,0,12">
+            <Border Grid.Row="0" Classes="card" Padding="12" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal" Spacing="26">
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="caption" Text="Заявок" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold"
+                                   Text="{Binding Orders.Total}" />
+                    </StackPanel>
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="caption" Text="Завершено" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold"
+                                   Text="{Binding Orders.Completed}" />
+                    </StackPanel>
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="caption" Text="В работе" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold"
+                                   Text="{Binding Orders.InProgress}" />
+                    </StackPanel>
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="caption" Text="Доля выполнения, %" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold"
+                                   Text="{Binding Orders.CompletionShare}" />
+                    </StackPanel>
+                    <StackPanel Spacing="2">
+                        <TextBlock Classes="caption" Text="Средний простой, ч" />
+                        <TextBlock FontSize="20" FontWeight="SemiBold"
+                                   Text="{Binding Orders.AverageDowntimeHours}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TabControl Grid.Row="1">
+                <TabItem Header="Простои">
+                    <DataGrid ItemsSource="{Binding Downtime}" IsReadOnly="True"
+                              AutoGenerateColumns="False" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Инв. номер" Binding="{Binding InventoryNumber}" Width="120" />
+                            <DataGridTextColumn Header="Оборудование" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Цех" Binding="{Binding WorkshopName}" Width="140" />
+                            <DataGridTextColumn Header="Заявок" Binding="{Binding OrdersCount}" Width="80" />
+                            <DataGridTextColumn Header="Простой, ч" Binding="{Binding TotalDowntimeHours}" Width="110" />
+                            <DataGridTextColumn Header="Доля, %" Binding="{Binding SharePercent}" Width="90" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="Бригады">
+                    <DataGrid ItemsSource="{Binding Crews}" IsReadOnly="True"
+                              AutoGenerateColumns="False" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Код" Binding="{Binding Code}" Width="80" />
+                            <DataGridTextColumn Header="Бригада" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Назначено" Binding="{Binding Assigned}" Width="100" />
+                            <DataGridTextColumn Header="Завершено" Binding="{Binding Completed}" Width="100" />
+                            <DataGridTextColumn Header="В срок" Binding="{Binding InTime}" Width="90" />
+                            <DataGridTextColumn Header="Рейтинг, %" Binding="{Binding Rating}" Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="Материалы">
+                    <DataGrid ItemsSource="{Binding Materials}" IsReadOnly="True"
+                              AutoGenerateColumns="False" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Артикул" Binding="{Binding Sku}" Width="140" />
+                            <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Ед." Binding="{Binding Unit}" Width="60" />
+                            <DataGridTextColumn Header="Количество" Binding="{Binding Quantity}" Width="110" />
+                            <DataGridTextColumn Header="Сумма" Binding="{Binding Cost}" Width="120" />
+                            <DataGridTextColumn Header="Заявок" Binding="{Binding OrdersCount}" Width="80" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="График ТО">
+                    <DataGrid ItemsSource="{Binding Plan}" IsReadOnly="True"
+                              AutoGenerateColumns="False" GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="200" />
+                            <DataGridTextColumn Header="Записей" Binding="{Binding Count}" Width="120" />
+                            <DataGridTextColumn Header="Доля, %" Binding="{Binding Percent}" Width="120" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <Border Grid.Row="3" IsVisible="{Binding ErrorText}"
+                Background="{DynamicResource BadSoftBrush}"
+                BorderBrush="{DynamicResource BadBrush}"
+                BorderThickness="1" CornerRadius="6" Padding="10">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <TextBlock TextWrapping="Wrap" Text="{Binding ErrorText}" />
+                <Button Content="Повторить" Command="{Binding RetryCommand}" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

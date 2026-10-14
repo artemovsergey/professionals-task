@@ -1,0 +1,171 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Палитра подключается внутрь, чтобы StaticResource работал
+         прямо в сеттерах ниже.  -->
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://ToirProf.Desktop/Styles/Theme.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <Style Selector="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
+    <Style Selector="TextBlock.h1">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.h2">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style Selector="TextBlock.muted">
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+        <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style Selector="TextBlock.caption">
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+        <Setter Property="FontSize" Value="11" />
+    </Style>
+
+    <!--  Бейдж — это Border, а не TextBlock: у TextBlock в Avalonia нет
+         CornerRadius и Padding (AVLN2000). Класс .badge в разметке вешается
+         именно на Border (см. верхняя панель MainWindow).  -->
+    <Style Selector="Border.badge">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="8,2" />
+    </Style>
+
+    <Style Selector="Border.card">
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusNormal}" />
+        <Setter Property="Padding" Value="{StaticResource PadNormal}" />
+    </Style>
+
+    <Style Selector="Border.sidebar">
+        <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+    </Style>
+
+    <Style Selector="Border.topbar">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,1" />
+    </Style>
+
+    <Style Selector="Button">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" />
+        <Setter Property="Padding" Value="12,6" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource AccentSoftBrush}" />
+    </Style>
+
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="Button.danger">
+        <Setter Property="Background" Value="{StaticResource BadSoftBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource BadBrush}" />
+    </Style>
+
+    <Style Selector="Button:disabled /template/ ContentPresenter">
+        <Setter Property="Opacity" Value="0.45" />
+    </Style>
+
+    <!--  Пункт бокового меню: обычное состояние и выбранный экран.  -->
+    <Style Selector="Button.menu">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+        <Setter Property="Padding" Value="12,9" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+    </Style>
+
+    <Style Selector="Button.menu:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{StaticResource TextBrush}" />
+    </Style>
+
+    <Style Selector="TextBox">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmall}" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="MinHeight" Value="30" />
+    </Style>
+
+    <Style Selector="ComboBox">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="MinHeight" Value="30" />
+    </Style>
+
+    <Style Selector="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+        <Setter Property="MinHeight" Value="24" />
+    </Style>
+
+    <Style Selector="DataGrid">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="GridLinesVisibility" Value="Horizontal" />
+        <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="RowBackground" Value="Transparent" />
+        <Setter Property="HeadersVisibility" Value="Column" />
+    </Style>
+
+    <Style Selector="DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}" />
+        <Setter Property="Padding" Value="8,6" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <!--  Всплывающее уведомление в правом верхнем углу.  -->
+    <Style Selector="Border.toast">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusNormal}" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <Style Selector="ProgressBar">
+        <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="Height" Value="3" />
+    </Style>
+
+    <Style Selector="ToolTip">
+        <Setter Property="Background" Value="{StaticResource SurfaceAltBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    </Style>
+
+</Styles>
