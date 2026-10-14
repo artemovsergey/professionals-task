@@ -102,6 +102,13 @@ public static class WorkOrderStatuses
 
     public static bool CanTransition(string from, string to)
         => Transitions.TryGetValue(from, out var allowed) && allowed.Contains(to);
+
+    /// <summary>
+    /// Все статусы через запятую — подставляется в текст ошибки, когда
+    /// пришло неизвестное значение. Список берётся отсюда же, поэтому
+    /// новое значение нельзя забыть внести в текст.
+    /// </summary>
+    public const string AllText = $"{Draft}, {Assigned}, {InProgress}, {Completed}, {Cancelled}";
 }
 
 public static class WorkOrderPriorities
@@ -113,6 +120,11 @@ public static class WorkOrderPriorities
     public const string High = "Высокий";
 
     public const string Emergency = "Аварийный";
+
+    /// <summary>
+    /// Все приоритеты через запятую — для текста ошибки валидации.
+    /// </summary>
+    public const string AllText = $"{Low}, {Medium}, {High}, {Emergency}";
 }
 
 public sealed class CreateWorkOrderDto
