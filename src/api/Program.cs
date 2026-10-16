@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using ToirProf.Api.Data;
 using ToirProf.Api.Middlewares;
 using ToirProf.Api.Services;
@@ -57,7 +58,49 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Описания операций берутся из XML-комментариев, которые генерируются
+    // при сборке: без этого Swagger показывает только имена методов.
+    var xml = Path.Combine(AppContext.BaseDirectory, "ToirProf.Api.xml");
+    if (File.Exists(xml))
+    {
+        options.IncludeXmlComments(xml);
+    }
+
+    options.SwaggerDoc(
+        "v1",
+        new OpenApiInfo
+        {
+            Title = "Система ТОиР-Проф — REST API",
+            Version = "v1",
+            Description =
+                "Учёт технического обслуживания и ремонта: оборудование, график ТО, заявки, "
+                + "бригады, материалы, аналитика и отчёты. Все ответы приходят в обёртке "
+                + "{ success, data, message, error_code }.",
+        });
+
+    // Схема безопасности нужна, чтобы в SwaggerUI была кнопка «Authorize»:
+    // без неё токен некуда вписать и запросы с авторизацией не проверить.
+    const string Bearer = "Bearer";
+    options.AddSecurityDefinition(
+        Bearer,
+        new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "Вставьте токен из POST /api/auth/login — значение поля token.",
+        });
+
+    options.AddSecurityRequirement(
+        _ => new OpenApiSecurityRequirement
+        {
+            { new OpenApiSecuritySchemeReference(Bearer, null), new List<string>() },
+        });
+});
 
 // ---------------------------------------------------------------------------
 //  CORS

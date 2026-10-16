@@ -4,6 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Swagger показывает описания из XML-комментариев, поэтому файл
+         генерируется при сборке. Код 1591 — «нет XML-комментария» —
+         отключаем: комментарии есть у публичных контрактов и операций,
+         а не у каждого приватного члена, и требовать их всех не нужно. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
