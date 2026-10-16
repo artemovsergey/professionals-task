@@ -1,0 +1,497 @@
+{
+  "info": {
+    "_postman_id": "7d1c4a20-9b4e-4f21-9d3a-1c5e8f2b7a41",
+    "name": "ТОиР-Проф — проверка API",
+    "description": "Коллекция проверяет контракт системы «ТОиР-Проф» без клиентов: вход, профиль, дашборд, реестры, жизненный цикл заявки, аналитика и отчёт в PDF.\n\nПорядок запуска: откройте папку «01 Авторизация» и выполните запрос «Вход» — он сам подставит токен в переменную `token`. Дальше запросы выполняются в любом порядке.\n\nПеременные среды: `baseUrl` по умолчанию `http://localhost:5080`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5080", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "equipmentId", "value": "44444444-4444-4444-4444-444444444444", "type": "string" },
+    { "key": "crewId", "value": "cccccccc-0000-0000-0000-000000000001", "type": "string" },
+    { "key": "materialId", "value": "eeeeeeee-0000-0000-0000-000000000001", "type": "string" },
+    { "key": "userId", "value": "55555555-0000-0000-0000-000000000003", "type": "string" },
+    { "key": "reportUrl", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "01 Авторизация",
+      "item": [
+        {
+          "name": "Вход (мастер)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — вход выполнен', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('токен получен', () => pm.expect(body.data.token).to.be.a('string'));",
+                  "pm.expect(body.success).to.eql(true);",
+                  "pm.collectionVariables.set('token', body.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"master\",\n  \"password\": \"Master123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Вход под демонстрационной учётной записью мастера. Токен автоматически сохраняется в переменную коллекции."
+          }
+        },
+        {
+          "name": "Вход (администратор)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Нужен для проверки справочников и отчётов, недоступных мастеру."
+          }
+        },
+        {
+          "name": "Текущий профиль",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — профиль прочитан', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('роль определена', () => pm.expect(body.data.role).to.be.oneOf(['ADMIN', 'MANAGER', 'MASTER']));",
+                  "pm.collectionVariables.set('userId', body.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] },
+            "description": "Проверка, что токен действителен, и узнавание роли текущего пользователя."
+          }
+        },
+        {
+          "name": "Проверка отказа без токена",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] },
+            "description": "Ожидаемый ответ — 401 с кодом INVALID_TOKEN. Снимает авторизацию вручную перед выполнением."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Сводка и аналитика",
+      "item": [
+        {
+          "name": "Сводка дашборда",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — сводка получена', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.data.byStatus).to.be.an('array');",
+                  "pm.expect(body.data.byWorkshop).to.be.an('array');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/summary?from=2026-01-01&to=2026-03-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "summary"],
+              "query": [
+                { "key": "from", "value": "2026-01-01" },
+                { "key": "to", "value": "2026-03-31" }
+              ]
+            },
+            "description": "Шесть KPI, срезы по цехам, статусам и месяцам. Те же данные приходят потоком событий."
+          }
+        },
+        {
+          "name": "Полный отчёт аналитики",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics?from=2026-01-01&to=2026-03-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "analytics"],
+              "query": [
+                { "key": "from", "value": "2026-01-01" },
+                { "key": "to", "value": "2026-03-31" }
+              ]
+            },
+            "description": "Пять блоков аналитики одним ответом: простои, бригады, материалы, график ТО и сводка по заявкам."
+          }
+        },
+        {
+          "name": "Поток событий дашборда (SSE)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/events?access_token={{token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "events"],
+              "query": [{ "key": "access_token", "value": "{{token}}" }]
+            },
+            "description": "Бесконечный поток. Токен передаётся параметром запроса, потому что EventSource не умеет добавлять заголовки. В Postman открывается во вкладке Console."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Реестры",
+      "item": [
+        {
+          "name": "Список оборудования",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — список получен', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('постраничный вывод', () => pm.expect(body.data).to.have.property('totalPages'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/equipment?page=1&pageSize=20&includeRetired=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "equipment"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "20" },
+                { "key": "includeRetired", "value": "true" }
+              ]
+            },
+            "description": "Поиск, фильтры и постраничный вывод. Параметры search, status, criticality, workshopId действуют так же."
+          }
+        },
+        {
+          "name": "Карточка оборудования",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/equipment/{{equipmentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "equipment", "{{equipmentId}}"]
+            },
+            "description": "Полные данные единицы оборудования. Идентификатор по умолчанию — пресс ПР-2 из сида."
+          }
+        },
+        {
+          "name": "Список заявок",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders?page=1&pageSize=10&sort=createdAt&order=desc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "pageSize", "value": "10" },
+                { "key": "sort", "value": "createdAt" },
+                { "key": "order", "value": "desc" }
+              ]
+            },
+            "description": "Фильтры по оборудованию, бригаде, статусу, приоритету и периоду; сортировка по шести полям."
+          }
+        },
+        {
+          "name": "График планового ТО",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/maintenance-schedule?from=2026-01-01&to=2026-12-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "maintenance-schedule"],
+              "query": [
+                { "key": "from", "value": "2026-01-01" },
+                { "key": "to", "value": "2026-12-31" }
+              ]
+            },
+            "description": "Плановые работы за период. Статус «Просрочено» база проставляет сама по наступившей дате."
+          }
+        },
+        {
+          "name": "Дефицитные материалы",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/materials/shortages", "host": ["{{baseUrl}}"], "path": ["api", "materials", "shortages"] },
+            "description": "Позиции, где остаток упал ниже минимума. Сервер сортирует по глубине нехватки."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Жизненный цикл заявки",
+      "item": [
+        {
+          "name": "Создать заявку",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 — заявка создана', () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test('номер выдан по формату', () => pm.expect(body.data.number).to.match(/^Z-\\d{4}-\\d{4}$/));",
+                  "pm.collectionVariables.set('workOrderId', body.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"equipmentId\": \"{{equipmentId}}\",\n  \"title\": \"Проверка контракта: стук в главном шпинделе\",\n  \"description\": \"Заявка создана из Postman-коллекции при проверке контракта.\",\n  \"priority\": \"Средний\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders?userId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders"],
+              "query": [{ "key": "userId", "value": "{{userId}}" }]
+            },
+            "description": "Сервер сам выдаёт номер вида Z-YYYY-XXXX и кладёт автора из userId."
+          }
+        },
+        {
+          "name": "Назначить бригаду",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — бригада назначена', () => pm.response.to.have.status(200));",
+                  "pm.test('статус — Назначена', () => pm.expect(pm.response.json().data.status).to.eql('Назначена'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"crewId\": \"{{crewId}}\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders/{{workOrderId}}/crew",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders", "{{workOrderId}}", "crew"]
+            },
+            "description": "Если бригада уже ведёт другую заявку «В работе», придёт 409 с кодом CREW_BUSY — это ожидаемое поведение, а не сбой."
+          }
+        },
+        {
+          "name": "Начать работу",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actualStart\": \"2026-03-20T08:00:00+03:00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders/{{workOrderId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders", "{{workOrderId}}", "start"]
+            },
+            "description": "Переводит заявку в статус «В работе». Дата фактического начала не может быть позже планового окончания — проверяет триггер."
+          }
+        },
+        {
+          "name": "Списать материал",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materialId\": \"{{materialId}}\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders/{{workOrderId}}/materials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders", "{{workOrderId}}", "materials"]
+            },
+            "description": "Уменьшает остаток на складе. Повторное списание того же материала прибавляет количество. При нехватке придёт 409 NOT_ENOUGH_STOCK."
+          }
+        },
+        {
+          "name": "Завершить без причины (ожидается 400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actualEnd\": \"2026-03-20T12:00:00+03:00\",\n  \"failureReason\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders/{{workOrderId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders", "{{workOrderId}}", "complete"]
+            },
+            "description": "Запрос заведомо неуспешный: триггер не даст завершить заявку без причины неисправности. Нужен как проверка ограничения."
+          }
+        },
+        {
+          "name": "Завершить заявку",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — заявка завершена', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('простой посчитан базой', () => pm.expect(body.data.downtimeHours).to.be.above(0));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actualEnd\": \"2026-03-20T12:00:00+03:00\",\n  \"failureReason\": \"Разбит подшипник главного шпинделя\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders/{{workOrderId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders", "{{workOrderId}}", "complete"]
+            },
+            "description": "Причину указывать обязательно: этого требует триггер проверки дат заявки."
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Отчёты",
+      "item": [
+        {
+          "name": "Создать временную ссылку",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 — ссылка выдана', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('срок жизни 15 секунд', () => pm.expect(body.data.ttlSeconds).to.eql(15));",
+                  "pm.collectionVariables.set('reportUrl', body.data.url);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kind\": \"downtime\",\n  \"from\": \"2026-01-01\",\n  \"to\": \"2026-03-31\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/reports", "host": ["{{baseUrl}}"], "path": ["api", "reports"] },
+            "description": "Виды отчёта: downtime, crews, materials, plan. Ссылка живёт 15 секунд — скачивать нужно сразу."
+          }
+        },
+        {
+          "name": "Скачать отчёт",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}{{reportUrl}}",
+              "host": ["{{baseUrl}}"]
+            },
+            "description": "Выполнять сразу после предыдущего запроса. Файл сохраняется как PDF."
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Проверки ограничений",
+      "item": [
+        {
+          "name": "Статус выведенного оборудования (ожидается 409)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"Работает\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/api/equipment/44444444-4444-4444-4444-444444000450/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "equipment", "44444444-4444-4444-4444-444444000450", "status"]
+            },
+            "description": "КП-9 выведен из эксплуатации. Триггер trg_equipment_status_guard обязан отклонить изменение — ожидается 409 со статусом STATUS_LOCKED."
+          }
+        },
+        {
+          "name": "Дубль инвентарного номера (ожидается 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inventoryNumber\": \"ПР-2\",\n  \"name\": \"Дубль пресса\",\n  \"workshopId\": \"aaaaaaaa-0000-0000-0000-000000000002\",\n  \"commissionDate\": \"2024-01-15\",\n  \"status\": \"Работает\",\n  \"criticality\": 3\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/equipment", "host": ["{{baseUrl}}"], "path": ["api", "equipment"] },
+            "description": "Инвентарный номер уже занят прессом ПР-2. Ограничение уникальности обязано отклонить вставку."
+          }
+        },
+        {
+          "name": "Списание больше, чем есть (ожидается 409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"materialId\": \"{{materialId}}\",\n  \"quantity\": 9999\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/api/work-orders/{{workOrderId}}/materials",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "work-orders", "{{workOrderId}}", "materials"]
+            },
+            "description": "Заведомо больше остатка. Ожидается 409 с кодом NOT_ENOUGH_STOCK и неизменным остатком на складе."
+          }
+        }
+      ]
+    }
+  ]
+}
