@@ -41,6 +41,7 @@ public sealed class WorkOrdersController(IWorkOrderService service) : Controller
     /// <param name="order">asc или desc.</param>
     /// <param name="page">Номер страницы, начиная с 1.</param>
     /// <param name="pageSize">Размер страницы, от 1 до 100.</param>
+    /// <param name="ct">Токен отмены запроса.</param>
     [HttpGet]
     public async Task<ActionResult<ApiResponse<PagedResult<WorkOrderShortDto>>>> List(
         [FromQuery] Guid? equipmentId,
@@ -95,6 +96,7 @@ public sealed class WorkOrdersController(IWorkOrderService service) : Controller
     /// <summary>Создать заявку. Номер вида Z-YYYY-XXXX выдаёт сервис нумерации.</summary>
     /// <param name="dto">Оборудование, тема, описание неисправности и приоритет.</param>
     /// <param name="userId">Автор заявки, берётся из профиля.</param>
+    /// <param name="ct">Токен отмены запроса.</param>
     [HttpPost]
     [RequireRole(RoleCodes.Admin, RoleCodes.Manager, RoleCodes.Master)]
     public async Task<ActionResult<ApiResponse<WorkOrderDto>>> Create(

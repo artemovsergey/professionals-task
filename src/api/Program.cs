@@ -5,6 +5,7 @@ using Microsoft.OpenApi;
 using ToirProf.Api.Data;
 using ToirProf.Api.Middlewares;
 using ToirProf.Api.Services;
+using ToirProf.Api.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +101,11 @@ builder.Services.AddSwaggerGen(options =>
         {
             { new OpenApiSecuritySchemeReference(Bearer, null), new List<string>() },
         });
+
+    // Стандартные коды ответов (400, 401, 403, 404, 409, 429, 500) добавляет
+    // фильтр: правило одно для всех операций, а атрибуты пришлось бы
+    // повторить десятки раз и где-нибудь забыть.
+    options.OperationFilter<StandardResponsesOperationFilter>();
 });
 
 // ---------------------------------------------------------------------------
