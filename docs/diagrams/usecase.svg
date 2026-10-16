@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="900" viewBox="0 0 1480 900" role="img" aria-label="Диаграмма вариантов использования — ТОиР-Проф">
+  <title>Диаграмма вариантов использования — ТОиР-Проф</title>
+  <rect width="1480" height="900" fill="#ffffff"/>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7d8891"/></marker></defs>
+  <text x="24" y="38" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="20" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">Диаграмма вариантов использования — ТОиР-Проф</text>
+  <text x="24" y="60" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">Актёры, граница системы, ассоциации и отношения «include» / «extend»</text>
+  <rect x="260" y="206" width="1180" height="524" rx="0" fill="#fbfcfd" stroke="#2f6fb0" stroke-width="1.6"/>
+  <text x="278" y="234" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="17" font-weight="bold" font-style="normal" text-anchor="start" fill="#2f6fb0">ТОиР-Проф</text>
+  <text x="390" y="234" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">— граница системы</text>
+  <rect x="304" y="250" width="252" height="56" rx="6" fill="#dce8f4" stroke="#2f6fb0" stroke-width="1"/>
+  <text x="430" y="272" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="bold" font-style="normal" text-anchor="middle" fill="#2f6fb0">Мастер участка</text>
+  <text x="430" y="290" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">своя работа</text>
+  <ellipse cx="430" cy="96" rx="11" ry="11" fill="#ffffff" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="430" y1="107" x2="430" y2="134" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="430" y1="112" x2="412" y2="122" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="430" y1="112" x2="448" y2="122" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="430" y1="134" x2="416" y2="158" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="430" y1="134" x2="444" y2="158" stroke="#1f2429" stroke-width="1.5"/>
+  <text x="430" y="166" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">Составляет заявки,</text>
+  <text x="430" y="179" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">ведёт работы, списывает ЗИП</text>
+  <rect x="594" y="250" width="252" height="56" rx="6" fill="#dce8f4" stroke="#2f6fb0" stroke-width="1"/>
+  <text x="720" y="272" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="bold" font-style="normal" text-anchor="middle" fill="#2f6fb0">Руководитель цеха</text>
+  <text x="720" y="290" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">управление и аналитика</text>
+  <ellipse cx="720" cy="96" rx="11" ry="11" fill="#ffffff" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="720" y1="107" x2="720" y2="134" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="720" y1="112" x2="702" y2="122" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="720" y1="112" x2="738" y2="122" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="720" y1="134" x2="706" y2="158" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="720" y1="134" x2="734" y2="158" stroke="#1f2429" stroke-width="1.5"/>
+  <text x="720" y="166" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">Назначает бригады,</text>
+  <text x="720" y="179" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">смотрит аналитику и отчёты</text>
+  <rect x="884" y="250" width="252" height="56" rx="6" fill="#dce8f4" stroke="#2f6fb0" stroke-width="1"/>
+  <text x="1010" y="272" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="bold" font-style="normal" text-anchor="middle" fill="#2f6fb0">Администратор</text>
+  <text x="1010" y="290" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">справочники и доступы</text>
+  <ellipse cx="1010" cy="96" rx="11" ry="11" fill="#ffffff" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="1010" y1="107" x2="1010" y2="134" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="1010" y1="112" x2="992" y2="122" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="1010" y1="112" x2="1028" y2="122" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="1010" y1="134" x2="996" y2="158" stroke="#1f2429" stroke-width="1.5"/>
+  <line x1="1010" y1="134" x2="1024" y2="158" stroke="#1f2429" stroke-width="1.5"/>
+  <text x="1010" y="166" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">Ведёт справочники, роли</text>
+  <text x="1010" y="179" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">и журнал операций</text>
+  <rect x="1164" y="250" width="252" height="56" rx="6" fill="#dce8f4" stroke="#2f6fb0" stroke-width="1"/>
+  <text x="1290" y="272" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="bold" font-style="normal" text-anchor="middle" fill="#2f6fb0">Служебные варианты</text>
+  <text x="1290" y="290" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="middle" fill="#5b6670">include и extend</text>
+  <polyline points="430,158 430,196 304,196" fill="none" stroke="#1f2429" stroke-width="1.3"/>
+  <line x1="304" y1="306" x2="304" y2="656" stroke="#1f2429" stroke-width="1.3"/>
+  <polyline points="304,336 315,336" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="304,416 315,416" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="304,496 315,496" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="304,576 315,576" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="304,656 315,656" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="720,158 720,196 594,196" fill="none" stroke="#1f2429" stroke-width="1.3"/>
+  <line x1="594" y1="306" x2="594" y2="576" stroke="#1f2429" stroke-width="1.3"/>
+  <polyline points="594,336 605,336" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="594,416 605,416" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="594,496 605,496" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="594,576 605,576" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="1010,158 1010,196 884,196" fill="none" stroke="#1f2429" stroke-width="1.3"/>
+  <line x1="884" y1="306" x2="884" y2="496" stroke="#1f2429" stroke-width="1.3"/>
+  <polyline points="884,336 895,336" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="884,416 895,416" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <polyline points="884,496 895,496" fill="none" stroke="#1f2429" stroke-width="1.1"/>
+  <ellipse cx="430" cy="336" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="430" y="340" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Авторизация</text>
+  <ellipse cx="430" cy="416" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="430" y="420" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Создать заявку</text>
+  <ellipse cx="430" cy="496" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="430" y="500" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Смотреть график ТО</text>
+  <ellipse cx="430" cy="576" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="430" y="580" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Выполнить работы</text>
+  <ellipse cx="430" cy="656" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="430" y="660" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Офлайн-очередь</text>
+  <ellipse cx="720" cy="336" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="720" y="340" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Дашборд</text>
+  <ellipse cx="720" cy="416" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="720" y="420" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Назначить бригаду</text>
+  <ellipse cx="720" cy="496" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="720" y="500" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Смотреть аналитику</text>
+  <ellipse cx="720" cy="576" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="720" y="580" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Сформировать отчёт</text>
+  <ellipse cx="1010" cy="336" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1010" y="340" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Вести график ТО</text>
+  <ellipse cx="1010" cy="416" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1010" y="420" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Пользователи и роли</text>
+  <ellipse cx="1010" cy="496" rx="112" ry="28" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1010" y="500" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Журнал операций</text>
+  <ellipse cx="1290" cy="336" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1290" y="340" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Проверить права роли</text>
+  <ellipse cx="1290" cy="416" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1290" y="420" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Рассчитать дату ТО</text>
+  <ellipse cx="1290" cy="496" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1290" y="500" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Проверить остаток ЗИП</text>
+  <ellipse cx="1290" cy="576" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1290" y="580" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Уведомить о просрочке</text>
+  <ellipse cx="1290" cy="656" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1290" y="660" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Поиск и фильтры</text>
+  <ellipse cx="1290" cy="736" rx="112" ry="28" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="1290" y="740" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="middle" fill="#1f2429">Экспорт отчёта</text>
+  <polyline points="430,310 430,292 1290,292 1290,310" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="1010,310 1010,292 1290,372 1290,390" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="430,550 430,532 1290,452 1290,470" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="720,550 720,532 720,452 720,470" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="1290,550 1290,532 430,452 430,470" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="1290,710 1290,692 720,532 720,550" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="1290,630 1290,612 720,452 720,470" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <polyline points="430,630 430,612 430,372 430,390" fill="none" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+  <rect x="24" y="752" width="1180" height="122" rx="6" fill="#ffffff" stroke="#7d8891" stroke-width="1"/>
+  <text x="40" y="776" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">Обозначения</text>
+  <line x1="40" y1="796" x2="84" y2="796" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5"/>
+  <text x="94" y="800" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«include» — обязательная часть варианта</text>
+  <line x1="400" y1="796" x2="444" y2="796" stroke="#5b6670" stroke-width="1.2" stroke-dasharray="7 5"/>
+  <text x="454" y="800" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«extend» — необязательное поведение</text>
+  <ellipse cx="820" cy="796" rx="16" ry="9" fill="#f4f6f8" stroke="#2f6fb0" stroke-width="1"/>
+  <text x="846" y="800" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">служебный вариант</text>
+  <ellipse cx="960" cy="796" rx="16" ry="9" fill="#ffffff" stroke="#2f6fb0" stroke-width="1"/>
+  <text x="986" y="800" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">основной вариант</text>
+  <text x="40" y="830" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">include:</text>
+  <text x="100" y="830" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">авторизация → проверка прав роли · вести график ТО → расчёт даты ТО · выполнить работы → проверка остатка ЗИП · сформировать отчёт → смотреть аналитику</text>
+  <text x="40" y="852" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">extend:</text>
+  <text x="100" y="852" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">уведомить о просрочке → смотреть график ТО · экспорт отчёта → сформировать отчёт · поиск и фильтры → смотреть аналитику · офлайн-очередь → создать заявку</text>
+</svg>

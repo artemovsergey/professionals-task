@@ -1,0 +1,225 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1121" viewBox="0 0 1700 1121" role="img" aria-label="Диаграмма классов — ТОиР-Проф">
+  <title>Диаграмма классов — ТОиР-Проф</title>
+  <rect width="1700" height="1121" fill="#ffffff"/>
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7d8891"/></marker></defs>
+  <text x="24" y="38" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="20" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">Диаграмма классов — ТОиР-Проф</text>
+  <text x="24" y="60" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="12" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">Классы повторяют таблицы db/schema.sql; секции: атрибуты, операции, видимость</text>
+  <rect x="40" y="96" width="230" height="108" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="40" y="96" width="230" height="30" rx="4" fill="#eef4fa" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="50" y="116" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Роль»</text>
+  <text x="50" y="143" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="50" y="160" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- code : string «UK»</text>
+  <text x="50" y="177" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- name : string</text>
+  <text x="50" y="194" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- description : string?</text>
+  <rect x="340" y="96" width="230" height="210" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="340" y="96" width="230" height="30" rx="4" fill="#eef4fa" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="350" y="116" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Пользователь»</text>
+  <text x="350" y="143" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="350" y="160" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- username : string «UK»</text>
+  <text x="350" y="177" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- passwordHash : string</text>
+  <text x="350" y="194" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- fullName : string</text>
+  <text x="350" y="211" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- roleId : UUID «FK»</text>
+  <text x="350" y="228" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- isActive : bool</text>
+  <text x="350" y="245" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- createdAt : datetime</text>
+  <text x="350" y="262" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- updatedAt : datetime</text>
+  <line x1="340" y1="269" x2="570" y2="269" stroke="#7d8891" stroke-width="1"/>
+  <text x="350" y="287" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ login()</text>
+  <text x="350" y="304" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ changePassword()</text>
+  <rect x="640" y="96" width="230" height="91" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="640" y="96" width="230" height="30" rx="4" fill="#eef4fa" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="650" y="116" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Цех»</text>
+  <text x="650" y="143" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="650" y="160" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- code : string «UK»</text>
+  <text x="650" y="177" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- name : string</text>
+  <rect x="940" y="96" width="230" height="125" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="940" y="96" width="230" height="30" rx="4" fill="#eef4fa" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="950" y="116" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Вид ТО»</text>
+  <text x="950" y="143" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="950" y="160" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- code : string «UK»</text>
+  <text x="950" y="177" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- name : string</text>
+  <text x="950" y="194" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- intervalDays : int</text>
+  <text x="950" y="211" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- isActive : bool</text>
+  <rect x="40" y="238" width="230" height="210" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="40" y="238" width="230" height="30" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="50" y="258" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Оборудование»</text>
+  <text x="50" y="285" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="50" y="302" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- inventoryNumber : string «UK»</text>
+  <text x="50" y="319" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- name : string</text>
+  <text x="50" y="336" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- workshopId : UUID «FK»</text>
+  <text x="50" y="353" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- commissionDate : date</text>
+  <text x="50" y="370" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- decommissionDate : date?</text>
+  <text x="50" y="387" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- status : EquipmentStatus</text>
+  <text x="50" y="404" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- criticality : int</text>
+  <line x1="40" y1="411" x2="270" y2="411" stroke="#7d8891" stroke-width="1"/>
+  <text x="50" y="429" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ changeStatus(s : EquipmentStatus)</text>
+  <text x="50" y="446" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ isDecommissioned() : bool</text>
+  <rect x="340" y="340" width="230" height="210" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="340" y="340" width="230" height="30" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="350" y="360" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«График ТО»</text>
+  <text x="350" y="387" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="350" y="404" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- equipmentId : UUID «FK»</text>
+  <text x="350" y="421" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- maintenanceTypeId : UUID «FK»</text>
+  <text x="350" y="438" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- plannedDate : date</text>
+  <text x="350" y="455" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- completedDate : date?</text>
+  <text x="350" y="472" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- nextPlannedDate : date?</text>
+  <text x="350" y="489" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- status : string</text>
+  <text x="350" y="506" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- actualCost : decimal?</text>
+  <line x1="340" y1="513" x2="570" y2="513" stroke="#7d8891" stroke-width="1"/>
+  <text x="350" y="531" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ complete(date : date, cost : decimal?)</text>
+  <text x="350" y="548" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ returnToPlan()</text>
+  <rect x="640" y="221" width="230" height="125" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="640" y="221" width="230" height="30" rx="4" fill="#eef4fa" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="650" y="241" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Бригада»</text>
+  <text x="650" y="268" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="650" y="285" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- code : string «UK»</text>
+  <text x="650" y="302" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- name : string</text>
+  <text x="650" y="319" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- specialty : string?</text>
+  <text x="650" y="336" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- isActive : bool</text>
+  <rect x="940" y="255" width="230" height="108" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="940" y="255" width="230" height="30" rx="4" fill="#f4f1f9" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="950" y="275" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Член бригады»</text>
+  <text x="950" y="302" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="950" y="319" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- crewId : UUID «FK»</text>
+  <text x="950" y="336" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- userId : UUID «FK»</text>
+  <text x="950" y="353" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- joinedAt : date</text>
+  <rect x="40" y="482" width="230" height="193" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="40" y="482" width="230" height="30" rx="4" fill="#eef4fa" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="50" y="502" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Материал»</text>
+  <text x="50" y="529" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="50" y="546" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- sku : string «UK»</text>
+  <text x="50" y="563" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- name : string</text>
+  <text x="50" y="580" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- unit : string</text>
+  <text x="50" y="597" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- price : decimal</text>
+  <text x="50" y="614" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- stock : decimal</text>
+  <text x="50" y="631" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- minStock : decimal</text>
+  <line x1="40" y1="638" x2="270" y2="638" stroke="#7d8891" stroke-width="1"/>
+  <text x="50" y="656" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ isShortage() : bool</text>
+  <text x="50" y="673" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ receive(qty : decimal)</text>
+  <rect x="340" y="584" width="230" height="397" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="340" y="584" width="230" height="30" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="350" y="604" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Заявка»</text>
+  <text x="350" y="631" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="350" y="648" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- number : string «UK»</text>
+  <text x="350" y="665" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- equipmentId : UUID «FK»</text>
+  <text x="350" y="682" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- maintenanceTypeId : UUID «FK?»</text>
+  <text x="350" y="699" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- scheduleId : UUID «FK?»</text>
+  <text x="350" y="716" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- crewId : UUID «FK?»</text>
+  <text x="350" y="733" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- createdBy : UUID «FK»</text>
+  <text x="350" y="750" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- assignedTo : UUID «FK?»</text>
+  <text x="350" y="767" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- priority : WorkOrderPriority</text>
+  <text x="350" y="784" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- status : WorkOrderStatus</text>
+  <text x="350" y="801" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- plannedStart : date?</text>
+  <text x="350" y="818" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- plannedEnd : date?</text>
+  <text x="350" y="835" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- actualStart : datetime?</text>
+  <text x="350" y="852" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- actualEnd : datetime?</text>
+  <text x="350" y="869" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- downtimeHours : decimal?</text>
+  <text x="350" y="886" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- failureReason : string?</text>
+  <line x1="340" y1="893" x2="570" y2="893" stroke="#7d8891" stroke-width="1"/>
+  <text x="350" y="911" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ assignCrew(crew : Crew)</text>
+  <text x="350" y="928" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ start(at : datetime)</text>
+  <text x="350" y="945" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ complete(at : datetime, reason : string)</text>
+  <text x="350" y="962" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ writeOff(material : Material, qty : decimal)</text>
+  <text x="350" y="979" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ canTransition(to : WorkOrderStatus) : bool</text>
+  <rect x="640" y="380" width="230" height="142" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="640" y="380" width="230" height="30" rx="4" fill="#f4f1f9" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="650" y="400" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Списание»</text>
+  <text x="650" y="427" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="650" y="444" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- workOrderId : UUID «FK»</text>
+  <text x="650" y="461" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- materialId : UUID «FK»</text>
+  <text x="650" y="478" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- quantity : decimal</text>
+  <text x="650" y="495" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- unitPrice : decimal</text>
+  <text x="650" y="512" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- cost : decimal «= q × p»</text>
+  <rect x="940" y="397" width="230" height="176" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="940" y="397" width="230" height="30" rx="4" fill="#f4f1f9" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="950" y="417" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Журнал операций»</text>
+  <text x="950" y="444" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- id : UUID «PK»</text>
+  <text x="950" y="461" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">- userId : UUID «FK?»</text>
+  <text x="950" y="478" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- tableName : string</text>
+  <text x="950" y="495" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- recordId : UUID?</text>
+  <text x="950" y="512" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- operation : string</text>
+  <text x="950" y="529" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- oldValues : string?</text>
+  <text x="950" y="546" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- newValues : string?</text>
+  <text x="950" y="563" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- createdAt : datetime</text>
+  <rect x="40" y="709" width="230" height="91" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="40" y="709" width="230" height="30" rx="4" fill="#f4f1f9" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="50" y="729" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Счётчик номеров»</text>
+  <text x="50" y="756" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">- year : int «PK»</text>
+  <text x="50" y="773" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- lastValue : int «≥ 0»</text>
+  <line x1="40" y1="780" x2="270" y2="780" stroke="#7d8891" stroke-width="1"/>
+  <text x="50" y="798" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#2f855a">+ next() : string «Z-YYYY-XXXX»</text>
+  <rect x="640" y="556" width="230" height="91" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="640" y="556" width="230" height="30" rx="4" fill="#fbf3e3" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="650" y="576" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Статус оборудования»</text>
+  <text x="650" y="603" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Работает</text>
+  <text x="650" y="620" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» В ремонте</text>
+  <text x="650" y="637" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Выведено из эксплуатации</text>
+  <rect x="940" y="607" width="230" height="125" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="940" y="607" width="230" height="30" rx="4" fill="#fbf3e3" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="950" y="627" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Статус заявки»</text>
+  <text x="950" y="654" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Черновик</text>
+  <text x="950" y="671" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Назначена</text>
+  <text x="950" y="688" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» В работе</text>
+  <text x="950" y="705" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Завершена</text>
+  <text x="950" y="722" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Отменена</text>
+  <rect x="640" y="681" width="230" height="108" rx="4" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.4"/>
+  <rect x="640" y="681" width="230" height="30" rx="4" fill="#fbf3e3" stroke="#2f6fb0" stroke-width="1.4"/>
+  <text x="650" y="701" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">«Приоритет заявки»</text>
+  <text x="650" y="728" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Низкий</text>
+  <text x="650" y="745" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Средний</text>
+  <text x="650" y="762" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Высокий</text>
+  <text x="650" y="779" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«enum» Аварийный</text>
+  <polyline points="270,126 340,126" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="305" y="120" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <polyline points="870,126 40,268" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="455" y="191" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="455" y="209" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">RESTRICT</text>
+  <polyline points="1170,126 340,370" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="755" y="242" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="755" y="260" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">RESTRICT</text>
+  <polyline points="270,268 340,370" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="305" y="313" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="305" y="331" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">CASCADE</text>
+  <polyline points="870,251 940,285" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="905" y="262" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="905" y="280" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">CASCADE</text>
+  <polyline points="570,126 940,285" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="755" y="199.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="755" y="217.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">CASCADE</text>
+  <polyline points="570,126 340,614" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="455" y="364" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. *</text>
+  <text x="455" y="382" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">RESTRICT</text>
+  <polyline points="570,126 340,614" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="455" y="364" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. *</text>
+  <text x="455" y="382" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">SET NULL</text>
+  <polyline points="270,268 340,614" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="305" y="435" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="305" y="453" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">RESTRICT</text>
+  <polyline points="1170,126 340,614" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="755" y="364" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. *</text>
+  <text x="755" y="382" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">RESTRICT</text>
+  <polyline points="570,370 340,614" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="455" y="486" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. 1</text>
+  <text x="455" y="504" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">SET NULL</text>
+  <polyline points="870,251 340,614" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="605" y="426.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. *</text>
+  <text x="605" y="444.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">SET NULL</text>
+  <polyline points="570,614 640,410" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="605" y="506" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <polyline points="270,512 640,410" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="455" y="455" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. *</text>
+  <text x="455" y="473" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">RESTRICT</text>
+  <polyline points="570,126 940,427" fill="none" stroke="#7d8891" stroke-width="1.3"/>
+  <text x="755" y="270.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. *</text>
+  <text x="755" y="288.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="9" font-weight="normal" font-style="italic" text-anchor="start" fill="#5b6670">SET NULL</text>
+  <polyline points="155,709 455,584" fill="none" stroke="#7d8891" stroke-width="1.3" stroke-dasharray="8 5"/>
+  <text x="305" y="640.5" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="10" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. 1</text>
+  <rect x="40" y="1009" width="1620" height="96" rx="6" fill="#ffffff" stroke="#7d8891" stroke-width="1"/>
+  <text x="60" y="1035" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="13" font-weight="bold" font-style="normal" text-anchor="start" fill="#1f2429">Обозначения</text>
+  <text x="60" y="1059" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">- private / + public</text>
+  <text x="300" y="1059" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#c0392b">«PK» первичный ключ</text>
+  <text x="500" y="1059" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#b7791f">«FK» внешний ключ</text>
+  <text x="680" y="1059" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">«= q × p» вычисляемое поле</text>
+  <text x="940" y="1059" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">1 .. * одна ко многим</text>
+  <text x="1200" y="1059" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">0 .. * ноль или много</text>
+  <text x="60" y="1083" font-family="Segoe UI, DejaVu Sans, sans-serif" font-size="11" font-weight="normal" font-style="normal" text-anchor="start" fill="#5b6670">Подпись у связи — правило удаления: RESTRICT запрещает, CASCADE удаляет вместе, SET NULL обнуляет.</text>
+</svg>

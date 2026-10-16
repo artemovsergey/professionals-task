@@ -1,0 +1,216 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="class-model" name="class-model">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="1" value="Роль
+  - id : UUID «PK»
+- code : string «UK»
+- name : string
+- description : string?" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#eef4fa;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="96" width="230" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="2" value="Пользователь
+  - id : UUID «PK»
+- username : string «UK»
+- passwordHash : string
+- fullName : string
+- roleId : UUID «FK»
+- isActive : bool
+- createdAt : datetime
+- updatedAt : datetime
+  + login()
++ changePassword()" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#eef4fa;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="340" y="96" width="230" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="Цех
+  - id : UUID «PK»
+- code : string «UK»
+- name : string" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#eef4fa;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="96" width="230" height="91" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="Вид ТО
+  - id : UUID «PK»
+- code : string «UK»
+- name : string
+- intervalDays : int
+- isActive : bool" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#eef4fa;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="940" y="96" width="230" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="Оборудование
+  - id : UUID «PK»
+- inventoryNumber : string «UK»
+- name : string
+- workshopId : UUID «FK»
+- commissionDate : date
+- decommissionDate : date?
+- status : EquipmentStatus
+- criticality : int
+  + changeStatus(s : EquipmentStatus)
++ isDecommissioned() : bool" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#ffffff;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="238" width="230" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="График ТО
+  - id : UUID «PK»
+- equipmentId : UUID «FK»
+- maintenanceTypeId : UUID «FK»
+- plannedDate : date
+- completedDate : date?
+- nextPlannedDate : date?
+- status : string
+- actualCost : decimal?
+  + complete(date : date, cost : decimal?)
++ returnToPlan()" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#ffffff;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="340" y="340" width="230" height="210" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="Бригада
+  - id : UUID «PK»
+- code : string «UK»
+- name : string
+- specialty : string?
+- isActive : bool" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#eef4fa;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="221" width="230" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="Член бригады
+  - id : UUID «PK»
+- crewId : UUID «FK»
+- userId : UUID «FK»
+- joinedAt : date" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#f4f1f9;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="940" y="255" width="230" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="Материал
+  - id : UUID «PK»
+- sku : string «UK»
+- name : string
+- unit : string
+- price : decimal
+- stock : decimal
+- minStock : decimal
+  + isShortage() : bool
++ receive(qty : decimal)" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#eef4fa;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="482" width="230" height="193" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="Заявка
+  - id : UUID «PK»
+- number : string «UK»
+- equipmentId : UUID «FK»
+- maintenanceTypeId : UUID «FK?»
+- scheduleId : UUID «FK?»
+- crewId : UUID «FK?»
+- createdBy : UUID «FK»
+- assignedTo : UUID «FK?»
+- priority : WorkOrderPriority
+- status : WorkOrderStatus
+- plannedStart : date?
+- plannedEnd : date?
+- actualStart : datetime?
+- actualEnd : datetime?
+- downtimeHours : decimal?
+- failureReason : string?
+  + assignCrew(crew : Crew)
++ start(at : datetime)
++ complete(at : datetime, reason : string)
++ writeOff(material : Material, qty : decimal)
++ canTransition(to : WorkOrderStatus) : bool" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#ffffff;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="340" y="584" width="230" height="397" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="Списание
+  - id : UUID «PK»
+- workOrderId : UUID «FK»
+- materialId : UUID «FK»
+- quantity : decimal
+- unitPrice : decimal
+- cost : decimal «= q × p»" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#f4f1f9;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="380" width="230" height="142" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="Журнал операций
+  - id : UUID «PK»
+- userId : UUID «FK?»
+- tableName : string
+- recordId : UUID?
+- operation : string
+- oldValues : string?
+- newValues : string?
+- createdAt : datetime" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#f4f1f9;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="940" y="397" width="230" height="176" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="Счётчик номеров
+  - year : int «PK»
+- lastValue : int «≥ 0»
+  + next() : string «Z-YYYY-XXXX»" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#f4f1f9;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="40" y="709" width="230" height="91" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="Статус оборудования
+  «enum» Работает
+«enum» В ремонте
+«enum» Выведено из эксплуатации" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#fbf3e3;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="556" width="230" height="91" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="Статус заявки
+  «enum» Черновик
+«enum» Назначена
+«enum» В работе
+«enum» Завершена
+«enum» Отменена" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#fbf3e3;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="940" y="607" width="230" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="Приоритет заявки
+  «enum» Низкий
+«enum» Средний
+«enum» Высокий
+«enum» Аварийный" style="swimlane;html=1;whiteSpace=wrap;startSize=30;fillColor=#fbf3e3;strokeColor=#2f6fb0;fontStyle=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="640" y="681" width="230" height="108" as="geometry"/>
+        </mxCell>
+        <mxCell id="e17" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="1" target="2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e18" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="3" target="5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e19" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="4" target="6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e20" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="5" target="6">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e21" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="7" target="8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e22" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="2" target="8">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e23" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="2" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e24" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="2" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e25" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="5" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e26" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="4" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e27" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="6" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e28" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="7" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e29" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="10" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e30" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="9" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e31" style="endArrow=none;html=1;strokeColor=#7d8891;dashed=0;" edge="1" parent="1" source="2" target="12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e32" style="endArrow=open;html=1;strokeColor=#7d8891;dashed=1;" edge="1" parent="1" source="13" target="10">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
