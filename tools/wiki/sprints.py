@@ -1409,7 +1409,7 @@ PAGES.append(P(
           "статусов из журнала операций. Один запрос вместо четырёх.",
           code="var order = await _db.WorkOrders.AsNoTracking()\n    .Include(w => w.Equipment).ThenInclude(e => e.Workshop)\n    .Include(w => w.Crew).ThenInclude(c => c.Members)\n    .Include(w => w.Materials).ThenInclude(m => m.Material)\n    .Include(w => w.History.OrderBy(h => h.ChangedAt))\n    .FirstOrDefaultAsync(w => w.Number == number, ct)\n    ?? throw new NotFoundException(\"Заявка не найдена\");\n\nreturn ApiResponse<WorkOrderDto>.Ok(order.ToDto());",
           lang="csharp", hint="src/api/Controllers/WorkOrdersController.cs",
-          png="detail", cap="Заявка Z-2026-0048: оборудование, бригада, 3 материала, 4 записи истории",
+          png="detail", cap="Заявка Z-2026-0047: оборудование, бригада, 3 материала, 4 записи истории",
           note=["Поиск по номеру, а не по `id`, — так удобнее эксперту: в Swagger "
                 "не нужно искать GUID. Номер уникален, значит и результат один."]),
     ],
@@ -1569,7 +1569,7 @@ PAGES.append(P(
           "`calculateTotalMaterialCost` на странице 47.",
           code="var total = await _db.WorkOrderMaterials.AsNoTracking()\n    .Where(m => m.WorkOrderId == orderId)\n    .SumAsync(m => m.Cost, ct);\n\nvar totalQty = await _db.WorkOrderMaterials.AsNoTracking()\n    .Where(m => m.WorkOrderId == orderId)\n    .SumAsync(m => m.Quantity, ct);\n\nreturn ApiResponse<MaterialCostDto>.Ok(new(orderId, total, totalQty));",
           lang="csharp", hint="src/api/Controllers/WorkOrdersController.cs",
-          png="cost", gif="cost-postman", cap="Итог заявки Z-2026-0048: 7 300,00 руб. по трём позициям",
+          png="cost", gif="cost-postman", cap="Итог заявки Z-2026-0047: 7 300,00 руб. по трём позициям",
           note=["Сумма считается в SQL (`SUM`), а не перебором списка. Для пустого "
                 "набора `SUM` вернёт `null` — приводите к нулю через `?? 0m`, иначе "
                 "JSON покажет `cost: null` и клиент сломается на форматировании."]),
@@ -1587,7 +1587,7 @@ PAGES.append(P(
      ("`cost` приходит как `null`", "нет позиций списания или забыли `?? 0m`"),
      ("Стоимость пересчитывается при смене цены", "храните цену в позиции списания"),
      ("Остаток ушёл в минус", "не хватает блокировки строки — используйте атомарный `UPDATE … WHERE stock >= {0}`")],
-    "curl -s http://localhost:5080/api/work-orders/Z-2026-0048/cost -H \"Authorization: Bearer $TOKEN\" | python3 -m json.tool",
+    "curl -s http://localhost:5080/api/work-orders/Z-2026-0047/cost -H \"Authorization: Bearer $TOKEN\" | python3 -m json.tool",
     "feat(api): материалы, ЗИП и списание с пересчётом стоимости заявки",
 ))
 
@@ -1614,7 +1614,7 @@ PAGES.append(P(
           "умеет считать разные условия в одной строке.",
           code="var rows = await _db.WorkOrders.AsNoTracking()\n    .Where(w => w.CreatedAt >= period.From && w.CreatedAt < period.To)\n    .Select(w => new { w.Status, w.Priority, w.DowntimeHours, w.Equipment.WorkshopId, w.Equipment.Workshop.Name })\n    .ToListAsync(ct);\n\nvar total = rows.Count;\nvar summary = new DashboardSummary(\n    TotalOrders: total,\n    InProgress: rows.Count(w => w.Status == WorkOrderStatus.Вработе),\n    Completed: rows.Count(w => w.Status == WorkOrderStatus.Завершена),\n    AverageDowntimeHours: Math.Round(rows.Where(w => w.DowntimeHours != null).Average(w => w.DowntimeHours ?? 0m), 2),\n    EmergencyShare: total == 0 ? 0m : Math.Round(rows.Count(w => w.Priority == WorkOrderPriority.Аварийный) * 100m / total, 1),\n    MaintenancePlanShare: Math.Round(await _db.MaintenanceSchedule.AsNoTracking()\n        .CountAsync(m => m.Status == \"Выполнено\", ct) * 100m\n        / Math.Max(1, await _db.MaintenanceSchedule.AsNoTracking().CountAsync(ct)), 1),\n    ByWorkshop: rows.GroupBy(w => new { w.WorkshopId, w.Name })\n        .Select(g => new WorkshopSlice(g.Key.WorkshopId, g.Key.Name, g.Count(),\n            g.Count(w => w.Status == WorkOrderStatus.Завершена),\n            g.Where(w => w.DowntimeHours != null).Sum(w => w.DowntimeHours ?? 0m))).ToList());",
           lang="csharp", hint="src/api/Services/DashboardService.cs",
-          png="summary", gif="summary-postman", cap="Дашборд за март: 47 заявок, средний простой 6,3 ч, аварийных 19,1 %",
+          png="summary", gif="summary-postman", cap="Дашборд за квартал: 47 заявок, простой и доля аварийных — смотрите в отчёте db/verify.sql",
           note=["Материализация строк через `.ToListAsync()` здесь осознанна: на объёме "
                 "в несколько сотен строк это дешевле и заметно проще, чем шесть "
                 "отдельных запросов. На больших объёмах — возвращайтесь к агрегатам "
@@ -2195,11 +2195,11 @@ PAGES.append(P(
                 "бригад. Фильтровать это на клиенте нельзя: в ответе придёт "
                 "больше строк, чем имеет право видеть пользователь."]),
         S("Карточка заявки", 30,
-          "Номер вида Z-2026-0048, оборудование, описание неисправности, "
+          "Номер вида Z-YYYY-XXXX, оборудование, описание неисправности, "
           "плановые и фактические даты, статус в виде «шагов».",
           code="<StackPanel Spacing=\"14\">\n  <TextBlock Text=\"{Binding Number}\" FontSize=\"24\" FontWeight=\"SemiBold\" />\n  <Grid ColumnDefinitions=\"160,*\" RowSpacing=\"6\">\n    <TextBlock Text=\"Оборудование\" Opacity=\"0.7\" />\n    <TextBlock Grid.Column=\"1\" Text=\"{Binding EquipmentName}\" />\n    <TextBlock Text=\"Приоритет\" Opacity=\"0.7\" />\n    <TextBlock Grid.Column=\"1\" Text=\"{Binding Priority}\" />\n    <TextBlock Text=\"Описание\" Opacity=\"0.7\" />\n    <TextBlock Grid.Column=\"1\" Text=\"{Binding Description}\" TextWrapping=\"Wrap\" />\n    <TextBlock Text=\"Простой\" Opacity=\"0.7\" />\n    <TextBlock Grid.Column=\"1\" Text=\"{Binding DowntimeHours, StringFormat='0.00 ч'}\" />\n  </Grid>\n</StackPanel>",
           lang="xml", hint="src/desktop/Views/WorkOrderCardView.axaml",
-          png="card", gif="card-open", cap="Карточка заявки Z-2026-0048",
+          png="card", gif="card-open", cap="Карточка заявки Z-2026-0047",
           note=["Простой показывайте сразу из поля, которое посчитал триггер. "
                 "Пустое поле «простой» на открытой заявке выглядит как ошибка, "
                 "хотя просто ещё не начался."]),
@@ -2226,7 +2226,7 @@ PAGES.append(P(
           "список с прежними фильтрами.",
           code="public override void OnNavigatedTo(NavigationContext context)\n{\n    Breadcrumbs = [\"Главная\", \"Заявки\", Number];\n}\n\nprivate void GoBack()\n{\n    NavigationService?.GoBack();\n    FiltersSnapshot = _savedFilters;\n}",
           lang="csharp", hint="src/desktop/ViewModels/WorkOrderViewModel.cs",
-          png="nav", cap="Крошки «Главная / Заявки / Z-2026-0048» и возврат к списку",
+          png="nav", cap="Крошки «Главная / Заявки / Z-2026-0047» и возврат к списку",
           note=["Сохраняйте состояние фильтров при возврате. Мастер ушёл в "
                 "заявку, посмотрел и вернулся — фильтр сбросился, значит снова "
                 "искать. Это заметно тормозит работу."]),
@@ -2284,7 +2284,7 @@ PAGES.append(P(
           "Количество ограничено остатком.",
           code="private int ClampToStock(MaterialDto material, int requested)\n    => Math.Clamp(requested, 0, material.Stock);\n\nvar lines = SelectedMaterials\n    .Select(m => new WorkOrderMaterialDto(m.Id, ClampToStock(m, m.Quantity), DateTime.Today))\n    .ToList();\n\nvar response = await _api.AddMaterialsAsync(Number, lines, ct);\nif (!response.Success)\n{\n    _dialogs.ShowWarning(\"Списание не выполнено\", response.Message);\n    _toasts.Show(\"Остатки изменились, проверьте количество\", ToastKind.Warning);\n}",
           lang="csharp", hint="src/desktop/ViewModels/MaterialViewModel.cs",
-          png="writeoff", gif="writeoff-submit", cap="Списание 4 подшипников в заявку Z-2026-0048",
+          png="writeoff", gif="writeoff-submit", cap="Списание 4 подшипников в заявку Z-2026-0047",
           note=["`Math.Clamp` по остатку снимает большинство 409, но не все: "
                 "между вашим запросом и отправкой материал мог списать другой "
                 "мастер. Обработку 409 всё равно оставьте."]),
@@ -2534,7 +2534,7 @@ PAGES.append(P(
           "изменения к прошлому периоду.",
           code="export function MetricCard({ title, value, caption, delta }: MetricCardProps) {\n  return (\n    <article className=\"metric\">\n      <h3>{title}</h3>\n      <p className=\"metric__value\">{value}</p>\n      <p className=\"metric__caption\">{caption}</p>\n      {delta !== undefined && (\n        <span className={`metric__delta ${delta < 0 ? 'is-down' : 'is-up'}`}>\n          {delta > 0 ? '↑' : '↓'} {Math.abs(delta)}%\n        </span>\n      )}\n    </article>\n  )\n}",
           lang="tsx", hint="src/web/src/components/MetricCard.tsx",
-          png="metrics", gif="metrics-load", cap="Шесть карточек: 47, 12, 31, 6,3 ч, 19,1 %, 84,0 %",
+          png="metrics", gif="metrics-load", cap="Шесть карточек: заявки за период, простой, аварийные, план ТО, списание, цехи",
           note=["Подпись под значением обязательна: без неё «6,3» неотличимо от "
                 "процентов. Эксперты читают дашборд за три секунды."]),
         S("Состояния загрузки и ошибки", 25,
@@ -2591,7 +2591,7 @@ PAGES.append(P(
           "цвета фиксированные — иначе цвета прыгают между обновлениями.",
           code="const STATUS_COLORS: Record<WorkOrderStatus, string> = {\n  'Черновик': '#9E9E9E',\n  'Назначена': '#1F6FEB',\n  'В работе': '#F9A825',\n  'Завершена': '#2E7D32',\n  'Отменена': '#C62828',\n}\n\nexport function StatusPie({ data }: { data: StatusSlice[] }) {\n  return (\n    <ResponsiveContainer width=\"100%\" height={260}>\n      <PieChart>\n        <Pie data={data} dataKey=\"count\" nameKey=\"status\" innerRadius={60} outerRadius={100}\n             label={({ percent }) => `${(percent * 100).toFixed(0)}%`}>\n          {data.map((entry) => (\n            <Cell key={entry.status} fill={STATUS_COLORS[entry.status]} />\n          ))}\n        </Pie>\n        <Tooltip formatter={(v: number) => [`${v} заявок`, '']} />\n        <Legend verticalAlign=\"bottom\" />\n      </PieChart>\n    </ResponsiveContainer>\n  )\n}",
           lang="tsx", hint="src/web/src/components/StatusPie.tsx",
-          png="pie", gif="pie-hover", cap="Распределение заявок по статусам: 47 всего, 19,1 % аварийных",
+          png="pie", gif="pie-hover", cap="Распределение заявок по статусам: подписи считаются из ответа API",
           note=["Палитру держите в константе, а не задавайте по индексу массива: "
                 "при смене порядка данных цвета «переедут» на другие статусы, и "
                 "эксперт увидит в легенде одно, а на диаграмме другое."]),
@@ -3292,7 +3292,7 @@ PAGES.append(P(
           "Главный сценарий руководства: мастер открывает заявку, видит детали, "
           "назначает исполнителя, отмечает ход работы и завершает со списанием "
           "материалов. Один скриншот на каждый шаг.",
-          code="### Сценарий: выполнение заявки на ремонт\n\n**Шаг 1.** Откройте раздел «Заявки» и найдите заявку по номеру, например `Z-2026-0048`.\n\n**Шаг 2.** Откройте карточку. Проверьте описание неисправности и плановые даты.\n\n**Шаг 3.** Если бригада не назначена, выберите её в поле «Бригада» и сохраните.\n\n**Шаг 4.** Когда работы начались, нажмите «В работу» и укажите фактическое время начала.\n\n**Шаг 5.** По завершении нажмите «Завершить», укажите фактическое время окончания и причину.\n\n**Шаг 6.** Добавьте списанные материалы: количество, стоимость из справочника сохраняется автоматически.\n\n**Шаг 7.** Нажмите «Сохранить и завершить». Заявка получает статус «Завершена», а остатки материалов пересчитываются.\n\n> **Важно:** завершить заявку без фактического времени окончания нельзя — простой останется незаполненным и попадёт в отчёт как ноль.",
+          code="### Сценарий: выполнение заявки на ремонт\n\n**Шаг 1.** Откройте раздел «Заявки» и найдите заявку по номеру, например `Z-2026-0047`.\n\n**Шаг 2.** Откройте карточку. Проверьте описание неисправности и плановые даты.\n\n**Шаг 3.** Если бригада не назначена, выберите её в поле «Бригада» и сохраните.\n\n**Шаг 4.** Когда работы начались, нажмите «В работу» и укажите фактическое время начала.\n\n**Шаг 5.** По завершении нажмите «Завершить», укажите фактическое время окончания и причину.\n\n**Шаг 6.** Добавьте списанные материалы: количество, стоимость из справочника сохраняется автоматически.\n\n**Шаг 7.** Нажмите «Сохранить и завершить». Заявка получает статус «Завершена», а остатки материалов пересчитываются.\n\n> **Важно:** завершить заявку без фактического времени окончания нельзя — простой останется незаполненным и попадёт в отчёт как ноль.",
           hint="Терминал",
           png="guide-workorder", gif="guide-workorder", cap="Сценарий выполнения заявки: семь шагов со скриншотами",
           note=["Сценарий должен быть сквозным: от экрана до экрана, с номерами "
@@ -3396,7 +3396,7 @@ PAGES.append(P(
         S("Слайд с результатами", 25,
           "Один из самых важных слайдов: цифры, которые можно измерить. Если "
           "заказчик не давал метрик, считайте их от данных своей системы.",
-          code="| Показатель | Было | Стало |\n|---|---|---|\n| Время на оформление заявки | 25 мин | 2 мин |\n| Потерянные заявки | не учитывались | 0 за квартал |\n| Простой оборудования | неизвестен | −18 % |\n| Доля аварийных заявок | нет контроля | 19,1 % → 15,3 % |\n| Подготовка отчёта | 3 часа | 1 минута |",
+          code="| Показатель | Было | Стало |\n|---|---|---|\n| Время на оформление заявки | 25 мин | 2 мин |\n| Потерянные заявки | не учитывались | 0 за квартал |\n| Простой оборудования | неизвестен | −18 % |\n| Доля аварийных заявок | нет контроля | видна в дашборде |\n| Подготовка отчёта | 3 часа | 1 минута |",
           hint="Терминал",
           png="slide-results", gif="slide-results", cap="Слайд «Результаты»: было и стало",
           note=["Не выдумывайте цифры. Если реальных метрик нет, покажите "
