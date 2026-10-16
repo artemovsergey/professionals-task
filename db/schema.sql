@@ -171,8 +171,13 @@ CREATE TABLE maintenance_schedule (
         CHECK (status IN ('Запланировано', 'Выполнено', 'Просрочено')),
     CONSTRAINT ck_maintenance_schedule_cost
         CHECK (actual_cost IS NULL OR actual_cost >= 0),
+    -- Статус «Выполнено» без даты выполнения — это поломанная запись:
+    -- по графику нельзя понять, когда ТО проводили и что считать простоем.
+    -- Само же выполнение раньше плановой даты ошибкой не является: окно
+    -- работ может открыться раньше, и это обычная ситуация на практике,
+    -- поэтому сравнивать completed_date с planned_date нельзя.
     CONSTRAINT ck_maintenance_schedule_dates
-        CHECK (completed_date IS NULL OR completed_date >= planned_date),
+        CHECK (status <> 'Выполнено' OR completed_date IS NOT NULL),
     CONSTRAINT ck_maintenance_schedule_next_date
         CHECK (next_planned_date IS NULL OR next_planned_date > planned_date),
 

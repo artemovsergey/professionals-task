@@ -25,6 +25,10 @@
 -- ---------------------------------------------------------------------------
 --  Счётчик пройденных и проваленных проверок.
 --  Живёт в временной таблице, потому что DO-блоки не делят переменные.
+--  ON COMMIT DROP здесь не нужен и даже вреден: psql выполняет каждое
+--  утверждение в своей неявной транзакции, и таблица исчезла бы сразу
+--  после CREATE. Сессия временных таблиц и так закрывается вместе
+--  с подключением.
 -- ---------------------------------------------------------------------------
 CREATE TEMP TABLE verify_result (
     seq     serial PRIMARY KEY,
@@ -32,7 +36,7 @@ CREATE TEMP TABLE verify_result (
     name    text    NOT NULL,
     ok      boolean NOT NULL,
     detail  text
-) ON COMMIT DROP;
+);
 
 CREATE OR REPLACE FUNCTION pg_temp.verify_add(p_section text, p_name text, p_ok boolean, p_detail text DEFAULT NULL)
 RETURNS void LANGUAGE plpgsql AS $$

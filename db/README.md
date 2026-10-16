@@ -138,7 +138,7 @@ psql -h 127.0.0.1 -U toirprof -d toirprof -f db/verify.sql
 | `ck_work_order_actual_dates` | Фактическое окончание не раньше фактического начала |
 | `ck_work_order_downtime` | Простой неотрицателен |
 | `ck_work_order_number_format` | Номер заявки по маске `^Z-[0-9]{4}-[0-9]{4}$` |
-| `ck_maintenance_schedule_dates` | Дата следующего ТО не раньше даты выполнения |
+| `ck_maintenance_schedule_dates` | У записи со статусом «Выполнено» обязана быть дата выполнения |
 
 Проверка `CURRENT_DATE` внутри CHECK запрещена: PostgreSQL требует от
 выражений в CHECK неизменяемости (IMMUTABLE). Поэтому «не раньше

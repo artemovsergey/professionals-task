@@ -621,11 +621,14 @@ SELECT
     s.planned_start + 2,
     CASE WHEN s.status <> 'Черновик' AND s.status <> 'Назначена' AND s.status <> 'Отменена'
          THEN s.planned_start + 1 END,
+    -- Простой в часах переводится в целые дни и прибавляется к началу.
+    -- Приведение к int обязательно: у date нет оператора сложения
+    -- с numeric, и без него такая сумма не считается.
     CASE WHEN s.status = 'Завершена'
-         THEN s.planned_start + 1 + s.downtime / 24.0 END,
+         THEN ((s.planned_start + 1) + (s.downtime / 24.0)::int)::timestamptz END,
     CASE WHEN s.status = 'Завершена' THEN s.failure_reason END,
     CASE WHEN s.status = 'Завершена'
-         THEN (s.planned_start + 1 + s.downtime / 24.0)::timestamptz END,
+         THEN ((s.planned_start + 1) + (s.downtime / 24.0)::int)::timestamptz END,
     s.planned_start::timestamptz
 FROM (
     SELECT
