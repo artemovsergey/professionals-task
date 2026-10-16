@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>ТОиР-Проф — презентация проекта</title>
+<style>
+  :root {
+    --ink: #1f2429;
+    --muted: #5b6670;
+    --line: #d5dbe1;
+    --accent: #2f6fb0;
+    --accent-soft: #dce8f4;
+    --ok: #2f7d51;
+    --warn: #9a6d12;
+    --bad: #a8442f;
+    --bg: #ffffff;
+    --paper: #f4f6f8;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  }
+
+  .deck { padding: 24px 0 48px; }
+
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    margin: 0 auto 24px;
+    padding: 56px 72px 64px;
+    background: var(--bg);
+    box-shadow: 0 2px 14px rgba(31, 36, 41, .12);
+    page-break-after: always;
+    break-after: page;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+
+  .slide__no {
+    position: absolute;
+    right: 36px;
+    bottom: 22px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .slide__mark {
+    position: absolute;
+    left: 72px;
+    bottom: 22px;
+    color: var(--muted);
+    font-size: 14px;
+    letter-spacing: .02em;
+  }
+
+  h1 { font-size: 46px; line-height: 1.15; margin: 0 0 28px; font-weight: 650; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); margin: 0 0 18px; }
+  p { font-size: 21px; line-height: 1.45; margin: 0 0 14px; }
+  ul { margin: 0 0 12px; padding-left: 26px; }
+  li { font-size: 20px; line-height: 1.42; margin-bottom: 10px; }
+  code { font-family: "JetBrains Mono", Consolas, monospace; font-size: .92em; background: var(--paper); padding: 1px 5px; border-radius: 4px; }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; }
+  th, td { text-align: left; padding: 8px 12px; font-size: 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--accent); font-weight: 600; font-size: 16px; text-transform: uppercase; letter-spacing: .04em; }
+  tr:last-child td { border-bottom: none; }
+
+  pre {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 16px;
+    line-height: 1.4;
+    white-space: pre;
+    overflow: hidden;
+    margin: 0 0 14px;
+  }
+
+  .cols { display: flex; gap: 32px; }
+  .cols > div { flex: 1; }
+
+  .note {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+    color: var(--muted);
+    font-size: 16px;
+  }
+
+  .note b { color: var(--accent); font-weight: 600; }
+
+  .title { justify-content: center; }
+  .title h1 { font-size: 56px; margin-bottom: 20px; }
+  .title .sub { font-size: 24px; color: var(--muted); margin-bottom: 34px; }
+  .title .badge {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 10px 18px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 17px;
+    font-weight: 600;
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .pill--ok { background: #e2f1e8; color: var(--ok); }
+  .pill--warn { background: #f7eeda; color: var(--warn); }
+  .pill--bad { background: #f8e6e2; color: var(--bad); }
+
+  .big { font-size: 34px; font-weight: 650; color: var(--accent); }
+
+  /* Схема архитектуры: настоящие блоки, а не псевдографика в <pre>.
+     Псевдографика в презентации ломается: шрифт подставляется свой,
+     линии рамок не сходятся, а блок обрезается по краю слайда. */
+  .arch { margin: 0 0 16px; }
+  .arch__row { display: flex; gap: 20px; justify-content: center; }
+  .box {
+    flex: 1;
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 16px;
+    background: var(--paper);
+    font-size: 19px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .box span { display: block; margin-top: 4px; font-size: 15px; font-weight: 400; color: var(--muted); }
+  .box--api { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .box--api span { color: var(--accent); opacity: .8; }
+  .box--db { border-color: #8aa4c0; background: #eef2f6; }
+  .arrow { text-align: center; margin: 8px 0; font-size: 16px; color: var(--muted); }
+  .arrow::after {
+    content: "";
+    display: block;
+    width: 0;
+    height: 0;
+    margin: 6px auto 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-top: 12px solid var(--accent);
+  }
+
+  @page { size: 1280px 720px; margin: 0; }
+
+  @media print {
+    html, body { background: #fff; }
+    .deck { padding: 0; }
+    .slide { box-shadow: none; margin: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 1 -->
+  <section class="slide title">
+    <span class="badge">Чемпионат «Профессионалы» 2027 · Программные решения для бизнеса</span>
+    <h1 style="margin-top:28px">ТОиР-Проф</h1>
+    <p class="sub">Система управления техническим обслуживанием и ремонтом</p>
+    <ul>
+      <li>Оборудование, график ТО, заявки, бригады и склад ЗИП — в одной базе</li>
+      <li>PostgreSQL · REST API на .NET 10 · Desktop Avalonia · Web React</li>
+    </ul>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">1</div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide">
+    <h2>Проблема и цель</h2>
+    <div class="cols">
+      <div>
+        <p class="big">Проблема</p>
+        <ul>
+          <li>График ТО, заявки и склад ЗИП ведутся в разных таблицах</li>
+          <li>Невозможно посчитать простой оборудования и долю аварийных</li>
+          <li>Не видно, какая бригада чаще задерживает работы</li>
+        </ul>
+      </div>
+      <div>
+        <p class="big">Цель</p>
+        <ul>
+          <li>База с ограничениями, которые не дают внести неправильные данные</li>
+          <li>Один REST API для двух клиентов</li>
+          <li>Аналитика: простои, рейтинг бригад, выполнение графика ТО</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note"><b>На экране:</b> две колонки «проблема / цель».</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">2</div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide">
+    <h2>Ключевые роли и сценарий работы</h2>
+    <table>
+      <tr><th>Роль</th><th>Что делает</th></tr>
+      <tr><td>Мастер участка</td><td>Заводит заявку, назначает бригаду, отмечает выполнение, списывает материалы</td></tr>
+      <tr><td>Руководитель цеха</td><td>Смотрит сводку и аналитику, контролирует простои и рейтинг бригад</td></tr>
+      <tr><td>Администратор</td><td>Ведёт справочники: оборудование, виды ТО, бригады, материалы, пользователи</td></tr>
+    </table>
+    <pre>График ТО → заявка на ремонт → назначение бригады → выполнение и списание → аналитика</pre>
+    <p class="note"><b>На экране:</b> таблица ролей и схема цикла работы.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">3</div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide">
+    <h2>Архитектура решения</h2>
+    <div class="arch">
+      <div class="arch__row">
+        <div class="box">Desktop Avalonia<span>мастер участка</span></div>
+        <div class="box">Web React<span>руководитель цеха</span></div>
+        <div class="box">Postman · Swagger<span>проверка контракта</span></div>
+      </div>
+      <div class="arrow">HTTPS, Bearer JWT, единый формат ответа</div>
+      <div class="arch__row">
+        <div class="box box--api">API · ASP.NET Core .NET 10<span>сервисы → EF Core → Npgsql · обёртка {success, data, …}</span></div>
+      </div>
+      <div class="arrow">запросы</div>
+      <div class="arch__row">
+        <div class="box box--db">PostgreSQL 15+<span>13 таблиц · 3 типа · 4 триггера</span></div>
+      </div>
+    </div>
+    <ul>
+      <li>Логика проверок живёт в базе — иначе клиенты посчитали бы по-разному</li>
+      <li>Бизнес-правил на клиенте нет: только отображение и отправка данных</li>
+    </ul>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">4</div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide">
+    <h2>Модель данных</h2>
+    <p><b>13 таблиц</b> — 9 основных и 4 связующие или служебные</p>
+    <table>
+      <tr><th>Группа</th><th>Таблицы</th></tr>
+      <tr><td>Справочники</td><td><code>roles</code>, <code>workshops</code>, <code>maintenance_types</code>, <code>crews</code>, <code>materials</code></td></tr>
+      <tr><td>Учёт</td><td><code>users</code>, <code>equipment</code>, <code>maintenance_schedule</code>, <code>work_orders</code></td></tr>
+      <tr><td>Связи и служебные</td><td><code>crew_members</code>, <code>work_order_materials</code>, <code>operation_log</code>, <code>work_order_counters</code></td></tr>
+    </table>
+    <ul>
+      <li>1НФ — списки вынесены в отдельные таблицы, произвольный текст заменён перечислениями</li>
+      <li>2НФ — связь «сотрудник ↔ бригада» вынесена в <code>crew_members</code></li>
+      <li>3НФ — стоимость списания и простой считает база, а не хранит кто-то лишнюю копию</li>
+    </ul>
+    <p class="note"><b>На экране:</b> <code>docs/diagrams/class-model.png</code> — диаграмма классов.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">5</div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide">
+    <h2>Ограничения целостности</h2>
+    <table>
+      <tr><th>Вид</th><th>Пример в системе</th></tr>
+      <tr><td><code>UNIQUE</code></td><td>логин, инвентарный номер, артикул, номер заявки</td></tr>
+      <tr><td><code>CHECK</code></td><td>хронология дат, критичность 1…5, формат номера <code>Z-YYYY-XXXX</code></td></tr>
+      <tr><td>Перечисления</td><td>статусы оборудования, заявки и приоритет заданы типами базы</td></tr>
+      <tr><td><code>ON DELETE</code></td><td>график удаляется каскадом, справочники защищены <code>RESTRICT</code></td></tr>
+      <tr><td>Вычисляемые поля</td><td>стоимость = количество × цена, простой считает функция</td></tr>
+    </table>
+    <ul>
+      <li>Ошибка из базы доходит до клиента понятным текстом с кодом, а не как «500»</li>
+      <li>Проверяется скриптом <code>db/verify.sql</code>: каждая строка отчёта — отдельная проверка</li>
+    </ul>
+    <p class="note"><b>На экране:</b> DBeaver, вкладка «Ограничения» таблицы <code>equipment</code>.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">6</div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide">
+    <h2>Триггеры, функции и процедура</h2>
+    <table>
+      <tr><th>Объект</th><th>Назначение</th></tr>
+      <tr><td>Триггер 1</td><td>Статус оборудования, выведенного из эксплуатации, изменить нельзя</td></tr>
+      <tr><td>Триггер 2</td><td>Проверка дат заявки и пересчёт простоя при каждой записи</td></tr>
+      <tr><td>Триггеры 3 и 4</td><td>Журнал операций: кто и что изменил</td></tr>
+      <tr><td>Функция 1</td><td><code>fn_calculate_downtime</code> — простой в часах между двумя метками времени</td></tr>
+      <tr><td>Функция 2</td><td><code>fn_next_maintenance_date</code> — следующая дата по периодичности вида ТО</td></tr>
+      <tr><td>Процедура</td><td><code>proc_workshop_report</code> — сводный отчёт по цеху за период</td></tr>
+    </table>
+    <p class="note"><b>На экране:</b> вывод <code>db/verify.sql</code>, где каждая проверка даёт строку «ОК».</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">7</div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide">
+    <h2>REST API</h2>
+    <pre>{
+  "success": true,
+  "data": { "...": "..." },
+  "message": "OK",
+  "error_code": null
+}</pre>
+    <p><b>Коды ответов:</b> 200 · 201 · 400 · 401 · 403 · 404 · 409 · 429 · 500</p>
+    <table>
+      <tr><th>Код ошибки</th><th>Когда возвращается</th></tr>
+      <tr><td><code>STATUS_LOCKED</code></td><td>попытка вернуть в работу выведенное оборудование</td></tr>
+      <tr><td><code>CREW_BUSY</code></td><td>бригада уже ведёт другую заявку «В работе»</td></tr>
+      <tr><td><code>NOT_ENOUGH_STOCK</code></td><td>на складе меньше, чем пытаются списать</td></tr>
+    </table>
+    <p class="note"><b>На экране:</b> Swagger UI с нажатой кнопкой «Authorize».</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">8</div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide">
+    <h2>Desktop-клиент</h2>
+    <p>Мастер работает в восьми окнах: авторизация, дашборд, оборудование,
+       график ТО, заявки, бригады, материалы, отчёты.</p>
+    <ul>
+      <li>Нативный интерфейс на Avalonia — без встраивания веб-страниц</li>
+      <li>Индикатор связи, всплывающие сообщения, модальные окна ошибок</li>
+      <li><b>Работа без сети:</b> показываются последние загруженные данные, операции
+          складываются в очередь и уходят на сервер сами, как только связь вернётся</li>
+      <li>Локальный журнал: <code>%LOCALAPPDATA%/ToirProf/logs/client.log</code></li>
+    </ul>
+    <p class="note"><b>На экране:</b> окно «Заявки» с выбранной заявкой и историей изменений.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">9</div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <h2>Web-клиент: сводка и обновления</h2>
+    <ul>
+      <li>Шесть KPI-карточек: заявки, средний простой, доля аварийных,
+          выполнение плана ТО, списание, цехи</li>
+      <li>Круговая, столбчатая и линейная диаграммы, топ-5 единиц по простою,
+          последние заявки</li>
+      <li>Обновление в реальном времени через Server-Sent Events, а если поток
+          недоступен — резервный опрос раз в минуту с переподключением</li>
+    </ul>
+    <p style="margin-top:10px"><b>Индикатор в шапке:</b></p>
+    <p style="margin-bottom:4px"><span class="pill">SSE</span> данные приходят потоком</p>
+    <p style="margin-bottom:4px"><span class="pill pill--warn">Опрос</span> поток недоступен, данные забираются раз в 60 секунд</p>
+    <p><span class="pill pill--bad">Нет связи</span> сервер недоступен, показаны последние загруженные данные</p>
+    <p class="note"><b>На экране:</b> дашборд с индикатором <code>SSE</code>.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">10</div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide">
+    <h2>Аналитика и экспорт</h2>
+    <p><b>Пять блоков аналитики</b></p>
+    <table>
+      <tr><th>№</th><th>Блок</th></tr>
+      <tr><td>1</td><td>Сводка по заявкам</td></tr>
+      <tr><td>2</td><td>Анализ простоев — топ единиц оборудования</td></tr>
+      <tr><td>3</td><td>Расход материалов</td></tr>
+      <tr><td>4</td><td>Выполнение графика ТО</td></tr>
+      <tr><td>5</td><td>Эффективность бригад с рейтингом</td></tr>
+    </table>
+    <ul>
+      <li>Выгрузка каждого блока в CSV, PNG и PDF; вся страница печатается</li>
+      <li>На сервере отчёт в PDF по временной ссылке, которая живёт 15 секунд</li>
+      <li>Данные блоков берутся одним запросом, поэтому цифры не расходятся</li>
+    </ul>
+    <p class="note"><b>На экране:</b> раздел «Аналитика», раскрытые блоки и меню экспорта.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">11</div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide">
+    <h2>Тестирование</h2>
+    <table>
+      <tr><th>Тест</th><th>Что проверяет</th></tr>
+      <tr><td><code>calculateDowntimeHours</code></td><td>корректные даты, окончание раньше начала, пустые значения</td></tr>
+      <tr><td><code>validateWorkOrder</code></td><td>все поля заполнены, нет обязательного, аварийная без причины, неверные плановые даты</td></tr>
+      <tr><td><code>calculateTotalMaterialCost</code></td><td>несколько материалов, пустой список, нулевое и отрицательное количество</td></tr>
+    </table>
+    <p style="margin-top:6px">Эталон из задания: 4 × 850 + 2 × 1200 + 10 × 150 = <b class="big" style="font-size:26px">7 300,00</b></p>
+    <ul>
+      <li>Все 13 проверок проходят; логика вынесена отдельно от интерфейса,
+          поэтому тесты не требуют ни окна, ни базы</li>
+      <li>Ограничения базы проверяет скрипт <code>db/verify.sql</code></li>
+    </ul>
+    <p class="note"><b>На экране:</b> вывод <code>dotnet test</code> и отчёт <code>db/verify.sql</code>.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">12</div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide">
+    <h2>Документация и развёртывание</h2>
+    <ul>
+      <li><b>Инструкция по развёртыванию</b> — от чистой машины до работающего сервиса:
+          РедОС 8.0, PostgreSQL, API, веб-клиент, Nginx</li>
+      <li><b>Swagger</b> — описания операций из XML-комментариев, кнопка «Authorize»,
+          примеры запросов</li>
+      <li><b>Руководства пользователя</b> — отдельно для мастера и для руководителя</li>
+      <li><b>Postman-коллекция</b> — проверка контракта без клиентов</li>
+      <li><b>UML-диаграммы</b> — варианты использования, деятельность и классы,
+          исходники в Draw.io</li>
+    </ul>
+    <p class="note"><b>На экране:</b> страница <code>docs/deployment.md</code> и Swagger UI.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">13</div>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide">
+    <h2>Итоги</h2>
+    <p><b>Что сделано</b></p>
+    <ul>
+      <li>База данных: 13 таблиц, 3 типа, 30 ограничений, 4 триггера, 3 функции и процедура</li>
+      <li>API: 13 контроллеров, единый формат ответа, роли и ограничения доступа</li>
+      <li>Desktop-клиент: восемь экранов, работа без сети</li>
+      <li>Веб-клиент: дашборд, аналитика, реестры, обновление в реальном времени</li>
+      <li>13 модульных тестов, полная документация, инструкция развёртывания</li>
+    </ul>
+    <p style="margin-top:10px"><b>Дальше</b></p>
+    <ul>
+      <li>Уведомления о просроченных работах в мессенджер</li>
+      <li>Планирование ТО по ресурсам бригад</li>
+      <li>Мобильный клиент для члена бригады</li>
+    </ul>
+    <p class="note"><b>На экране:</b> финальный слайд, переход к вопросам.</p>
+    <div class="slide__mark">ТОиР-Проф</div>
+    <div class="slide__no">14</div>
+  </section>
+
+</div>
+</body>
+</html>
