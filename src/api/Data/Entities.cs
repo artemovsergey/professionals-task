@@ -4,6 +4,8 @@
 // база (простой, вычисляемая стоимость, даты аудита), свойство помечено
 // комментарием: значение приходит из триггера или GENERATED-колонки,
 // поэтому EF не должен ни читать его перед записью, ни считать главным.
+using NpgsqlTypes;
+
 namespace ToirProf.Api.Data;
 
 public class Role
@@ -79,8 +81,13 @@ public class Equipment
 /// эксплуатации единицы запрещает триггер trg_equipment_status_guard.
 public enum EquipmentStatus
 {
+    [PgName("Работает")]
     Работает = 0,
+
+    [PgName("В ремонте")]
     ВРемонте = 1,
+
+    [PgName("Выведено из эксплуатации")]
     ВыведеноИзЭксплуатации = 2,
 }
 
@@ -88,18 +95,34 @@ public enum EquipmentStatus
 /// и причина неисправности — это проверяет trg_work_order_dates_check.
 public enum WorkOrderStatus
 {
+    [PgName("Черновик")]
     Черновик = 0,
+
+    [PgName("Назначена")]
     Назначена = 1,
+
+    [PgName("В работе")]
     ВРаботе = 2,
+
+    [PgName("Завершена")]
     Завершена = 3,
+
+    [PgName("Отменена")]
     Отменена = 4,
 }
 
 public enum WorkOrderPriority
 {
+    [PgName("Низкий")]
     Низкий = 0,
+
+    [PgName("Средний")]
     Средний = 1,
+
+    [PgName("Высокий")]
     Высокий = 2,
+
+    [PgName("Аварийный")]
     Аварийный = 3,
 }
 

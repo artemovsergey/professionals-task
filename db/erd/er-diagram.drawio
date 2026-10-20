@@ -82,7 +82,7 @@
         <mxCell id="t-equipment-3" value="workshop_id : uuid &lt;FK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
           <mxGeometry y="108" width="260" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="t-equipment-4" value="status : equipment_status" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
+        <mxCell id="t-equipment-4" value="status : varchar(50) CHECK" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
           <mxGeometry y="134" width="260" height="26" as="geometry" />
         </mxCell>
         <mxCell id="t-equipment-5" value="criticality : int &lt;CHECK 1..5&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-equipment">
@@ -183,10 +183,10 @@
         <mxCell id="t-wo-5" value="crew_id : uuid &lt;FK SET NULL&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
           <mxGeometry y="160" width="300" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="t-wo-6" value="status : work_order_status" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+        <mxCell id="t-wo-6" value="status : varchar(50) CHECK" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
           <mxGeometry y="186" width="300" height="26" as="geometry" />
         </mxCell>
-        <mxCell id="t-wo-7" value="priority : work_order_priority" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
+        <mxCell id="t-wo-7" value="priority : varchar(50) CHECK" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">
           <mxGeometry y="212" width="300" height="26" as="geometry" />
         </mxCell>
         <mxCell id="t-wo-8" value="planned_start, planned_end : date &lt;CHECK&gt;" style="shape=tableRow;html=1;whiteSpace=wrap;container=1;collapsible=0;top=0;left=0;bottom=0;right=0;strokeColor=none;fillColor=none;" vertex="1" parent="t-wo">

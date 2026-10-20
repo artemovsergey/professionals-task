@@ -653,13 +653,13 @@ FROM (
         CASE WHEN g.n % 7 = 0 THEN 'Аварийный'
              WHEN g.n % 5 = 0 THEN 'Высокий'
              WHEN g.n % 3 = 0 THEN 'Средний'
-             ELSE 'Низкий' END::work_order_priority AS priority,
+             ELSE 'Низкий' END AS priority,
         -- Три последние заявки оставлены незакрытыми: на дашборде видны
         -- все пять статусов, а не один.
         CASE WHEN g.n = 45 THEN 'В работе'
              WHEN g.n = 46 THEN 'Назначена'
              WHEN g.n = 47 THEN 'Отменена'
-             ELSE 'Завершена' END::work_order_status AS status,
+             ELSE 'Завершена' END AS status,
         -- Дата постановки в работу: до 27-го номера — февраль, дальше март.
         make_date(2026, CASE WHEN g.n <= 27 THEN 2 ELSE 3 END, 3 + (g.n % 24)) AS planned_start,
         -- Простой в часах. Значения подобраны так, чтобы средний по

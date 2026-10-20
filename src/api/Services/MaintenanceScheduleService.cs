@@ -34,10 +34,13 @@ public sealed class MaintenanceScheduleService(AppDbContext db) : IMaintenanceSc
     {
         await RefreshOverdueAsync(ct);
 
-        var query = BuildProjection();
+        // Сортировку ставим до проекции: EF Core не умеет протаскивать
+        // OrderBy через вызов конструктора ScheduleRow и падает с
+        // «The LINQ expression ... could not be translated».
+        var query = db.MaintenanceSchedule.AsNoTracking();
 
         if (equipmentId is not null)
-            query = query.Where(s => s.Id == equipmentId.Value);
+            query = query.Where(s => s.EquipmentId == equipmentId.Value);
 
         if (period.From is not null)
             query = query.Where(s => s.PlannedDate >= period.Start);
@@ -50,7 +53,12 @@ public sealed class MaintenanceScheduleService(AppDbContext db) : IMaintenanceSc
 
         var rows = await query
             .OrderBy(s => s.PlannedDate)
-            .ThenBy(s => s.InventoryNumber)
+            .ThenBy(s => s.Equipment.InventoryNumber)
+            .Select(s => new ScheduleRow(
+                s.Id, s.EquipmentId, s.Equipment.Name, s.Equipment.InventoryNumber,
+                s.MaintenanceTypeId, s.MaintenanceType.Name, s.MaintenanceType.IntervalDays,
+                s.PlannedDate, s.CompletedDate, s.NextPlannedDate,
+                s.Status, s.ActualCost, s.Notes))
             .ToListAsync(ct);
 
         return rows.Select(row => new MaintenanceScheduleDto(

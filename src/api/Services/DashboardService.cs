@@ -32,8 +32,8 @@ public sealed class DashboardService(AppDbContext db) : IDashboardService
 
     public async Task<DashboardSummary> GetSummaryAsync(DateRange period, CancellationToken ct)
     {
-        var from = period.Start.ToDateTime(TimeOnly.MinValue);
-        var to = period.End.ToDateTime(TimeOnly.MaxValue);
+        var from = period.StartUtc;
+        var to = period.EndUtc;
 
         var orders = await db.WorkOrders
             .AsNoTracking()
@@ -117,8 +117,8 @@ public sealed class DashboardService(AppDbContext db) : IDashboardService
     public async Task<AnalyticsReport> GetAnalyticsAsync(
         DateRange period, Guid? workshopId, CancellationToken ct)
     {
-        var from = period.Start.ToDateTime(TimeOnly.MinValue);
-        var to = period.End.ToDateTime(TimeOnly.MaxValue);
+        var from = period.StartUtc;
+        var to = period.EndUtc;
 
         var query = db.WorkOrders.AsNoTracking().Where(w => w.CreatedAt >= from && w.CreatedAt <= to);
         if (workshopId.HasValue)

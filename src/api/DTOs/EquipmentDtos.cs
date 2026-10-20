@@ -25,6 +25,16 @@ public sealed record DateRange(DateOnly? From, DateOnly? To)
     public DateOnly Start => From ?? DateOnly.FromDateTime(DateTime.Today.AddDays(-30));
 
     public DateOnly End => To ?? DateOnly.FromDateTime(DateTime.Today);
+
+    /// <summary>
+    /// Начало периода в UTC. Колонки created_at описаны как timestamptz,
+    /// а Npgsql принимает только DateTime с Kind = Utc: без явного вида
+    /// он выбрасывает «Cannot write DateTime with Kind=Unspecified».
+    /// </summary>
+    public DateTime StartUtc => Start.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+
+    /// <summary>Последний момент периода в UTC — конец дня включительно.</summary>
+    public DateTime EndUtc => End.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 }
 
 // ===========================================================================

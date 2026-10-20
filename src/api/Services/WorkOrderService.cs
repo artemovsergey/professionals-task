@@ -54,9 +54,9 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
             query = query.Where(w => w.Priority == priority);
         }
         if (filter.From is { } from)
-            query = query.Where(w => w.CreatedAt >= from.ToDateTime(TimeOnly.MinValue));
+            query = query.Where(w => w.CreatedAt >= from.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc));
         if (filter.To is { } to)
-            query = query.Where(w => w.CreatedAt < to.AddDays(1).ToDateTime(TimeOnly.MinValue));
+            query = query.Where(w => w.CreatedAt < to.AddDays(1).ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc));
         if (!string.IsNullOrWhiteSpace(filter.Query))
         {
             var pattern = $"%{Escape(filter.Query)}%";

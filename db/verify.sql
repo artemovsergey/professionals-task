@@ -214,13 +214,13 @@ SELECT pg_temp.verify_run('CHECK', 'ck_work_order_planned_dates — оконча
               '55555555-0000-0000-0000-000000000003', 'X', 'X', 'Низкий', 'Черновик',
               '2026-05-10', '2026-05-01')$$, true);
 
--- ENUM
-SELECT pg_temp.verify_run('ENUM', 'work_order_status — недопустимый статус',
+-- Ограничения набора значений
+SELECT pg_temp.verify_run('CHECK', 'ck_work_order_status — недопустимый статус',
     $$INSERT INTO work_orders (number, equipment_id, created_by, title, description, priority, status)
       VALUES ('Z-2026-9002', '44444444-4444-4444-4444-444444444444',
               '55555555-0000-0000-0000-000000000003', 'X', 'X', 'Низкий', 'Починено')$$, true);
 
-SELECT pg_temp.verify_run('ENUM', 'equipment_status — недопустимый статус оборудования',
+SELECT pg_temp.verify_run('CHECK', 'ck_equipment_status — недопустимый статус оборудования',
     $$INSERT INTO equipment (inventory_number, name, workshop_id, commission_date, status, criticality)
       VALUES ('ТЕСТ-3', 'X', 'aaaaaaaa-0000-0000-0000-000000000001', CURRENT_DATE, 'Сломан', 2)$$, true);
 

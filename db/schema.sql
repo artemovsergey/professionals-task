@@ -21,33 +21,16 @@ BEGIN;
 SET client_min_messages = warning;
 
 -- ============================================================================
---  1. Пользовательские типы (ENUM)
+--  1. Перечисления
 --
---  Значения хранятся по-русски: их показывает и DBeaver, и Swagger,
---  и оба клиента. Отдельный справочник ради трёх строк избыточен,
---  а ENUM защищает от опечатки в значении на уровне сервера.
+--  Наборы значений объявлены не типами ENUM, а ограничениями CHECK на
+--  столбцах (см. ck_equipment_status, ck_work_order_status,
+--  ck_work_order_priority). Причина в драйвере: Npgsql передаёт строку
+--  в колонку типа ENUM как text, и PostgreSQL отвергает запись с ошибкой
+--  «колонка priority имеет тип work_order_priority, а выражение - text».
+--  CHECK даёт ту же защиту от опечатки, но не мешает ни вставке, ни
+--  сравнению, ни отчётам, и остаётся понятен в DBeaver.
 -- ============================================================================
-
-CREATE TYPE equipment_status AS ENUM (
-    'Работает',
-    'В ремонте',
-    'Выведено из эксплуатации'
-);
-
-CREATE TYPE work_order_status AS ENUM (
-    'Черновик',
-    'Назначена',
-    'В работе',
-    'Завершена',
-    'Отменена'
-);
-
-CREATE TYPE work_order_priority AS ENUM (
-    'Низкий',
-    'Средний',
-    'Высокий',
-    'Аварийный'
-);
 
 -- ============================================================================
 --  2. Справочники: роли, цеха, виды обслуживания
@@ -120,7 +103,7 @@ CREATE TABLE equipment (
     serial_number     varchar(50),
     commission_date   date,
     decommission_date date,
-    status            equipment_status  NOT NULL DEFAULT 'Работает',
+    status            varchar(50)       NOT NULL DEFAULT 'Работает',
     criticality       smallint          NOT NULL DEFAULT 3,
     location          varchar(100),
     notes             text,
@@ -139,6 +122,12 @@ CREATE TABLE equipment (
 
     CONSTRAINT ck_equipment_criticality
         CHECK (criticality BETWEEN 1 AND 5),
+
+    -- Набор состояний оборудования. Тип столбца — varchar, а не ENUM:
+    -- Npgsql передаёт строку как text, и запись в колонку ENUM падала бы
+    -- с ошибкой 42804. Ограничение CHECK защищает от опечатки так же.
+    CONSTRAINT ck_equipment_status
+        CHECK (status IN ('Работает', 'В ремонте', 'Выведено из эксплуатации')),
 
     CONSTRAINT fk_equipment_workshop FOREIGN KEY (workshop_id)
         REFERENCES workshops (id) ON DELETE RESTRICT
@@ -268,8 +257,8 @@ CREATE TABLE work_orders (
     assigned_to         uuid,
     title               varchar(200)        NOT NULL,
     description         text,
-    priority            work_order_priority NOT NULL DEFAULT 'Средний',
-    status              work_order_status   NOT NULL DEFAULT 'Черновик',
+    priority            varchar(50)         NOT NULL DEFAULT 'Средний',
+    status              varchar(50)         NOT NULL DEFAULT 'Черновик',
     planned_start       date,
     planned_end         date,
     actual_start        timestamptz,
@@ -299,6 +288,13 @@ CREATE TABLE work_orders (
 
     CONSTRAINT ck_work_order_number_format
         CHECK (number ~ '^Z-[0-9]{4}-[0-9]{4}$'),
+
+    -- Наборы приоритета и состояния заявки. Как и у оборудования, это
+    -- varchar с проверкой: см. пояснение к ck_equipment_status.
+    CONSTRAINT ck_work_order_priority
+        CHECK (priority IN ('Низкий', 'Средний', 'Высокий', 'Аварийный')),
+    CONSTRAINT ck_work_order_status
+        CHECK (status IN ('Черновик', 'Назначена', 'В работе', 'Завершена', 'Отменена')),
 
     CONSTRAINT fk_work_orders_equipment FOREIGN KEY (equipment_id)
         REFERENCES equipment (id) ON DELETE RESTRICT,

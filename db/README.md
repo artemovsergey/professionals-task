@@ -80,9 +80,9 @@ psql -h 127.0.0.1 -U toirprof -d toirprof -f db/verify.sql
   в одной ячейке;
 - в `work_orders` нет «материалы» списком — для этого есть отдельная
   таблица `work_order_materials`, одна строка на одну позицию;
-- виды статусов и приоритетов — пользовательские типы PostgreSQL
-  (`equipment_status`, `work_order_status`, `work_order_priority`),
-  а не строка с произвольным текстом.
+- виды статусов и приоритетов — короткие строки с CHECK-ограничениями
+  (`ck_equipment_status`, `ck_work_order_status`, `ck_work_order_priority`),
+  а не произвольный текст: постороннее значение в столбец не запишется.
 
 ### Вторая нормальная форма (2НФ)
 
@@ -101,7 +101,7 @@ psql -h 127.0.0.1 -U toirprof -d toirprof -f db/verify.sql
 | Что было бы нарушением | Как сделано правильно |
 |---|---|
 | `equipment.workshop_name` | `equipment.workshop_id → workshops.name` |
-| `work_orders.status_name` | `status` — enum, имя не хранится отдельно |
+| `work_orders.status_name` | `status` — одно из значений CHECK, имя не хранится отдельно |
 | `materials.price * quantity` | `cost` — вычисляемое поле в `work_order_materials` |
 | `work_orders.equipment_name` | `work_orders.equipment_id → equipment.name` |
 
@@ -145,16 +145,22 @@ psql -h 127.0.0.1 -U toirprof -d toirprof -f db/verify.sql
 сегодняшнего дня» в БД не проверяется — это делает приложение,
 а хронология внутри одной строки проверяется базой.
 
-### ENUM — 3 пользовательских типа
+### Наборы значений — 3 CHECK-ограничения
 
-| Тип | Значения |
-|---|---|
-| `equipment_status` | Работает · В ремонте · Выведено из эксплуатации |
-| `work_order_status` | Черновик · Назначена · В работе · Завершена · Отменена |
-| `work_order_priority` | Низкий · Средний · Высокий · Аварийный |
+| Ограничение | Столбец | Значения |
+|---|---|---|
+| `ck_equipment_status` | `equipment.status` | Работает · В ремонте · Выведено из эксплуатации |
+| `ck_work_order_status` | `work_orders.status` | Черновик · Назначена · В работе · Завершена · Отменена |
+| `ck_work_order_priority` | `work_orders.priority` | Низкий · Средний · Высокий · Аварийный |
 
 Русские значения — не опечатка. Приложение, база и эксперт видят одни
 и те же строки в журнале, отчёте и на экране.
+
+Отдельный тип `CREATE TYPE … AS ENUM` здесь не используется намеренно:
+драйвер Npgsql отправляет строку параметром типа `text`, и PostgreSQL
+отвергает запись в enum-колонку с ошибкой `42804` («колонка priority
+имеет тип work_order_priority, а выражение — text»). Ограничение CHECK
+даёт ту же защиту от посторонних значений, но принимает обычную строку.
 
 ### Каскадные действия
 

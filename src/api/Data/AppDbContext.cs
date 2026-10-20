@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,12 +25,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     protected override void OnModelCreating(ModelBuilder b)
     {
-        // Перечисления хранятся строками: в базе должны лежать русские
-        // значения из задания, а не числа. Без этого фильтры в DBeaver
-        // и отчёты показывают «0» вместо «Аварийный».
-        b.HasPostgresEnum<EquipmentStatus>("equipment_status");
-        b.HasPostgresEnum<WorkOrderStatus>("work_order_status");
-        b.HasPostgresEnum<WorkOrderPriority>("work_order_priority");
+        // Наборы значений (статус оборудования, статус и приоритет заявки)
+        // хранятся строками по-русски с пробелами — «В ремонте», «В работе».
+        // Допустимые значения ограничены CHECK-ограничениями в db/schema.sql.
+        //
+        // Отдельный тип PostgreSQL (CREATE TYPE ... AS ENUM) не используется:
+        // Npgsql отправляет строку как text, и PostgreSQL отвергает запись
+        // в enum-колонку с ошибкой 42804 («колонка priority имеет тип
+        // work_order_priority, а выражение - text»). С CHECK такой проблемы
+        // нет, а гибкость — выше: добавить значение можно одним ALTER.
+        //
+        // В C# перечисление остаётся перечислением, а в базу уходит подпись
+        // из атрибута [PgName] — см. PgEnumLabels.
 
         b.Entity<Role>(e =>
         {
@@ -85,7 +92,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Manufacturer).HasMaxLength(150);
             e.Property(x => x.Model).HasMaxLength(100);
             e.Property(x => x.SerialNumber).HasMaxLength(100);
-            e.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(50);
+            // Столбец status хранит русскую подпись статуса: в C# это
+            // перечисление EquipmentStatus, в базе — varchar(50) с CHECK.
+            e.Property(x => x.Status)
+                .HasMaxLength(50)
+                .IsRequired()
+                .HasConversion(PgEnumLabels.Converter<EquipmentStatus>());
             e.Property(x => x.Location).HasMaxLength(200);
             e.Property(x => x.Notes).HasMaxLength(1000);
 
@@ -185,8 +197,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.Property(x => x.Number).HasMaxLength(20).IsRequired();
             e.Property(x => x.Title).HasMaxLength(200).IsRequired();
             e.Property(x => x.Description).HasMaxLength(2000);
-            e.Property(x => x.Priority).HasConversion<string>().HasMaxLength(50);
-            e.Property(x => x.Status).HasConversion<string>().HasMaxLength(50);
+            // Приоритет и статус — перечисления C# с русскими подписями
+            // в базе (varchar(50) + CHECK из db/schema.sql).
+            e.Property(x => x.Priority)
+                .HasMaxLength(50)
+                .IsRequired()
+                .HasConversion(PgEnumLabels.Converter<WorkOrderPriority>());
+            e.Property(x => x.Status)
+                .HasMaxLength(50)
+                .IsRequired()
+                .HasConversion(PgEnumLabels.Converter<WorkOrderStatus>());
             e.Property(x => x.FailureReason).HasMaxLength(1000);
 
             e.Property(x => x.PlannedStart).HasColumnType("date");
@@ -299,6 +319,52 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasKey(x => x.Year);
             e.Property(x => x.Year).HasColumnName("year");
         });
+
+        ApplySnakeCaseColumnNames(b);
+    }
+
+    /// Приводит имена колонок к snake_case — ровно так их создаёт db/schema.sql.
+    ///
+    /// Таблицы, ключи, индексы и внешние ключи описаны выше поимённо, а имена
+    /// колонок не заданы: без этого Entity Framework подставил бы в запрос
+    /// имена свойств C# («Id», «CreatedAt») в кавычках, и первый же запрос
+    /// к базе упал бы с «колонка u.id не существует».
+    ///
+    /// Пакет с готовыми соглашениями не подключаем: на площадке нет сети,
+    /// а зависимость ради перевода регистра того не стоит.
+    private static void ApplySnakeCaseColumnNames(ModelBuilder b)
+    {
+        foreach (var entity in b.Model.GetEntityTypes())
+        {
+            foreach (var property in entity.GetProperties())
+            {
+                property.SetColumnName(ToSnakeCase(property.Name));
+            }
+        }
+    }
+
+    /// <c>CreatedAt</c> → <c>created_at</c>, <c>RoleId</c> → <c>role_id</c>.
+    ///
+    /// Простая вставка подчёркивания перед каждой заглавной буквой, кроме
+    /// первой: слова в именах C# пишутся с верблюжьим регистром, поэтому
+    /// результат совпадает с соглашением базы.
+    private static string ToSnakeCase(string name)
+    {
+        var builder = new StringBuilder(name.Length + 8);
+
+        for (var i = 0; i < name.Length; i++)
+        {
+            var letter = name[i];
+
+            if (char.IsUpper(letter) && i > 0)
+            {
+                builder.Append('_');
+            }
+
+            builder.Append(char.ToLowerInvariant(letter));
+        }
+
+        return builder.ToString();
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)

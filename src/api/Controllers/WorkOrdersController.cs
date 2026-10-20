@@ -14,10 +14,12 @@
 //   POST   /api/work-orders/{id}/materials списание материала
 //   GET    /api/work-orders/{id}/cost    итоговая стоимость по списанию
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ToirProf.Api.Common;
 using ToirProf.Api.DTOs;
+using ToirProf.Api.Middlewares;
 using ToirProf.Api.Services;
 using ToirProf.Shared;
 
@@ -95,16 +97,17 @@ public sealed class WorkOrdersController(IWorkOrderService service) : Controller
 
     /// <summary>Создать заявку. Номер вида Z-YYYY-XXXX выдаёт сервис нумерации.</summary>
     /// <param name="dto">Оборудование, тема, описание неисправности и приоритет.</param>
-    /// <param name="userId">Автор заявки, берётся из профиля.</param>
     /// <param name="ct">Токен отмены запроса.</param>
     [HttpPost]
     [RequireRole(RoleCodes.Admin, RoleCodes.Manager, RoleCodes.Master)]
     public async Task<ActionResult<ApiResponse<WorkOrderDto>>> Create(
         [FromBody] CreateWorkOrderDto dto,
-        [FromQuery] Guid userId,
         CancellationToken ct)
     {
-        var order = await service.CreateAsync(dto, userId, ct);
+        // Автор заявки — тот, кто предъявил токен. Брать идентификатор
+        // из строки запроса нельзя: клиент подставил бы чужое имя,
+        // а авторство заявки — это запись в журнале, а не пожелание.
+        var order = await service.CreateAsync(dto, CurrentUserId(), ct);
         return CreatedAtAction(nameof(GetById), new { id = order.Id }, ApiResponse<WorkOrderDto>.Ok(order, "Заявка создана."));
     }
 
@@ -186,5 +189,22 @@ public sealed class WorkOrdersController(IWorkOrderService service) : Controller
     {
         var cost = await service.GetCostAsync(id, ct);
         return Ok(ApiResponse<MaterialCostDto>.Ok(cost));
+    }
+
+    /// <summary>
+    /// Идентификатор пользователя из токена.
+    /// </summary>
+    /// <remarks>
+    /// Отсутствие или порча значения — не «пустой автор», а поддельный
+    /// токен: такой запрос отклоняется с 403, а не создаёт заявку
+    /// с нулевым внешним ключом.
+    /// </remarks>
+    private Guid CurrentUserId()
+    {
+        var rawId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        return Guid.TryParse(rawId, out var userId)
+            ? userId
+            : throw ApiException.Forbidden("Токен не содержит идентификатора пользователя.");
     }
 }

@@ -12,9 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // ---------------------------------------------------------------------------
 //  База данных
 //
-//  Схему создаёт не EF, а четыре SQL-файла из db/: schema.sql, functions.sql,
-//  triggers.sql, seed.sql. Миграции в проекте нет намеренно — иначе одна и та же
-//  таблица описана дважды, и на площадке эти описания разойдутся.
+// Схему создаёт не EF, а четыре SQL-файла из db/: schema.sql, functions.sql,
+// triggers.sql, seed.sql. Миграции в проекте нет намеренно — иначе одна и та же
+// таблица описана дважды, и на площадке эти описания разойдутся.
 // ---------------------------------------------------------------------------
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
