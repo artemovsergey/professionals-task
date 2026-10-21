@@ -80,9 +80,6 @@ public async Task<PagedResult<EquipmentDto>> GetListAsync(EquipmentFilter f, Can
 ![Список отфильтрован: 12 из 40, page=2](images/16-list.png)
 *Список отфильтрован: 12 из 40, page=2*
 
-![Список отфильтрован: 12 из 40, page=2](gifs/16-list-postman.gif)
-*Список отфильтрован: 12 из 40, page=2*
-
 
 ## Шаг 3. Создание, изменение, удаление — 35 мин
 
@@ -125,9 +122,6 @@ public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
 ![POST 201, GET 200, DELETE 409 при занятом номере](images/16-crud.png)
 *POST 201, GET 200, DELETE 409 при занятом номере*
 
-![POST 201, GET 200, DELETE 409 при занятом номере](gifs/16-crud-postman.gif)
-*POST 201, GET 200, DELETE 409 при занятом номере*
-
 
 ## Шаг 4. Гонка на уникальном номере — 15 мин
 
@@ -144,9 +138,6 @@ catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViola
 ```
 
 > **Замечание.** Это ровно тот случай, который эксперты проверяют на защите: «а что будет, если два мастера одновременно создадут одно и то же?» Ответ — UNIQUE-индекс, а не предварительная проверка.
-
-![Два параллельных POST: первый 201, второй 409](images/16-race.png)
-*Два параллельных POST: первый 201, второй 409*
 
 
 ## Если что-то не получилось

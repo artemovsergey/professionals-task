@@ -37,9 +37,6 @@ dotnet sln ToirProf.slnx add src/desktop/ToirProf.Desktop.csproj
 ![csproj: Avalonia 11.3, ReactiveUI, CommunityToolkit.Mvvm](images/26-csproj.png)
 *csproj: Avalonia 11.3, ReactiveUI, CommunityToolkit.Mvvm*
 
-![csproj: Avalonia 11.3, ReactiveUI, CommunityToolkit.Mvvm](gifs/26-csproj-create.gif)
-*csproj: Avalonia 11.3, ReactiveUI, CommunityToolkit.Mvvm*
-
 
 ## Шаг 2. Подключаем общие контракты — 25 мин
 
@@ -134,9 +131,6 @@ public abstract partial class BaseViewModel : ObservableObject
 ![Окно с применённой темой: 1440×900, шрифт 14](images/26-theme.png)
 *Окно с применённой темой: 1440×900, шрифт 14*
 
-![Окно с применённой темой: 1440×900, шрифт 14](gifs/26-theme-window.gif)
-*Окно с применённой темой: 1440×900, шрифт 14*
-
 
 ## Шаг 5. Собираем и запускаем — 35 мин
 
@@ -150,12 +144,6 @@ dotnet run --project src/desktop/ToirProf.Desktop.csproj
 ```
 
 > **Замечание.** На РедОС окно может не появиться, если не установлен `libx11` и шрифты. Проверяйте `dotnet run` в Git Bash с активной сессией графического окружения — по SSH без X11 окно не откроется, но проект при этом собирается и это уже половина проверки.
-
-![Пустое окно приложения запущено](images/26-run.png)
-*Пустое окно приложения запущено*
-
-![Пустое окно приложения запущено](gifs/26-run-window.gif)
-*Пустое окно приложения запущено*
 
 
 ## Если что-то не получилось

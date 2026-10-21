@@ -41,9 +41,6 @@ if (app.Environment.IsDevelopment())
 ![Swagger UI доступен по /swagger в режиме разработки](images/48-swagger-ui.png)
 *Swagger UI доступен по /swagger в режиме разработки*
 
-![Swagger UI доступен по /swagger в режиме разработки](gifs/48-swagger-ui.gif)
-*Swagger UI доступен по /swagger в режиме разработки*
-
 
 ## Шаг 2. XML-комментарии и описания операций — 35 мин
 
@@ -108,9 +105,6 @@ Swagger даёт «попробовать» прямо из браузера: с
 ![Пример ответа в документации совпадает с реальным](images/48-swagger-example.png)
 *Пример ответа в документации совпадает с реальным*
 
-![Пример ответа в документации совпадает с реальным](gifs/48-swagger-example.gif)
-*Пример ответа в документации совпадает с реальным*
-
 
 ## Шаг 4. Выгрузка спецификации — 20 мин
 
@@ -126,9 +120,6 @@ dotnet run --project src/api -- swagger export api/openapi.yaml
 > **Замечание.** Коммитьте `openapi.yaml` в репозиторий. По нему потом собирается коллекция Postman и генерируются типы для клиентов — это экономит час работы на согласовании полей.
 
 ![api/openapi.yaml содержит все операции и схемы](images/48-openapi-yaml.png)
-*api/openapi.yaml содержит все операции и схемы*
-
-![api/openapi.yaml содержит все операции и схемы](gifs/48-openapi-export.gif)
 *api/openapi.yaml содержит все операции и схемы*
 
 
@@ -149,12 +140,6 @@ dotnet run --project src/api -- swagger export api/openapi.yaml
 ```
 
 > **Замечание.** Авторизацию задайте на уровне коллекции («Bearer Token»), а не в каждом запросе: иначе токен придётся обновлять в 24 местах.
-
-![Коллекция Postman: 24 запроса в 7 папках](images/48-postman-collection.png)
-*Коллекция Postman: 24 запроса в 7 папках*
-
-![Коллекция Postman: 24 запроса в 7 папках](gifs/48-postman-run.gif)
-*Коллекция Postman: 24 запроса в 7 папках*
 
 
 ## Если что-то не получилось
