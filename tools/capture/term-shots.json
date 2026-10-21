@@ -1,0 +1,182 @@
+[
+  {
+    "name": "01-versions",
+    "title": "Версии инструментов на рабочей машине",
+    "command": "dotnet --version; node --version; npm --version; & 'C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe' --version",
+    "max_lines": 12
+  },
+  {
+    "name": "02-structure",
+    "title": "Структура репозитория",
+    "command": "Get-ChildItem -Directory | Select-Object -ExpandProperty Name; '---'; (Get-ChildItem -Recurse -Filter *.cs -File).Count; 'файлов C#'"
+  },
+  {
+    "name": "02-db-create",
+    "title": "Роль и база приложения в кластере",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "postgres", "-d", "postgres", "-X", "-q"],
+    "env": { "PGPASSWORD": "root" },
+    "sql": "SELECT rolname AS роль, rolcanlogin AS может_входить FROM pg_roles WHERE rolname = 'toirprof';\nSELECT datname AS база, pg_get_userbyid(datdba) AS владелец FROM pg_database WHERE datname = 'toirprof';"
+  },
+  {
+    "name": "07-schema-clean-install",
+    "title": "Таблицы после установки схемы",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT table_name AS таблица, (SELECT count(*) FROM information_schema.columns c WHERE c.table_name = t.table_name) AS колонок\nFROM information_schema.tables t\nWHERE table_schema = 'public' AND table_type = 'BASE TABLE'\nORDER BY table_name;"
+  },
+  {
+    "name": "08-unique-violation",
+    "title": "Дубликат логина отвергается ограничением UNIQUE",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "expect_failure": true,
+    "sql": "BEGIN;\nINSERT INTO users (username, password_hash, full_name, role_id, is_active)\nSELECT username, password_hash, full_name, role_id, true FROM users LIMIT 1;\nROLLBACK;"
+  },
+  {
+    "name": "08-enum-violation",
+    "title": "Недопустимый статус оборудования отвергается CHECK",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "expect_failure": true,
+    "sql": "BEGIN;\nUPDATE equipment SET status = 'Сломан' WHERE inventory_number = 'ПР-2';\nROLLBACK;"
+  },
+  {
+    "name": "09-check-violation",
+    "title": "Дата ввода в эксплуатацию из будущего отвергается",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "expect_failure": true,
+    "sql": "BEGIN;\nUPDATE equipment SET commissioned_at = CURRENT_DATE + 30 WHERE inventory_number = 'ПР-2';\nROLLBACK;"
+  },
+  {
+    "name": "10-trigger-guard-test",
+    "title": "Триггер не даёт вернуть выведенное оборудование в работу",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "expect_failure": true,
+    "sql": "BEGIN;\nUPDATE equipment SET status = 'Работает' WHERE status = 'Выведено из эксплуатации';\nROLLBACK;"
+  },
+  {
+    "name": "10-triggers-all",
+    "title": "Триггеры, созданные скриптом triggers.sql",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT c.relname AS таблица, t.tgname AS триггер, t.tgenabled AS включён\nFROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid\nWHERE NOT t.tgisinternal ORDER BY c.relname, t.tgname;"
+  },
+  {
+    "name": "11-func-downtime-test",
+    "title": "Все случаи функции расчёта простоя",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT 'обычный интервал 08:00 — 16:30' AS \"случай\", fn_calculate_downtime('2026-03-02 08:00+00', '2026-03-02 16:30+00') AS часов;\nSELECT 'нулевой интервал', fn_calculate_downtime('2026-03-02 08:00+00', '2026-03-02 08:00+00');\nSELECT 'начало не задано', fn_calculate_downtime(NULL, '2026-03-02 08:00+00');\nSELECT 'перевёрнутый интервал — это ошибка данных', fn_calculate_downtime('2026-03-02 16:30+00', '2026-03-02 08:00+00');"
+  },
+  {
+    "name": "11-func-next-date",
+    "title": "Следующая плановая дата считается от последнего ТО",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT code AS вид_ТО, interval_days AS дней, fn_next_maintenance_date(DATE '2026-03-15', interval_days) AS следующая\nFROM maintenance_types ORDER BY code;"
+  },
+  {
+    "name": "11-func-report-test",
+    "title": "Процедура отчёта по цеху возвращает строки",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "CALL proc_workshop_report((SELECT id FROM workshops ORDER BY code LIMIT 1), DATE '2026-01-01', DATE '2026-12-31');"
+  },
+  {
+    "name": "08-unique-plan",
+    "title": "Четыре ограничения уникальности в схеме",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT conrelid::regclass AS таблица, conname AS ограничение\nFROM pg_constraint WHERE contype = 'u' AND connamespace = 'public'::regnamespace\nORDER BY conrelid::regclass::text;"
+  },
+  {
+    "name": "09-on-delete",
+    "title": "Правила ON DELETE у внешних ключей",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT conname AS ключ, confdeltype AS on_delete\nFROM pg_constraint WHERE contype = 'f' AND connamespace = 'public'::regnamespace\nORDER BY conname LIMIT 12;"
+  },
+  {
+    "name": "19-counter",
+    "title": "Счётчик номеров заявок",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT year AS год, last_value AS выдано FROM work_order_counters ORDER BY year;"
+  },
+  {
+    "name": "19-number-series",
+    "title": "Номера последних заявок идут подряд",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT number AS номер, status AS статус, priority AS приоритет FROM work_orders ORDER BY number DESC LIMIT 6;"
+  },
+  {
+    "name": "22-crew-stats",
+    "title": "Показатели бригад для дашборда",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT c.code AS бригада,\n       count(w.id) AS заявок,\n       count(w.id) FILTER (WHERE w.status = 'Завершена') AS завершено,\n       round(avg(w.downtime_hours) FILTER (WHERE w.downtime_hours IS NOT NULL), 2) AS средний_простой\nFROM crews c LEFT JOIN work_orders w ON w.crew_id = c.id\nGROUP BY c.code ORDER BY c.code;"
+  },
+  {
+    "name": "23-shortage",
+    "title": "Дефицитные позиции: остаток ниже порога",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT sku AS артикул, name AS наименование, quantity AS остаток, min_quantity AS порог\nFROM materials WHERE quantity < min_quantity ORDER BY sku;"
+  },
+  {
+    "name": "24-summary",
+    "title": "Сводка дашборда одним запросом с FILTER",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT count(*) AS всего,\n       count(*) FILTER (WHERE status = 'В работе') AS в_работе,\n       count(*) FILTER (WHERE status = 'Завершена') AS завершено,\n       count(*) FILTER (WHERE priority = 'Аварийный') AS аварийных,\n       round(avg(downtime_hours) FILTER (WHERE downtime_hours IS NOT NULL), 2) AS средний_простой\nFROM work_orders;"
+  },
+  {
+    "name": "25-downtime",
+    "title": "Топ оборудования по суммарному простою",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT e.inventory_number AS инв_номер,\n       count(w.id) AS заявок,\n       round(sum(w.downtime_hours), 2) AS часов\nFROM equipment e JOIN work_orders w ON w.equipment_id = e.id\nWHERE w.downtime_hours IS NOT NULL\nGROUP BY e.inventory_number ORDER BY часов DESC LIMIT 5;"
+  },
+  {
+    "name": "54-check-db",
+    "title": "Проверка базы: verify.sql",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q", "-f", "db/verify.sql"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "max_lines": 30
+  },
+  {
+    "name": "46-test-run",
+    "title": "Модульные тесты: dotnet test",
+    "command": "dotnet test src\\Tests\\ToirProf.Tests.csproj --nologo -v q",
+    "timeout": 300,
+    "max_lines": 14
+  },
+  {
+    "name": "36-build",
+    "title": "Прод-сборка веб-клиента",
+    "command": "npm --prefix src\\web run build",
+    "timeout": 300,
+    "max_lines": 16
+  },
+  {
+    "name": "49-api-start",
+    "title": "Проверка health-эндпоинта API",
+    "command": "(Invoke-RestMethod -Uri http://localhost:5080/api/health -TimeoutSec 10) | ConvertTo-Json -Depth 4",
+    "max_lines": 14
+  },
+  {
+    "name": "13-codes",
+    "title": "Обёртка ответа: успех и ошибка 404",
+    "command": "$ok = Invoke-RestMethod -Uri http://localhost:5080/api/health -TimeoutSec 10; $ok | ConvertTo-Json -Depth 4; try { Invoke-RestMethod -Uri http://localhost:5080/api/equipment/00000000-0000-0000-0000-000000000000 -TimeoutSec 10 } catch { $_.ErrorDetails.Message }",
+    "max_lines": 20
+  },
+  {
+    "name": "15-401-403",
+    "title": "401 без токена и 403 при чужой роли",
+    "command": "$ErrorActionPreference='SilentlyContinue'\n$base='http://localhost:5080'\n'1. Без токена:'\ncurl.exe -s -o NUL -w '   GET /api/work-orders -> %{http_code}' $base/api/work-orders\n''\n'2. Токен мастера, запрос отчёта (роль MANAGER/ADMIN):'\n$r = Invoke-RestMethod -Uri \"$base/api/auth/login\" -Method Post -ContentType 'application/json' -Body '{\"username\":\"master\",\"password\":\"Master123!\"}'\ncurl.exe -s -o NUL -w '   POST /api/reports -> %{http_code}' -X POST -H \"Authorization: Bearer $($r.data.token)\" $base/api/reports\n''\n'3. Тот же запрос с токеном менеджера:'\n$m = Invoke-RestMethod -Uri \"$base/api/auth/login\" -Method Post -ContentType 'application/json' -Body '{\"username\":\"manager\",\"password\":\"Manager123!\"}'\ncurl.exe -s -o NUL -w '   POST /api/reports -> %{http_code}' -X POST -H \"Authorization: Bearer $($m.data.token)\" $base/api/reports",
+    "max_lines": 16
+  }
+]

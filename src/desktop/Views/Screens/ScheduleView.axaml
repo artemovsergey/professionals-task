@@ -38,7 +38,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="*" />
                             <DataGridTextColumn Header="Инв. номер" Binding="{Binding InventoryNumber}" Width="130" />
-                            <DataGridTextColumn Header="Вид ТО" Binding="{Binding MaintenanceTypeName}" Width="120" />
+                            <DataGridTextColumn Header="Вид ТО" Binding="{Binding MaintenanceTypeName}" Width="180" />
                             <DataGridTextColumn Header="План" Binding="{Binding PlannedDate}" Width="120" />
                             <DataGridTextColumn Header="Факт" Binding="{Binding CompletedDate}" Width="120" />
                             <DataGridTextColumn Header="Следующее" Binding="{Binding NextPlannedDate}" Width="130" />

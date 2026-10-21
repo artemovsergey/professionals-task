@@ -1,0 +1,23 @@
+[
+  {
+    "name": "54-check-build",
+    "title": "Сборка решения целиком",
+    "command": ["dotnet", "build", "src/ToirProf.slnx", "--no-incremental", "-v", "q", "--nologo"],
+    "max_lines": 8,
+    "timeout": 240
+  },
+  {
+    "name": "54-check-diagrams",
+    "title": "Проверка диаграмм: исходники и экспорт",
+    "command": ["powershell", "-NoProfile", "-Command", "Get-ChildItem docs/diagrams, db/erd -File | Select-Object Name, Length | Format-Table -AutoSize"],
+    "max_lines": 20
+  },
+  {
+    "name": "49-db-deploy",
+    "title": "Проверка развёрнутой базы: таблицы и число столбцов",
+    "command": ["C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe", "-h", "127.0.0.1", "-U", "toirprof", "-d", "toirprof", "-X", "-q"],
+    "env": { "PGPASSWORD": "toirprof" },
+    "sql": "SELECT t.table_name AS таблица, count(c.column_name) AS столбцов\nFROM information_schema.tables t\nJOIN information_schema.columns c ON c.table_name = t.table_name AND c.table_schema = t.table_schema\nWHERE t.table_schema = 'public' AND t.table_type = 'BASE TABLE'\nGROUP BY t.table_name\nORDER BY t.table_name;",
+    "max_lines": 24
+  }
+]

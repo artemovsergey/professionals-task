@@ -1,0 +1,97 @@
+﻿[
+  {"name": "07-schema-users", "file": "db/schema.sql", "anchor": "CREATE TABLE users", "before": 2, "after": 18},
+  {"name": "07-schema-orders", "file": "db/schema.sql", "anchor": "CREATE TABLE work_orders", "before": 1, "after": 42},
+  {"name": "07-schema-audit", "file": "db/schema.sql", "anchor": "CREATE TABLE work_order_materials", "before": 1, "after": 16},
+  {"name": "07-schema-clean-install", "file": "db/README.md", "anchor": "psql", "before": 2, "after": 26},
+  {"name": "07-seed-data", "file": "db/seed.sql", "anchor": "INSERT INTO", "before": 2, "after": 28},
+
+  {"name": "08-unique-plan", "file": "db/schema.sql", "anchor": "CONSTRAINT uq_", "before": 1, "after": 10},
+  {"name": "08-enums", "file": "db/schema.sql", "anchor": "ck_equipment_status", "before": 5, "after": 8},
+  {"name": "08-enum-violation", "file": "db/verify.sql", "anchor": "ck_equipment_status", "before": 4, "after": 12},
+
+  {"name": "09-check-equipment", "file": "db/schema.sql", "anchor": "ck_equipment_", "before": 8, "after": 12},
+  {"name": "09-check-dates", "file": "db/schema.sql", "anchor": "ck_work_order_", "before": 2, "after": 16},
+  {"name": "09-on-delete", "file": "db/schema.sql", "anchor": "ON DELETE", "occurrence": 3, "before": 8, "after": 8},
+  {"name": "09-check-violation", "file": "db/verify.sql", "anchor": "CHECK", "before": 4, "after": 20},
+
+  {"name": "10-trigger-equipment", "file": "db/triggers.sql", "anchor": "TRIGGER", "before": 6, "after": 26},
+  {"name": "10-trigger-dates", "file": "db/triggers.sql", "anchor": "downtime", "before": 4, "after": 28},
+  {"name": "10-trigger-audit", "file": "db/triggers.sql", "anchor": "operation_log", "before": 6, "after": 26},
+
+  {"name": "11-func-downtime", "file": "db/functions.sql", "anchor": "downtime", "before": 4, "after": 26},
+  {"name": "11-func-next-date", "file": "db/functions.sql", "anchor": "next", "before": 4, "after": 26},
+  {"name": "11-func-report", "file": "db/functions.sql", "anchor": "PROCEDURE", "before": 4, "after": 30},
+
+  {"name": "12-efcore", "file": "src/api/ToirProf.Api.csproj", "before": 0, "after": 34, "max_lines": 36},
+  {"name": "12-dbcontext", "file": "src/api/Data/AppDbContext.cs", "anchor": "protected override void OnModelCreating", "before": 2, "after": 34},
+  {"name": "12-swagger", "file": "src/api/Program.cs", "anchor": "Swagger", "before": 4, "after": 22},
+
+  {"name": "13-apiresponse", "file": "src/ToirProf.Shared/ApiResponse.cs", "before": 0, "after": 42},
+  {"name": "13-middleware", "file": "src/api/Middlewares/ExceptionMiddleware.cs", "before": 0, "after": 36},
+
+  {"name": "14-bcrypt", "file": "src/api/Services/TokenService.cs", "anchor": "Hash", "before": 4, "after": 22},
+  {"name": "14-jwt", "file": "src/api/Services/TokenService.cs", "anchor": "CreateToken", "before": 2, "after": 32},
+
+  {"name": "15-roles", "file": "src/api/Common/RequireRoleAttribute.cs", "before": 0, "after": 32},
+  {"name": "15-requirerole", "file": "src/api/Common/RequireRoleAttribute.cs", "anchor": "AuthorizeAttribute", "before": 6, "after": 22},
+  {"name": "15-scope", "file": "src/api/Services/WorkOrderService.cs", "anchor": "MASTER", "before": 8, "after": 20},
+
+  {"name": "16-dto", "file": "src/api/DTOs/EquipmentDtos.cs", "before": 0, "after": 34},
+  {"name": "16-list", "file": "src/api/Services/EquipmentService.cs", "anchor": "GetListAsync", "before": 2, "after": 34},
+
+  {"name": "17-types-write", "file": "src/api/Services/MaintenanceTypesService.cs", "anchor": "CreateAsync", "before": 2, "after": 26},
+  {"name": "17-types-delete", "file": "src/api/Services/MaintenanceTypesService.cs", "anchor": "DeleteAsync", "before": 2, "after": 24},
+
+  {"name": "18-schedule-create", "file": "src/api/Services/MaintenanceScheduleService.cs", "anchor": "CreateAsync", "before": 2, "after": 26},
+  {"name": "18-schedule-complete", "file": "src/api/Services/MaintenanceScheduleService.cs", "anchor": "CompleteAsync", "before": 2, "after": 26},
+
+  {"name": "19-counter", "file": "src/api/Services/WorkOrderNumberService.cs", "before": 0, "after": 34},
+  {"name": "19-number-format", "file": "src/api/Services/WorkOrderNumberService.cs", "anchor": "return", "before": 8, "after": 8},
+
+  {"name": "20-validator", "file": "src/api/DTOs/WorkOrderDtos.cs", "anchor": "CreateWorkOrderDto", "before": 1, "after": 26},
+  {"name": "20-detail", "file": "src/api/Services/WorkOrderService.cs", "anchor": "GetByIdAsync", "before": 2, "after": 32},
+
+  {"name": "21-transitions", "file": "src/api/DTOs/WorkOrderDtos.cs", "anchor": "Transitions", "before": 4, "after": 26},
+  {"name": "21-complete", "file": "src/api/Services/WorkOrderService.cs", "anchor": "CompleteAsync", "before": 2, "after": 30},
+
+  {"name": "22-members", "file": "src/api/Services/CrewService.cs", "anchor": "AddMember", "before": 2, "after": 26},
+  {"name": "23-writeoff", "file": "src/api/Services/MaterialService.cs", "anchor": "WriteOff", "before": 2, "after": 28},
+  {"name": "24-summary", "file": "src/api/Services/DashboardService.cs", "anchor": "GetSummaryAsync", "before": 2, "after": 34},
+  {"name": "25-downtime", "file": "src/api/Services/DashboardService.cs", "anchor": "GetAnalyticsAsync", "before": 2, "after": 32},
+  {"name": "25-pdf", "file": "src/api/Services/ReportService.cs", "before": 0, "after": 34},
+
+  {"name": "26-csproj", "file": "src/desktop/ToirProf.Desktop.csproj", "before": 0, "after": 30, "max_lines": 32},
+  {"name": "26-packages", "file": "src/ToirProf.Shared/ToirProf.Shared.csproj", "before": 0, "after": 24},
+  {"name": "26-theme", "file": "src/desktop/Styles/Theme.axaml", "before": 0, "after": 36},
+
+  {"name": "28-api-client", "file": "src/desktop/Services/ApiClient.cs", "before": 0, "after": 34},
+  {"name": "28-toast", "file": "src/desktop/Services/ToastService.cs", "before": 0, "after": 30},
+  {"name": "28-log", "file": "src/desktop/Services/FileLogger.cs", "before": 0, "after": 28},
+  {"name": "29-vm", "file": "src/desktop/ViewModels/Screens/DashboardViewModel.cs", "before": 0, "after": 34},
+  {"name": "30-paged", "file": "src/api/DTOs/EquipmentDtos.cs", "anchor": "PagedResult", "before": 4, "after": 20},
+  {"name": "31-form", "file": "src/desktop/Views/Screens/EquipmentView.axaml", "before": 0, "after": 34},
+  {"name": "33-card", "file": "src/desktop/Views/Screens/WorkOrdersView.axaml", "anchor": "Карточка", "before": 2, "after": 32},
+  {"name": "35-queue", "file": "src/desktop/Services/OfflineQueue.cs", "before": 0, "after": 30},
+  {"name": "35-connectivity", "file": "src/desktop/ViewModels/MainWindowViewModel.cs", "anchor": "StatusText", "before": 8, "after": 20},
+
+  {"name": "36-proxy", "file": "src/web/vite.config.ts", "before": 0, "after": 30},
+  {"name": "36-http", "file": "src/web/src/api/http.ts", "before": 0, "after": 34},
+  {"name": "36-router", "file": "src/web/src/App.tsx", "before": 0, "after": 34},
+  {"name": "37-auth-context", "file": "src/web/src/auth/AuthContext.tsx", "before": 0, "after": 32},
+  {"name": "37-menu", "file": "src/web/src/layout/AppShell.tsx", "before": 0, "after": 34},
+  {"name": "38-hook", "file": "src/web/src/hooks/useLoad.ts", "before": 0, "after": 30},
+  {"name": "38-auto", "file": "src/web/src/hooks/useDashboardStream.ts", "before": 0, "after": 32},
+  {"name": "42-export-csv", "file": "src/web/src/hooks/useExport.ts", "before": 0, "after": 30},
+  {"name": "42-export-png", "file": "src/web/src/hooks/useExport.ts", "anchor": "html2canvas", "before": 8, "after": 20},
+  {"name": "43-sse-endpoint", "file": "src/api/Controllers/DashboardController.cs", "anchor": "events", "before": 4, "after": 26},
+  {"name": "43-sse-hook", "file": "src/web/src/hooks/useDashboardStream.ts", "anchor": "EventSource", "before": 6, "after": 24},
+  {"name": "45-api-error", "file": "src/web/src/api/http.ts", "anchor": "error_code", "before": 6, "after": 20},
+
+  {"name": "46-calculator", "file": "src/desktop/Services/Calculators.cs", "before": 0, "after": 34},
+  {"name": "46-test-valid-dates", "file": "src/Tests/DowntimeCalculatorTests.cs", "before": 0, "after": 28},
+  {"name": "47-test-missing", "file": "src/Tests/WorkOrderValidatorTests.cs", "before": 0, "after": 30},
+  {"name": "47-test-cost", "file": "src/Tests/MaterialCostTests.cs", "before": 0, "after": 30},
+
+  {"name": "48-swagger-summary", "file": "src/api/Controllers/EquipmentController.cs", "before": 0, "after": 32},
+  {"name": "48-openapi-yaml", "file": "api/openapi.yaml", "before": 0, "after": 34}
+]

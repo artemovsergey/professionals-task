@@ -27,6 +27,9 @@ GIF_DIR = "gifs"
 EXPECTED_PAGES = 54
 EXPECTED_SPRINTS = 25  # спринты 0..24
 
+# Каталог вики, откуда берутся картинки. Меняется в main(), если указан --out.
+_MEDIA_ROOT = Path(__file__).resolve().parents[2] / "wiki"
+
 
 # --------------------------------------------------------------------------
 # Рендеринг
@@ -74,15 +77,29 @@ def sprint_of(n):
     raise KeyError("страница %d не принадлежит ни одному спринту" % n)
 
 
+def media_path(n, step, kind):
+    """Путь к объявленному кадру: images/NN-slug.png или gifs/NN-slug.gif."""
+    folder = IMG_DIR if kind == "png" else GIF_DIR
+    return "%s/%02d-%s.%s" % (folder, n, step[kind], kind)
+
+
+def media_ready(n, step, kind):
+    """Снят ли кадр: в страницу попадает только то, что уже лежит на диске.
+
+    Иначе на вики висела бы рамка с битой картинкой. Полный перечень
+    кадров остаётся в docs/capture-checklist.md — по нему видно, что
+    ещё не снято.
+    """
+    return (_MEDIA_ROOT / media_path(n, step, kind)).exists()
+
+
 def render_media(n, step, idx):
     """Возвращает блок со скриншотом и/или gif для шага."""
     parts = []
-    if step.get("png"):
-        path = "%s/%02d-%s.png" % (IMG_DIR, n, step["png"])
-        parts.append("![%s](%s)\n*%s*" % (step["cap"], path, step["cap"]))
-    if step.get("gif"):
-        path = "%s/%02d-%s.gif" % (GIF_DIR, n, step["gif"])
-        parts.append("![%s](%s)\n*%s*" % (step["cap"], path, step["cap"]))
+    for kind in ("png", "gif"):
+        if step.get(kind) and media_ready(n, step, kind):
+            path = media_path(n, step, kind)
+            parts.append("![%s](%s)\n*%s*" % (step["cap"], path, step["cap"]))
     if not parts:
         return ""
     return "\n\n".join(parts)
@@ -444,13 +461,18 @@ def check(out_dir):
     if dup_media:
         problems.append("дубли имён медиа: %s" % ", ".join(sorted(dup_media)))
 
+    # Сколько кадров уже снято. Это не ошибка сборки: недостающие
+    # перечислены в docs/capture-checklist.md как ручная работа,
+    # а в страницы они не попадают (см. media_ready).
+    ready = [m for m in media if (out_dir / m).exists()]
+
     if problems:
         for problem in problems:
             print("ПРОБЛЕМА: %s" % problem, file=sys.stderr)
         return 1
 
-    print("OK: %d страницы, %d уникальных имён, %d файлов медиа, битых ссылок: 0"
-          % (len(PAGES), len(names), len(media)))
+    print("OK: %d страницы, %d уникальных имён, медиа на диске: %d из %d, битых ссылок: 0"
+          % (len(PAGES), len(names), len(ready), len(media)))
     return 0
 
 
@@ -469,6 +491,8 @@ def main():
     args = parser.parse_args()
 
     out_dir = Path(args.out) if args.out else Path(__file__).resolve().parents[2] / "wiki"
+    global _MEDIA_ROOT
+    _MEDIA_ROOT = out_dir
 
     if args.check:
         return check(out_dir)

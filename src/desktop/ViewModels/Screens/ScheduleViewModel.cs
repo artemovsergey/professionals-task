@@ -25,9 +25,11 @@ public sealed partial class ScheduleViewModel : PageViewModel
         SortOrder = "asc";
 
         // Период графика задан сразу, иначе пустые поля даты рисуют
-        // английские подсказки вместо чисел.
-        To = DateOnly.FromDateTime(DateTime.Today);
-        From = To.Value.AddDays(-30);
+        // английские подсказки вместо чисел. Берём целый год: график ТО
+        // планируют на год вперёд, а не на прошедший месяц — с периодом
+        // «последние 30 дней» экран оставался пустым.
+        To = new DateOnly(DateTime.Today.Year, 12, 31);
+        From = new DateOnly(DateTime.Today.Year, 1, 1);
     }
 
     public ObservableCollection<ScheduleRow> Rows { get; } = [];

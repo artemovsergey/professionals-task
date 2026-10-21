@@ -51,7 +51,7 @@
                             <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="120" />
                             <DataGridTextColumn Header="План" Binding="{Binding PlannedStart}" Width="110" />
                             <DataGridTextColumn Header="Простой, ч" Binding="{Binding DowntimeHours}" Width="110" />
-                            <DataGridTextColumn Header="Бригада" Binding="{Binding CrewName}" Width="200" />
+                            <DataGridTextColumn Header="Бригада" Binding="{Binding CrewName}" Width="260" />
                         </DataGrid.Columns>
                     </DataGrid>
 

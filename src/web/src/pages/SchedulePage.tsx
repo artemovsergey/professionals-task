@@ -35,8 +35,11 @@ export function SchedulePage() {
   const toast = useToast()
   const action = useAction()
 
-  const [from, setFrom] = useState(() => isoDaysAgo(-60))
-  const [to, setTo] = useState(() => isoDaysAgo(90))
+  // График ТО планируют на год вперёд, поэтому по умолчанию показываем
+  // текущий год целиком. Прежние значения («через 60 дней» и «90 дней
+  // назад») давали перевёрнутый период, и таблица всегда была пуста.
+  const [from, setFrom] = useState(() => `${new Date().getFullYear()}-01-01`)
+  const [to, setTo] = useState(() => `${new Date().getFullYear()}-12-31`)
   const [status, setStatus] = useState('')
   const [equipment, setEquipment] = useState('')
   const [search, setSearch] = useState('')

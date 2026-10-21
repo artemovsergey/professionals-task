@@ -7,10 +7,15 @@ namespace ToirProf.Desktop.Converters;
 /// <summary>
 /// Связывает <see cref="DateOnly" /> из модели с выбором даты в интерфейсе.
 ///
-/// Выбор даты в Avalonia работает с <see cref="DateTime" />, а запросы
-/// к API принимают дату без времени. Приводить типы в каждой модели
-/// значило бы таскать время по всей цепочке ради одного поля, поэтому
-/// перевод живёт в конвертере.
+/// Модели хранят дату без времени (<see cref="DateOnly" />) — её и ждут
+/// запросы к API, — а <see cref="Avalonia.Controls.DatePicker" /> работает
+/// с <see cref="DateTimeOffset" />. Перевод типов в каждой модели значил
+/// бы таскать время по всей цепочке ради одного поля, поэтому он живёт
+/// в конвертере.
+///
+/// Тип у контрола именно <c>DateTimeOffset?</c>: у <c>CalendarDatePicker</c>
+/// он другой (<c>DateTime?</c>), и при замене контрола конвертер придётся
+/// поправить — иначе выбор даты молча перестанет работать.
 /// </summary>
 public sealed class DateOnlyToDateTimeConverter : IValueConverter
 {
@@ -29,14 +34,16 @@ public sealed class DateOnlyToDateTimeConverter : IValueConverter
             return null;
         }
 
-        return date.ToDateTime(TimeOnly.MinValue);
+        // Смещение берём местное: календарь показывает дату как есть,
+        // и при переходе на UTC число могло бы сдвинуться на сутки.
+        return new DateTimeOffset(date.ToDateTime(TimeOnly.MinValue, DateTimeKind.Unspecified), TimeZoneInfo.Local.GetUtcOffset(DateTime.Today));
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value switch
         {
-            DateTime dateTime => DateOnly.FromDateTime(dateTime),
             DateTimeOffset offset => DateOnly.FromDateTime(offset.DateTime),
+            DateTime dateTime => DateOnly.FromDateTime(dateTime),
             _ => null,
         };
 }

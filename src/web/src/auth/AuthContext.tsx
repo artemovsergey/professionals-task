@@ -46,9 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then((user) => setSession({ user, role: toRole(user.role) }))
       // 401 после перезагрузки — обычное дело: токен истёк за время перерыва.
       .catch((error: unknown) => {
+        if (controller.signal.aborted) return
         if (error instanceof HttpError && error.isUnauthorized) clearToken()
       })
-      .finally(() => setReady(true))
+      // Отменённый запрос — не ответ сервера. В режиме разработки React
+      // монтирует компонент дважды: первый запрос отменяется, и если здесь
+      // всё равно выставить ready, RequireAuth успевает решить, что
+      // пользователя нет, и выбрасывает его на /login при каждом обновлении
+      // страницы. Ждём именно того запроса, который дошёл до сервера.
+      .finally(() => {
+        if (!controller.signal.aborted) setReady(true)
+      })
 
     return () => controller.abort()
   }, [ready])
