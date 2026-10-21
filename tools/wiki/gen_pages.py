@@ -62,8 +62,19 @@ def page_filename(n, title):
     return "%02d-%s.md" % (n, title)
 
 
+def human(title):
+    """Слаг из имени файла — в читаемый заголовок.
+
+    Имя файла вики пишется с дефисами (`01-Установка-инструментов.md`):
+    GitHub показывает его как заголовок страницы. В тексте дефисы
+    выглядят как служебный код, поэтому в заголовках и ссылках
+    заменяем их пробелами.
+    """
+    return title.replace("-", " ")
+
+
 def page_link(n, title):
-    return "[%s](%s)" % (title, page_filename(n, title))
+    return "[%s](%s)" % (human(title), page_filename(n, title))
 
 
 def page_minutes(page):
@@ -143,7 +154,7 @@ def render_page(page):
     name = page_filename(n, page["ti"])
     minutes = page_minutes(page)
 
-    out = ["# %s" % page["ti"], ""]
+    out = ["# %d. %s" % (n, human(page["ti"])), ""]
     out.append("> Спринт %d. %s · %d мин · страница %d из %d"
                % (page["sp"], sprint["name"], minutes, n, EXPECTED_PAGES))
     out.append("")
