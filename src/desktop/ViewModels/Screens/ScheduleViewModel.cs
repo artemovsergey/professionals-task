@@ -23,6 +23,11 @@ public sealed partial class ScheduleViewModel : PageViewModel
     {
         SortField = "plannedDate";
         SortOrder = "asc";
+
+        // Период графика задан сразу, иначе пустые поля даты рисуют
+        // английские подсказки вместо чисел.
+        To = DateOnly.FromDateTime(DateTime.Today);
+        From = To.Value.AddDays(-30);
     }
 
     public ObservableCollection<ScheduleRow> Rows { get; } = [];
@@ -47,7 +52,7 @@ public sealed partial class ScheduleViewModel : PageViewModel
     private ScheduleRow? _selected;
 
     [ObservableProperty]
-    private DateOnly _completedDate;
+    private DateOnly? _completedDate;
 
     [ObservableProperty]
     private decimal? _actualCost;
@@ -108,13 +113,19 @@ public sealed partial class ScheduleViewModel : PageViewModel
             return;
         }
 
+        if (CompletedDate is null)
+        {
+            Toasts!.Warn("Укажите дату выполнения.");
+            return;
+        }
+
         await RunLoadAsync("Отмечаем выполнение…", async ct =>
         {
             var result = await Api!.PostAsync<ScheduleRow>(
                 $"/api/maintenance-schedule/{Selected.Id}/complete",
                 new
                 {
-                    completedDate = CompletedDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    completedDate = CompletedDate.Value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                     actualCost = ActualCost,
                 },
                 ct);

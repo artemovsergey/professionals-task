@@ -1,14 +1,15 @@
 /* ===========================================================================
    ТОиР-Проф — справочник бригад.
 
-   Реестр с фильтрами, пагинацией и карточкой бригады: состав, загрузка,
-   завершённые заявки, суммарный простой и рейтинг. Рейтинг считает сервер
-   как долю завершённых заявок от назначенных.
+   Реестр с фильтрами и пагинацией показывает только то, что отдаёт список
+   (код, название, число членов, состояние). Загрузка, простой и рейтинг
+   считаются запросом по одной бригаде, поэтому живут в карточке: тянуть
+   статистику по всем строкам реестра незачем.
    =========================================================================== */
 
 import { useState } from 'react'
 import { crewsApi } from '../api/endpoints'
-import type { CrewDto } from '../api/types'
+import type { CrewDto, CrewShortDto } from '../api/types'
 import { DataTable } from '../components/DataTable'
 import type { Column } from '../components/DataTable'
 import { useToast } from '../components/ToastProvider'
@@ -16,27 +17,10 @@ import { Badge, Card, EmptyState, ErrorBanner, LoadingBar, MetricCard } from '..
 import { useAction, useLoad } from '../hooks/useLoad'
 import { formatDate, formatHours, formatNumber, formatPercent } from '../utils/format'
 
-const columns: Column<CrewDto>[] = [
+const columns: Column<CrewShortDto>[] = [
   { key: 'code', title: 'Код', render: (row) => <span className="mono">{row.code}</span> },
   { key: 'name', title: 'Бригада', render: (row) => row.name },
-  { key: 'specialty', title: 'Специализация', render: (row) => row.specialty ?? '—' },
-  { key: 'memberCount', title: 'Членов', numeric: true, render: (row) => formatNumber(row.members.length) },
-  { key: 'activeOrders', title: 'В работе', numeric: true, render: (row) => formatNumber(row.activeOrders) },
-  { key: 'completedOrders', title: 'Завершено', numeric: true, render: (row) => formatNumber(row.completedOrders) },
-  {
-    key: 'totalDowntimeHours',
-    title: 'Простой, ч',
-    numeric: true,
-    render: (row) => formatHours(row.totalDowntimeHours),
-  },
-  {
-    key: 'rating',
-    title: 'Рейтинг',
-    numeric: true,
-    render: (row) => (
-      <Badge text={formatPercent(row.rating)} tone={row.rating >= 80 ? 'ok' : row.rating >= 50 ? 'wait' : 'bad'} />
-    ),
-  },
+  { key: 'memberCount', title: 'Членов', numeric: true, render: (row) => formatNumber(row.memberCount) },
   { key: 'isActive', title: 'Состояние', render: (row) => <Badge text={row.isActive ? 'Активна' : 'Отключена'} /> },
 ]
 

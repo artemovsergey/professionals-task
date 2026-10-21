@@ -45,13 +45,13 @@
                               SelectionMode="Single" SelectedItem="{Binding Selected}"
                               GridLinesVisibility="Horizontal">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Номер" Binding="{Binding Number}" Width="110" />
+                            <DataGridTextColumn Header="Номер" Binding="{Binding Number}" Width="130" />
                             <DataGridTextColumn Header="Оборудование" Binding="{Binding EquipmentName}" Width="*" />
-                            <DataGridTextColumn Header="Приоритет" Binding="{Binding Priority}" Width="100" />
-                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="110" />
-                            <DataGridTextColumn Header="План" Binding="{Binding PlannedStart}" Width="100" />
-                            <DataGridTextColumn Header="Простой, ч" Binding="{Binding DowntimeHours}" Width="100" />
-                            <DataGridTextColumn Header="Бригада" Binding="{Binding CrewName}" Width="110" />
+                            <DataGridTextColumn Header="Приоритет" Binding="{Binding Priority}" Width="110" />
+                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="120" />
+                            <DataGridTextColumn Header="План" Binding="{Binding PlannedStart}" Width="110" />
+                            <DataGridTextColumn Header="Простой, ч" Binding="{Binding DowntimeHours}" Width="110" />
+                            <DataGridTextColumn Header="Бригада" Binding="{Binding CrewName}" Width="200" />
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -101,11 +101,11 @@
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <StackPanel Grid.Column="0" Spacing="4">
                                 <TextBlock Text="План начала" Classes="caption" />
-                                <DatePicker SelectedDate="{Binding DraftPlannedStart}" />
+                                <DatePicker SelectedDate="{Binding DraftPlannedStart, Converter={StaticResource DateOnlyToDateTime}, Mode=TwoWay}" DayFormat="dd" MonthFormat="MM" YearFormat="yyyy" />
                             </StackPanel>
                             <StackPanel Grid.Column="1" Spacing="4">
                                 <TextBlock Text="План окончания" Classes="caption" />
-                                <DatePicker SelectedDate="{Binding DraftPlannedEnd}" />
+                                <DatePicker SelectedDate="{Binding DraftPlannedEnd, Converter={StaticResource DateOnlyToDateTime}, Mode=TwoWay}" DayFormat="dd" MonthFormat="MM" YearFormat="yyyy" />
                             </StackPanel>
                         </Grid>
 

@@ -24,6 +24,11 @@ public sealed partial class WorkOrdersViewModel : PageViewModel
     public WorkOrdersViewModel(ApiClient api, ToastService toasts, FileLogger log)
         : base(api, toasts, log)
     {
+        // Плановые даты новой заявки заполнены заранее: пустые поля
+        // выбора даты показывают английские подсказки, а заявку всё
+        // равно заводят «на завтра-послезавтра», не в прошлое.
+        DraftPlannedStart = DateOnly.FromDateTime(DateTime.Today);
+        DraftPlannedEnd = DraftPlannedStart.Value.AddDays(3);
     }
 
     public ObservableCollection<WorkOrderRow> Rows { get; } = [];

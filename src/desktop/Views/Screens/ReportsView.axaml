@@ -18,8 +18,8 @@
                 <!--  Watermark у DatePicker в Avalonia 12 отсутствует
                      (свойство есть только у TextBox) — подписи вынесены
                      в ToolTip, чтобы период читался без догадок.  -->
-                <DatePicker SelectedDate="{Binding From}" ToolTip.Tip="Период: с" />
-                <DatePicker SelectedDate="{Binding To}" ToolTip.Tip="Период: по" />
+                <DatePicker SelectedDate="{Binding From, Converter={StaticResource DateOnlyToDateTime}, Mode=TwoWay}" ToolTip.Tip="Период: с" DayFormat="dd" MonthFormat="MM" YearFormat="yyyy" />
+                <DatePicker SelectedDate="{Binding To, Converter={StaticResource DateOnlyToDateTime}, Mode=TwoWay}" ToolTip.Tip="Период: по" DayFormat="dd" MonthFormat="MM" YearFormat="yyyy" />
                 <Button Content="Показать" Command="{Binding RefreshCommand}" />
                 <Button Content="Обновить" Command="{Binding RefreshCommand}" Classes="primary" />
             </StackPanel>

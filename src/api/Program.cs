@@ -30,8 +30,30 @@ builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
+    {
         options.TokenValidationParameters = new TokenService(builder.Configuration)
-            .BuildValidationParameters());
+            .BuildValidationParameters();
+
+        // Поток событий дашборда открывается через EventSource, а он не умеет
+        // задавать заголовки: токен приходит параметром access_token. Без этого
+        // обработчика заголовок Authorization пуст, и SSE получает 401 —
+        // клиент навсегда уходит в резервный опрос.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    context.HttpContext.Request.Path.StartsWithSegments("/api/dashboard/events"))
+                {
+                    context.Token = accessToken;
+                }
+
+                return Task.CompletedTask;
+            },
+        };
+    });
 builder.Services.AddAuthorization();
 
 // ---------------------------------------------------------------------------

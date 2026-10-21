@@ -25,6 +25,12 @@ public sealed partial class ReportsViewModel : PageViewModel
     {
         SortField = "downtime";
         SortOrder = "desc";
+
+        // Пустой период показывал в полях даты английские подсказки
+        // «day / month / year» — подставляем тот же диапазон, что
+        // сервер принимает по умолчанию.
+        To = DateOnly.FromDateTime(DateTime.Today);
+        From = To.Value.AddDays(-30);
     }
 
     public ObservableCollection<DowntimeSlice> Downtime { get; } = [];

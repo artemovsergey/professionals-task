@@ -184,6 +184,13 @@ public sealed class CrewRow
 
     public int MemberCount { get; set; }
 
+    /// <summary>
+    /// Состояние бригады словами. В реестре список приходит коротким
+    /// (код, название, число членов), поэтому показываем только то, что
+    /// действительно есть в ответе: остальные цифры считает карточка.
+    /// </summary>
+    public string StateCaption => IsActive ? "Активна" : "Неактивна";
+
     public int ActiveOrders { get; set; }
 
     public int CompletedOrders { get; set; }

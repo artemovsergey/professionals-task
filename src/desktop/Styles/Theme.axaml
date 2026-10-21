@@ -30,9 +30,16 @@
     <SolidColorBrush x:Key="BadSoftBrush" Color="#43241F" />
 
     <!--  Типографика.  -->
-    <FontFamily x:Key="UiFont">avares://ToirProf.Desktop/Assets#Inter</FontFamily>
-    <x:Double x:Key="RadiusSmall">4</x:Double>
-    <x:Double x:Key="RadiusNormal">6</x:Double>
+    <!--  Гарнитура приходит из пакета Avalonia.Fonts.Inter (Program.cs
+          вызывает WithInterFont), поэтому путь указывает на сборку пакета,
+          а не на Assets приложения: в Assets лежит только значок.  -->
+    <FontFamily x:Key="UiFont">avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily>
+    <!--  Радиусы объявлены типом CornerRadius, а не x:Double: значение
+          ресурса подставляется в Setter без разбора строки, и двойка
+          в свойстве CornerRadius даёт InvalidCastException уже при
+          запуске окна. Ошибка не видна на сборке — только в работе.  -->
+    <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
+    <CornerRadius x:Key="RadiusNormal">6</CornerRadius>
     <Thickness x:Key="PadNormal">12</Thickness>
 
     <!--  Базового стиля на Selector="Control" в Avalonia 12 нет: класс

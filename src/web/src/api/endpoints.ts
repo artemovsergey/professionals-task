@@ -133,7 +133,7 @@ export const workOrdersApi = {
 
 export const crewsApi = {
   list: (q: { includeInactive?: boolean; search?: string; page?: number; pageSize?: number }, signal?: AbortSignal) =>
-    http.get<PagedResult<CrewDto>>(`/crews${buildQuery({ ...q })}`, signal),
+    http.get<PagedResult<CrewShortDto>>(`/crews${buildQuery({ ...q })}`, signal),
   forSelect: (signal?: AbortSignal) => http.get<CrewShortDto[]>('/crews/select', signal),
   byId: (id: string, signal?: AbortSignal) => http.get<CrewDto>(`/crews/${id}`, signal),
 }

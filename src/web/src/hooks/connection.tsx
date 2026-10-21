@@ -6,7 +6,7 @@
    контексте: дашборд его записывает, шапка читает.
    =========================================================================== */
 
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { StreamStatus } from './useDashboardStream'
 
@@ -23,13 +23,21 @@ const ConnectionContext = createContext<ConnectionValue | null>(null)
 export function ConnectionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState({ status: INITIAL as StreamStatus, caption: 'Ожидание обновлений' })
 
+  // Функция записи обязана быть неизменной по ссылке. Дашборд пишет статус
+  // в контекст из useEffect, и если бы setConnection пересоздавался при
+  // каждом обновлении состояния, эффект запускался бы снова и снова —
+  // React останавливал это ошибкой «Maximum update depth exceeded».
+  // Заодно отсекаем запись тех же значений: setState с новым объектом при
+  // равных полях тоже меняет ссылку и зацикливает обновление.
+  const setConnection = useCallback((status: StreamStatus, caption: string) => {
+    setState((current) =>
+      current.status === status && current.caption === caption ? current : { status, caption },
+    )
+  }, [])
+
   const value = useMemo<ConnectionValue>(
-    () => ({
-      status: state.status,
-      caption: state.caption,
-      setConnection: (status, caption) => setState({ status, caption }),
-    }),
-    [state],
+    () => ({ status: state.status, caption: state.caption, setConnection }),
+    [state.status, state.caption, setConnection],
   )
 
   return <ConnectionContext.Provider value={value}>{children}</ConnectionContext.Provider>

@@ -145,8 +145,8 @@ public sealed class ApiClient : IDisposable
             _blockedUntil = DateTimeOffset.MinValue;
         }
 
-        _tokens.Save(envelope.Token, envelope.Username ?? username, envelope.Role ?? string.Empty);
-        _log.Info($"Вход выполнен: {envelope.Username ?? username} ({envelope.Role})");
+        _tokens.Save(envelope.Token, envelope.User?.Username ?? username, envelope.User?.Role ?? string.Empty);
+        _log.Info($"Вход выполнен: {envelope.User?.Username ?? username} ({envelope.User?.Role})");
         StartQueuePump();
         return ApiResult<string>.Ok(envelope.Token, "Вход выполнен.");
     }
@@ -349,7 +349,15 @@ public sealed class ApiClient : IDisposable
     {
         public string? Token { get; set; }
 
+        /// <summary>Пользователь приходит вложенным объектом, а не полями верхнего уровня.</summary>
+        public TokenUser? User { get; set; }
+    }
+
+    private sealed class TokenUser
+    {
         public string? Username { get; set; }
+
+        public string? FullName { get; set; }
 
         public string? Role { get; set; }
     }

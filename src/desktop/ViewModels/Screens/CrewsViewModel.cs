@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.Generic;
 using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -63,10 +62,9 @@ public sealed partial class CrewsViewModel : PageViewModel
     }
 
     /// <summary>
-    /// Рейтинг показываем готовым числом с процентом. Клиент его не
-    /// считает: формулу рейтинга держит сервер, иначе две реализации
-    /// разъедутся при первом же изменении.
+    /// Рейтинг в реестре не показываем: список приходит коротким
+    /// (код, название, число членов), а формулу рейтинга держит сервер —
+    /// рисовать нули там, где данных нет, значит врать пользователю.
     /// </summary>
-    public string RatingCaption(CrewRow row) =>
-        $"{row.Rating.ToString("0.0", CultureInfo.InvariantCulture)}% · выполнено {row.CompletedOrders} из заявок";
+    public static string RatingCaption(CrewRow row) => row.StateCaption;
 }

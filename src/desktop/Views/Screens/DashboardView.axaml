@@ -14,9 +14,9 @@
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                 <TextBlock Text="с" Classes="caption" VerticalAlignment="Center" />
-                <DatePicker SelectedDate="{Binding From}" />
+                <DatePicker SelectedDate="{Binding From, Converter={StaticResource DateOnlyToDateTime}, Mode=TwoWay}" DayFormat="dd" MonthFormat="MM" YearFormat="yyyy" />
                 <TextBlock Text="по" Classes="caption" VerticalAlignment="Center" />
-                <DatePicker SelectedDate="{Binding To}" />
+                <DatePicker SelectedDate="{Binding To, Converter={StaticResource DateOnlyToDateTime}, Mode=TwoWay}" DayFormat="dd" MonthFormat="MM" YearFormat="yyyy" />
                 <Button Content="Обновить" Command="{Binding RefreshCommand}" IsEnabled="{Binding !IsBusy}" />
             </StackPanel>
         </Grid>

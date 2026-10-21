@@ -63,13 +63,16 @@ public sealed class NavigationService : ObservableObject
 
     public static IReadOnlyList<MenuItem> All { get; } =
     [
-        new MenuItem("Дашборд мастера", ScreenKind.Dashboard, "D", []),
-        new MenuItem("Оборудование цеха", ScreenKind.Equipment, "E", []),
-        new MenuItem("График ТО", ScreenKind.Schedule, "G", []),
-        new MenuItem("Заявки", ScreenKind.WorkOrders, "Z", []),
-        new MenuItem("Бригады", ScreenKind.Crews, "B", ["ADMIN", "MANAGER"]),
-        new MenuItem("Материалы и ЗИП", ScreenKind.Materials, "M", ["ADMIN", "MANAGER"]),
-        new MenuItem("Отчёты", ScreenKind.Reports, "R", ["ADMIN", "MANAGER"]),
+        // Буква-монограмма вместо значка: шрифта с иконками в проекте нет,
+        // а первая буква раздела читается быстрее, чем абстрактная пиктограмма,
+        // и совпадает с названием в меню.
+        new MenuItem("Дашборд мастера", ScreenKind.Dashboard, "Д", []),
+        new MenuItem("Оборудование цеха", ScreenKind.Equipment, "О", []),
+        new MenuItem("График ТО", ScreenKind.Schedule, "Г", []),
+        new MenuItem("Заявки", ScreenKind.WorkOrders, "З", []),
+        new MenuItem("Бригады", ScreenKind.Crews, "Б", ["ADMIN", "MANAGER"]),
+        new MenuItem("Материалы и ЗИП", ScreenKind.Materials, "М", ["ADMIN", "MANAGER"]),
+        new MenuItem("Отчёты", ScreenKind.Reports, "А", ["ADMIN", "MANAGER"]),
     ];
 
     public ReadOnlyObservableCollection<MenuItem> Menu { get; }

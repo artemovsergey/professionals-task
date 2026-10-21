@@ -23,6 +23,12 @@ public sealed partial class DashboardViewModel : PageViewModel
     public DashboardViewModel(ApiClient api, ToastService toasts, FileLogger log)
         : base(api, toasts, log)
     {
+        // Период подставляем сразу: пустое поле выбора даты показывает
+        // английские подсказки «day / month / year», и на снимке экрана
+        // это выглядит как недоделанный фильтр. Те же границы, что
+        // сервер берёт по умолчанию, — последние 30 дней.
+        To = DateOnly.FromDateTime(DateTime.Today);
+        From = To.Value.AddDays(-30);
     }
 
     /// <summary>Шесть карточек — по одной на показатель из задания.</summary>

@@ -21,16 +21,7 @@
                         <DataGridTextColumn Header="Код" Binding="{Binding Code}" Width="90" />
                         <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="*" />
                         <DataGridTextColumn Header="Членов" Binding="{Binding MemberCount}" Width="90" />
-                        <DataGridTextColumn Header="В работе" Binding="{Binding ActiveOrders}" Width="100" />
-                        <DataGridTextColumn Header="Завершено" Binding="{Binding CompletedOrders}" Width="110" />
-                        <DataGridTextColumn Header="Простой, ч" Binding="{Binding TotalDowntimeHours}" Width="110" />
-                        <DataGridTemplateColumn Header="Рейтинг, %" Width="140">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Rating}" />
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Состояние" Binding="{Binding StateCaption}" Width="120" />
                     </DataGrid.Columns>
                 </DataGrid>
 

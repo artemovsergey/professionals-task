@@ -67,6 +67,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
                 OnPropertyChanged(nameof(IsLoggedIn));
                 OnPropertyChanged(nameof(StatusText));
                 OnPropertyChanged(nameof(WindowTitle));
+                OnPropertyChanged(nameof(CurrentScreenTitle));
+                OnPropertyChanged(nameof(CanGoBack));
             }
         }
     }

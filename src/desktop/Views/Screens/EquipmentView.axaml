@@ -46,9 +46,9 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Инв. номер" Binding="{Binding InventoryNumber}" Width="120" />
                         <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" Width="*" />
-                        <DataGridTextColumn Header="Цех" Binding="{Binding WorkshopName}" Width="130" />
+                        <DataGridTextColumn Header="Цех" Binding="{Binding WorkshopName}" Width="170" />
                         <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="150" />
-                        <DataGridTextColumn Header="Критичность" Binding="{Binding Criticality}" Width="100" />
+                        <DataGridTextColumn Header="Критичность" Binding="{Binding Criticality}" Width="140" />
                     </DataGrid.Columns>
                 </DataGrid>
 
