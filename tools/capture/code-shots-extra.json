@@ -308,5 +308,13 @@
     "before": 3,
     "after": 46,
     "max_lines": 44
+  },
+  {
+    "name": "49-requirements",
+    "file": "README.md",
+    "anchor": "## Стек",
+    "before": 0,
+    "after": 20,
+    "max_lines": 22
   }
 ]
