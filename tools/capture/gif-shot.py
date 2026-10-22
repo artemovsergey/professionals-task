@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "wiki" / "gifs"
 BASE = "http://localhost:5173"
 VIEWPORT = {"width": 1280, "height": 800}
-GIF_WIDTH = 960
+GIF_WIDTH = 1200
 FRAME_MS = 800
 PAUSE_MS = 320
 MAX_FRAMES = 16
@@ -602,8 +602,15 @@ def scene_48_swagger_example(rec: Recorder) -> None:
     """Swagger UI: раскрытая операция входа с примером ответа."""
     page = rec.page
     page.goto("http://localhost:5080/swagger/index.html", wait_until="domcontentloaded")
-    rec.wait(2_500)
-    page.get_by_text("/api/auth/login", exact=False).first.click()
+    # Swagger рисует операции после загрузки спецификации: при DPR 1.5
+    # это заметно дольше, чем раньше, поэтому ждём появления блока.
+    page.wait_for_selector(".opblock-summary", timeout=25_000)
+    rec.wait(1_000)
+    login = page.locator(".opblock-summary").filter(has_text="login").first
+    if login.count():
+        login.click()
+    else:
+        page.locator(".opblock-summary").first.click()
     rec.wait(1_500)
     try_it = page.get_by_role("button", name="Try it out")
     if try_it.count():
@@ -718,8 +725,10 @@ def save_gif(frames: list[Image.Image], target: Path) -> str:
     if len(frames) < 2:
         frames = frames * 2
 
-    budget_kb = 320
-    attempts = [(960, 128), (880, 96), (800, 64), (720, 48)]
+    # Тёмный интерфейс с мелким текстом плохо сжимается: сначала пробуем
+    # 256 цветов без потери ширины и только потом ужимаем кадр.
+    budget_kb = 2600
+    attempts = [(1200, 256), (1200, 192)]
 
     saved = None
     for width, colors in attempts:
@@ -771,11 +780,11 @@ def main() -> int:
             # заканчивается авторизацией, и следующий кадр «не вошедшего»
             # пользователя в том же профиле уже не снять.
             if role == "anonymous":
-                context = browser.new_context(viewport=VIEWPORT, device_scale_factor=1)
+                context = browser.new_context(viewport=VIEWPORT, device_scale_factor=1.5)
                 page = context.new_page()
             else:
                 if role not in contexts:
-                    context = browser.new_context(viewport=VIEWPORT, device_scale_factor=1)
+                    context = browser.new_context(viewport=VIEWPORT, device_scale_factor=1.5)
                     page = context.new_page()
                     login(page, role)
                     contexts[role] = page
@@ -791,9 +800,11 @@ def main() -> int:
                 png_name = PNG_FOR.get(name)
                 if png_name and recorder.frames:
                     target = IMAGES / f"{png_name}.png"
-                    if not target.exists():
-                        recorder.frames[-1].save(target)
-                        print(f"PNG  {target.name}  {target.stat().st_size // 1024} КБ")
+                    # Сохраняем всегда: при повторной съёмке кадр должен
+                    # обновиться до текущего разрешения (раньше старый файл
+                    # оставался на диске и вики показывала 960 px).
+                    recorder.frames[-1].save(target)
+                    print(f"PNG  {target.name}  {target.stat().st_size // 1024} КБ")
             except Exception as error:  # noqa: BLE001 — снимаем остальные сцены даже после сбоя
                 failures += 1
                 # Сообщение Playwright может содержать символы вне cp866,

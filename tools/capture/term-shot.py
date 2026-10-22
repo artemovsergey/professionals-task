@@ -51,7 +51,7 @@ OUTPUT = (200, 200, 200)
 ERROR = (235, 120, 110)
 MUTED = (130, 130, 130)
 
-TARGET_WIDTH = 960
+TARGET_WIDTH = 1200
 
 
 def load_font(size: int) -> ImageFont.FreeTypeFont:
@@ -110,8 +110,8 @@ def render(
     out_path: Path,
     max_lines: int,
 ):
-    font = load_font(15)
-    bold = load_font(14)
+    font = load_font(16)
+    bold = load_font(15)
     char_width = font.getbbox("M")[2]
     line_height = 21
     padding = 16

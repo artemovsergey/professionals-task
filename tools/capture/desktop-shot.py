@@ -43,6 +43,16 @@ user32.GetWindowDC.restype = wintypes.HDC
 user32.ReleaseDC.argtypes = [wintypes.HWND, wintypes.HDC]
 user32.PrintWindow.argtypes = [wintypes.HWND, wintypes.HDC, wintypes.UINT]
 user32.PrintWindow.restype = wintypes.BOOL
+user32.GetClientRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+user32.GetClientRect.restype = wintypes.BOOL
+user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+user32.GetWindowRect.restype = wintypes.BOOL
+user32.ClientToScreen.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.POINT)]
+user32.ClientToScreen.restype = wintypes.BOOL
+user32.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int,
+                                ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                wintypes.UINT]
+user32.SetWindowPos.restype = wintypes.BOOL
 gdi32.CreateCompatibleDC.argtypes = [wintypes.HDC]
 gdi32.CreateCompatibleDC.restype = wintypes.HDC
 gdi32.CreateCompatibleBitmap.argtypes = [wintypes.HDC, ctypes.c_int, ctypes.c_int]
@@ -117,7 +127,7 @@ def walk(control):
 class Desk:
     """Окно приложения и операции над ним."""
 
-    def __init__(self, width: int = 1280, height: int = 860):
+    def __init__(self, width: int = 1440, height: int = 960):
         self.process = None
         self.window = None
         self.width = width
@@ -140,6 +150,11 @@ class Desk:
                     if (child.ProcessId == self.process.pid
                             and child.ControlTypeName == "WindowControl"):
                         self.window = child
+                        # Вики нужны крупные кадры: окно по умолчанию 1080×760,
+                        # а на 1440×960 текст и таблицы читаются без прищура.
+                        # SWP_NOMOVE|SWP_NOZORDER|SWP_NOACTIVATE = 0x0002|0x0004|0x0010
+                        user32.SetWindowPos(child.NativeWindowHandle, None, 0, 0,
+                                            self.width, self.height, 0x0016)
                         time.sleep(1.5)
                         return self
                 except Exception:  # noqa: BLE001 — окно могло закрыться
@@ -257,41 +272,104 @@ class Desk:
         deadline = time.time() + 15
         while time.time() < deadline and len(self.edits()) < 2:
             time.sleep(0.4)
-        self.fill(0, user)
-        self.fill(1, password)
-        self.click("Войти", wait=2.5)
+
+        # После изменения размера окна Avalonia перестраивает форму, и
+        # первая попытка ввода может уйти в старые контролы: приложение
+        # отвечает «Неверный логин или пароль». Поэтому проверяем результат
+        # и при неудаче вводим заново.
+        for attempt in range(3):
+            self.fill(0, "")
+            self.fill(1, "")
+            time.sleep(0.2)
+            self.fill(0, user)
+            self.fill(1, password)
+            time.sleep(0.2)
+            self.click("Войти", wait=2.5)
+            if self.button("Войти") is None:
+                return
+            time.sleep(1.0)
+
+        raise RuntimeError("вход не выполнен: приложение не пустило")
 
     # --- съёмка ----------------------------------------------------------
 
     def shot(self) -> Image.Image:
-        rect = self.window.BoundingRectangle
-        # PrintWindow отдаёт содержимое только для видимого окна: если окно
-        # перекрыто браузером, в кадр попадут чужие приложения. Поэтому
-        # поднимаем окно на передний план и ждём, пока DWM перерисует его.
+        """Кадр ровно по клиентской области: без заголовка окна и рамок.
+
+        PrintWindow отдаёт всё окно вместе с заголовком и границей, а нам
+        нужен чистый прямоугольник приложения: иначе на вики кадры
+        обрезаны по-разному и видно кнопки «свернуть/закрыть». Поэтому
+        считаем клиентский прямоугольник (GetClientRect), его смещение
+        внутри окна (ClientToScreen минус GetWindowRect) и вырезаем.
+        """
+        handle = self.window.NativeWindowHandle
         try:
-            user32.SetForegroundWindow(self.window.NativeWindowHandle)
+            user32.SetForegroundWindow(handle)
             time.sleep(0.25)
         except Exception:  # noqa: BLE001 — фокус мог не переключиться
             pass
-        image = grab(self.window.NativeWindowHandle, rect.width(), rect.height())
-        if image.width != GIF_WIDTH:
-            height = round(image.height * GIF_WIDTH / image.width)
-            image = image.resize((GIF_WIDTH, height), Image.LANCZOS)
+
+        client = wintypes.RECT()
+        window_rect = wintypes.RECT()
+        user32.GetClientRect(handle, ctypes.byref(client))
+        user32.GetWindowRect(handle, ctypes.byref(window_rect))
+        origin = wintypes.POINT(0, 0)
+        user32.ClientToScreen(handle, ctypes.byref(origin))
+
+        width = window_rect.right - window_rect.left
+        height = window_rect.bottom - window_rect.top
+        image = grab(handle, width, height)
+
+        left = max(0, origin.x - window_rect.left)
+        top = max(0, origin.y - window_rect.top)
+        right = min(image.width, left + client.right - client.left)
+        bottom = min(image.height, top + client.bottom - client.top)
+        if right > left and bottom > top:
+            image = image.crop((left, top, right, bottom))
         return image
 
     def save_png(self, name: str) -> Path:
         path = IMAGES / (name + ".png")
         self.shot().save(path, optimize=True)
-        print("PNG  %s  %d КБ" % (path.name, path.stat().st_size // 1024))
+        print("PNG  %s  %dx%d  %d КБ"
+              % (path.name, *Image.open(path).size, path.stat().st_size // 1024))
         return path
 
     def save_gif(self, name: str, frames) -> Path:
+        """GIF из кадров одного размера; качество — 256 цветов.
+
+        Раньше кадры сжимались в 960 px и 128 цветов: текст на скриншотах
+        desktop-клиента становился мыльным. Теперь размер кадра родной,
+        а цвета снижаем только если файл перевалил за бюджет.
+        """
         path = GIFS / (name + ".gif")
-        prepared = [frame.quantize(colors=128) for frame in frames]
-        prepared[0].save(path, save_all=True, append_images=prepared[1:],
-                         duration=FRAME_MS, loop=0, optimize=True, disposal=2)
-        print("GIF  %s  кадров=%d  %d КБ"
-              % (path.name, len(prepared), path.stat().st_size // 1024))
+        width = max(frame.width for frame in frames)
+        height = max(frame.height for frame in frames)
+        aligned = []
+        for frame in frames:
+            if frame.size != (width, height):
+                canvas = Image.new("RGB", (width, height), (24, 24, 27))
+                canvas.paste(frame, (0, 0))
+                frame = canvas
+            aligned.append(frame)
+
+        for scale, colors in ((1.0, 256), (0.85, 192), (0.75, 128)):
+            if scale == 1.0:
+                prepared = [frame.quantize(colors=colors) for frame in aligned]
+            else:
+                target_w = int(width * scale)
+                resized = [frame.resize(
+                    (target_w, round(frame.height * scale)), Image.LANCZOS)
+                    for frame in aligned]
+                prepared = [frame.quantize(colors=colors) for frame in resized]
+            prepared[0].save(path, save_all=True, append_images=prepared[1:],
+                             duration=FRAME_MS, loop=0, optimize=True, disposal=2)
+            if path.stat().st_size <= 900 * 1024:
+                break
+
+        print("GIF  %s  кадров=%d  %dx%d  %d КБ"
+              % (path.name, len(prepared), prepared[0].width,
+                 prepared[0].height, path.stat().st_size // 1024))
         return path
 
     def burst(self, count: int = 3, every: float = 0.45):

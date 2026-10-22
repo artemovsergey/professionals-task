@@ -50,7 +50,7 @@ GUTTER_TEXT = (110, 110, 112)
 TITLE_TEXT = (200, 200, 205)
 DEFAULT_TEXT = (220, 220, 220)
 
-TARGET_WIDTH = 960
+TARGET_WIDTH = 1200
 
 
 def load_font(size: int) -> ImageFont.FreeTypeFont:
@@ -124,8 +124,8 @@ def render(path: Path, start: int, rows, out_path: Path, max_lines: int):
     if len(rows) > max_lines:
         rows = rows[:max_lines]
 
-    font = load_font(15)
-    bold = load_font(14)
+    font = load_font(17)
+    bold = load_font(16)
 
     char_width = font.getbbox("M")[2]
     line_height = 22

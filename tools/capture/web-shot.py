@@ -24,7 +24,7 @@ from playwright.sync_api import Browser, Page, sync_playwright
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "wiki" / "images"
 BASE = "http://localhost:5173"
-MAX_WIDTH = 1200
+MAX_WIDTH = 1600
 
 CREDENTIALS = {
     "manager": ("manager", "Manager123!"),
@@ -137,7 +137,7 @@ def shrink(path: Path) -> str:
 
 
 def session_for(browser: Browser, role: str) -> Page:
-    context = browser.new_context(viewport={"width": 1440, "height": 900}, device_scale_factor=1.5)
+    context = browser.new_context(viewport={"width": 1440, "height": 900}, device_scale_factor=2)
     page = context.new_page()
 
     # Роль "anonymous" — это ещё не вошедший пользователь: нужна для
