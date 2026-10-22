@@ -80,6 +80,9 @@ public async Task<PagedResult<EquipmentDto>> GetListAsync(EquipmentFilter f, Can
 ![Список отфильтрован: 12 из 40, page=2](images/16-list.png)
 *Список отфильтрован: 12 из 40, page=2*
 
+![Список отфильтрован: 12 из 40, page=2](gifs/16-list-postman.gif)
+*Список отфильтрован: 12 из 40, page=2*
+
 
 ## Шаг 3. Создание, изменение, удаление — 35 мин
 

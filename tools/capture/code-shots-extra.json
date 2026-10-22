@@ -1,44 +1,312 @@
 [
-  {"name": "12-solution", "file": "src/ToirProf.slnx", "before": 0, "after": 30, "max_lines": 32},
-  {"name": "16-crud", "file": "src/api/Services/EquipmentService.cs", "anchor": "CreateAsync", "before": 4, "after": 24},
-  {"name": "17-types", "file": "src/api/Data/PgEnumLabels.cs", "before": 0, "after": 44},
-  {"name": "17-types-usage", "file": "src/api/Data/AppDbContext.cs", "anchor": "HasConversion", "before": 6, "after": 10},
-  {"name": "18-schedule-list", "file": "src/api/Services/MaintenanceScheduleService.cs", "anchor": "GetListAsync", "before": 3, "after": 28},
-  {"name": "19-unique-number", "file": "src/api/Services/WorkOrderNumberService.cs", "before": 0, "after": 46},
-  {"name": "20-create", "file": "src/api/Services/WorkOrderService.cs", "anchor": "CreateAsync", "before": 3, "after": 30},
-  {"name": "20-filter", "file": "src/api/Services/WorkOrderService.cs", "anchor": "GetListAsync", "before": 3, "after": 26},
-  {"name": "21-assign", "file": "src/api/Services/WorkOrderService.cs", "anchor": "AssignCrewAsync", "before": 3, "after": 22},
-  {"name": "21-start", "file": "src/api/Services/WorkOrderService.cs", "anchor": "StartAsync", "before": 3, "after": 20},
-  {"name": "21-cancel", "file": "src/api/Services/WorkOrderService.cs", "anchor": "ChangeStatusAsync", "before": 3, "after": 24},
-  {"name": "22-crews", "file": "src/api/Services/CrewService.cs", "anchor": "GetListAsync", "before": 3, "after": 26},
-  {"name": "23-materials", "file": "src/api/Services/MaterialService.cs", "anchor": "GetListAsync", "before": 3, "after": 24},
-  {"name": "23-cost", "file": "src/api/Services/MaterialService.cs", "anchor": "Cost", "before": 3, "after": 22},
-  {"name": "24-dto", "file": "src/api/DTOs/EquipmentDtos.cs", "before": 0, "after": 44},
-  {"name": "24-slices", "file": "src/api/Services/DashboardService.cs", "anchor": "GetSummaryAsync", "before": 3, "after": 34},
-  {"name": "25-rating", "file": "src/api/Services/ReportService.cs", "before": 0, "after": 42},
-  {"name": "26-base-vm", "file": "src/desktop/ViewModels/ViewModelBase.cs", "before": 0, "after": 40},
-  {"name": "28-iface", "file": "src/desktop/Services/ApiClient.cs", "before": 0, "after": 42},
-  {"name": "30-pager", "file": "src/desktop/ViewModels/Screens/PageViewModel.cs", "before": 0, "after": 42},
-  {"name": "31-filters", "file": "src/desktop/ViewModels/Screens/WorkOrdersViewModel.cs", "before": 0, "after": 40},
-  {"name": "32-create", "file": "src/desktop/Views/Screens/ScheduleView.axaml", "before": 0, "after": 48},
-  {"name": "33-list", "file": "src/desktop/Views/Screens/WorkOrdersView.axaml", "before": 0, "after": 48},
-  {"name": "35-log", "file": "src/desktop/Services/FileLogger.cs", "before": 0, "after": 40},
-  {"name": "35-filter", "file": "src/desktop/Services/OfflineQueue.cs", "before": 0, "after": 42},
-  {"name": "36-deps", "file": "src/web/package.json", "before": 0, "after": 40},
-  {"name": "37-guard", "file": "src/web/src/App.tsx", "anchor": "RequireAuth", "before": 3, "after": 26},
-  {"name": "37-toast", "file": "src/web/src/components/ToastProvider.tsx", "before": 0, "after": 42},
-  {"name": "40-filters-type", "file": "src/web/src/pages/AnalyticsPage.tsx", "before": 0, "after": 44},
-  {"name": "42-export-pdf", "file": "src/web/src/hooks/useExport.ts", "before": 0, "after": 42},
-  {"name": "43-dashboard-source", "file": "src/web/src/hooks/useDashboardStream.ts", "anchor": "EventSource", "before": 6, "after": 26},
-  {"name": "45-global-search", "file": "src/web/src/layout/AppShell.tsx", "before": 0, "after": 44},
-  {"name": "45-types-registry", "file": "src/web/src/api/types.ts", "before": 0, "after": 50},
-  {"name": "46-test-project", "file": "src/Tests/ToirProf.Tests.csproj", "before": 0, "after": 26},
-  {"name": "46-test-negative", "file": "src/Tests/DowntimeCalculatorTests.cs", "before": 0, "after": 42},
-  {"name": "47-test-valid-order", "file": "src/Tests/WorkOrderValidatorTests.cs", "before": 0, "after": 42},
-  {"name": "47-test-cost-edges", "file": "src/Tests/MaterialCostTests.cs", "before": 0, "after": 42},
-  {"name": "52-slides-plan", "file": "docs/presentation/slides.md", "before": 0, "after": 40},
-  {"name": "53-speech-text", "file": "docs/presentation/speech.md", "before": 0, "after": 42},
-  {"name": "49-deployment-checklist", "file": "docs/deployment.md", "before": 0, "after": 42},
-  {"name": "54-check-docs", "file": "docs/checklist.md", "before": 0, "after": 42},
-  {"name": "50-guide-toc", "file": "docs/user-guide-web.md", "before": 0, "after": 36}
+  {
+    "name": "12-solution",
+    "file": "src/ToirProf.slnx",
+    "before": 0,
+    "after": 30,
+    "max_lines": 32
+  },
+  {
+    "name": "16-crud",
+    "file": "src/api/Services/EquipmentService.cs",
+    "anchor": "CreateAsync",
+    "before": 4,
+    "after": 24
+  },
+  {
+    "name": "17-types",
+    "file": "src/api/Data/PgEnumLabels.cs",
+    "before": 0,
+    "after": 44
+  },
+  {
+    "name": "17-types-usage",
+    "file": "src/api/Data/AppDbContext.cs",
+    "anchor": "HasConversion",
+    "before": 6,
+    "after": 10
+  },
+  {
+    "name": "18-schedule-list",
+    "file": "src/api/Services/MaintenanceScheduleService.cs",
+    "anchor": "GetListAsync",
+    "before": 3,
+    "after": 28
+  },
+  {
+    "name": "19-unique-number",
+    "file": "src/api/Services/WorkOrderNumberService.cs",
+    "before": 0,
+    "after": 46
+  },
+  {
+    "name": "20-create",
+    "file": "src/api/Services/WorkOrderService.cs",
+    "anchor": "CreateAsync",
+    "before": 3,
+    "after": 30
+  },
+  {
+    "name": "20-filter",
+    "file": "src/api/Services/WorkOrderService.cs",
+    "anchor": "GetListAsync",
+    "before": 3,
+    "after": 26
+  },
+  {
+    "name": "21-assign",
+    "file": "src/api/Services/WorkOrderService.cs",
+    "anchor": "AssignCrewAsync",
+    "before": 3,
+    "after": 22
+  },
+  {
+    "name": "21-start",
+    "file": "src/api/Services/WorkOrderService.cs",
+    "anchor": "StartAsync",
+    "before": 3,
+    "after": 20
+  },
+  {
+    "name": "21-cancel",
+    "file": "src/api/Services/WorkOrderService.cs",
+    "anchor": "ChangeStatusAsync",
+    "before": 3,
+    "after": 24
+  },
+  {
+    "name": "22-crews",
+    "file": "src/api/Services/CrewService.cs",
+    "anchor": "GetListAsync",
+    "before": 3,
+    "after": 26
+  },
+  {
+    "name": "23-materials",
+    "file": "src/api/Services/MaterialService.cs",
+    "anchor": "GetListAsync",
+    "before": 3,
+    "after": 24
+  },
+  {
+    "name": "23-cost",
+    "file": "src/api/Services/MaterialService.cs",
+    "anchor": "Cost",
+    "before": 3,
+    "after": 22
+  },
+  {
+    "name": "24-dto",
+    "file": "src/api/DTOs/EquipmentDtos.cs",
+    "before": 0,
+    "after": 44
+  },
+  {
+    "name": "24-slices",
+    "file": "src/api/Services/DashboardService.cs",
+    "anchor": "GetSummaryAsync",
+    "before": 3,
+    "after": 34
+  },
+  {
+    "name": "25-rating",
+    "file": "src/api/Services/ReportService.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "26-base-vm",
+    "file": "src/desktop/ViewModels/ViewModelBase.cs",
+    "before": 0,
+    "after": 40
+  },
+  {
+    "name": "28-iface",
+    "file": "src/desktop/Services/ApiClient.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "30-pager",
+    "file": "src/desktop/ViewModels/Screens/PageViewModel.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "31-filters",
+    "file": "src/desktop/ViewModels/Screens/WorkOrdersViewModel.cs",
+    "before": 0,
+    "after": 40
+  },
+  {
+    "name": "32-create",
+    "file": "src/desktop/Views/Screens/ScheduleView.axaml",
+    "before": 0,
+    "after": 48
+  },
+  {
+    "name": "33-list",
+    "file": "src/desktop/Views/Screens/WorkOrdersView.axaml",
+    "before": 0,
+    "after": 48
+  },
+  {
+    "name": "35-log",
+    "file": "src/desktop/Services/FileLogger.cs",
+    "before": 0,
+    "after": 40
+  },
+  {
+    "name": "35-filter",
+    "file": "src/desktop/Services/OfflineQueue.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "36-deps",
+    "file": "src/web/package.json",
+    "before": 0,
+    "after": 40
+  },
+  {
+    "name": "37-guard",
+    "file": "src/web/src/App.tsx",
+    "anchor": "RequireAuth",
+    "before": 3,
+    "after": 26
+  },
+  {
+    "name": "37-toast",
+    "file": "src/web/src/components/ToastProvider.tsx",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "40-filters-type",
+    "file": "src/web/src/pages/AnalyticsPage.tsx",
+    "before": 0,
+    "after": 44
+  },
+  {
+    "name": "42-export-pdf",
+    "file": "src/web/src/hooks/useExport.ts",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "43-dashboard-source",
+    "file": "src/web/src/hooks/useDashboardStream.ts",
+    "anchor": "EventSource",
+    "before": 6,
+    "after": 26
+  },
+  {
+    "name": "45-global-search",
+    "file": "src/web/src/layout/AppShell.tsx",
+    "before": 0,
+    "after": 44
+  },
+  {
+    "name": "45-types-registry",
+    "file": "src/web/src/api/types.ts",
+    "before": 0,
+    "after": 50
+  },
+  {
+    "name": "46-test-project",
+    "file": "src/Tests/ToirProf.Tests.csproj",
+    "before": 0,
+    "after": 26
+  },
+  {
+    "name": "46-test-negative",
+    "file": "src/Tests/DowntimeCalculatorTests.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "47-test-valid-order",
+    "file": "src/Tests/WorkOrderValidatorTests.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "47-test-cost-edges",
+    "file": "src/Tests/MaterialCostTests.cs",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "52-slides-plan",
+    "file": "docs/presentation/slides.md",
+    "before": 0,
+    "after": 40
+  },
+  {
+    "name": "53-speech-text",
+    "file": "docs/presentation/speech.md",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "49-deployment-checklist",
+    "file": "docs/deployment.md",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "54-check-docs",
+    "file": "docs/checklist.md",
+    "before": 0,
+    "after": 42
+  },
+  {
+    "name": "50-guide-toc",
+    "file": "docs/user-guide-web.md",
+    "before": 0,
+    "after": 36
+  },
+  {
+    "name": "43-polling-hook",
+    "file": "src/web/src/hooks/useDashboardStream.ts",
+    "anchor": "POLL_INTERVAL_MS",
+    "before": 12,
+    "after": 30
+  },
+  {
+    "name": "47-validator",
+    "file": "src/Tests/WorkOrderValidatorTests.cs",
+    "anchor": "RejectsEmergencyWithoutFailureReason",
+    "before": 10,
+    "after": 22
+  },
+  {
+    "name": "48-postman-collection",
+    "file": "postman/ToirProf.postman_collection.json",
+    "before": 0,
+    "after": 26
+  },
+  {
+    "name": "25-report-link",
+    "file": "src/api/Services/ReportService.cs",
+    "anchor": "CreateLinkAsync",
+    "before": 2,
+    "after": 28
+  },
+  {
+    "name": "13-error-table",
+    "file": "README.md",
+    "anchor": "Формат ответа API",
+    "before": 2,
+    "after": 26,
+    "max_lines": 30
+  },
+  {
+    "name": "06-entities",
+    "file": "db/schema.sql",
+    "anchor": "CREATE TABLE",
+    "before": 3,
+    "after": 46,
+    "max_lines": 44
+  }
 ]

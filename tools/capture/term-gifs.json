@@ -1,0 +1,450 @@
+[
+  {
+    "name": "07-schema-run",
+    "title": "psql — схема развёрнута: таблицы и число колонок",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 24,
+    "sql": "SELECT table_name AS таблица, (SELECT count(*) FROM information_schema.columns c WHERE c.table_name = t.table_name) AS колонок\nFROM information_schema.tables t\nWHERE table_schema = 'public' AND table_type = 'BASE TABLE'\nORDER BY table_name;"
+  },
+  {
+    "name": "08-unique-check",
+    "title": "Дубликат логина отвергается ограничением UNIQUE",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "expect_failure": true,
+    "max_lines": 12,
+    "sql": "BEGIN;\nINSERT INTO users (username, password_hash, full_name, role_id, is_active)\nSELECT username, password_hash, full_name, role_id, true FROM users LIMIT 1;\nROLLBACK;"
+  },
+  {
+    "name": "09-check-dates-run",
+    "title": "Дата из будущего не проходит CHECK",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "expect_failure": true,
+    "max_lines": 12,
+    "sql": "BEGIN;\nUPDATE equipment SET commissioned_at = CURRENT_DATE + 30 WHERE inventory_number = 'ПР-2';\nROLLBACK;"
+  },
+  {
+    "name": "10-trigger-equipment-run",
+    "title": "Триггер не даёт вернуть списанное оборудование в работу",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "expect_failure": true,
+    "max_lines": 12,
+    "sql": "BEGIN;\nUPDATE equipment SET status = 'Работает' WHERE status = 'Выведено из эксплуатации';\nROLLBACK;"
+  },
+  {
+    "name": "10-audit-run",
+    "title": "Аудит: журнал изменений заполняется триггером",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 20,
+    "sql": "SELECT entity AS сущность, action AS действие, changed_at AS когда\nFROM audit_log ORDER BY changed_at DESC LIMIT 8;"
+  },
+  {
+    "name": "11-func-downtime-run",
+    "title": "Функция расчёта простоя: четыре случая",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 18,
+    "sql": "SELECT 'обычный интервал' AS \"случай\", fn_calculate_downtime('2026-03-02 08:00+00', '2026-03-02 16:30+00') AS часов;\nSELECT 'нулевой интервал', fn_calculate_downtime('2026-03-02 08:00+00', '2026-03-02 08:00+00');\nSELECT 'начало не задано', fn_calculate_downtime(NULL, '2026-03-02 08:00+00');"
+  },
+  {
+    "name": "11-func-report-run",
+    "title": "Процедура отчёта по цеху возвращает строки",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 20,
+    "sql": "CALL proc_workshop_report((SELECT id FROM workshops ORDER BY code LIMIT 1), DATE '2026-01-01', DATE '2026-12-31');"
+  },
+  {
+    "name": "19-number-series-run",
+    "title": "Номера последних заявок идут подряд",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 14,
+    "sql": "SELECT number AS номер, status AS статус, priority AS приоритет FROM work_orders ORDER BY number DESC LIMIT 6;"
+  },
+  {
+    "name": "54-check-db",
+    "title": "Проверка базы: db/verify.sql",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "toirprof",
+      "-d",
+      "toirprof",
+      "-X",
+      "-q",
+      "-f",
+      "db/verify.sql"
+    ],
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 26
+  },
+  {
+    "name": "12-efcore-restore",
+    "title": "Восстановление пакетов: dotnet restore",
+    "command": "dotnet restore src\\api\\ToirProf.Api.csproj --nologo -v q",
+    "timeout": 300,
+    "max_lines": 10
+  },
+  {
+    "name": "46-test-run",
+    "title": "Модульные тесты: dotnet test",
+    "command": "dotnet test src\\Tests\\ToirProf.Tests.csproj --nologo -v q",
+    "timeout": 420,
+    "max_lines": 12
+  },
+  {
+    "name": "54-check-build",
+    "title": "Проверка сборки API",
+    "command": "dotnet build src\\api\\ToirProf.Api.csproj --nologo -v q",
+    "timeout": 420,
+    "max_lines": 12
+  },
+  {
+    "name": "36-build-preview",
+    "title": "Прод-сборка веб-клиента: npm run build",
+    "command": "npm --prefix src\\web run build",
+    "timeout": 420,
+    "max_lines": 14
+  },
+  {
+    "name": "49-api-start",
+    "title": "API отвечает: GET /api/health",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8; Invoke-RestMethod -Uri 'http://localhost:5080/api/health' -TimeoutSec 10 | ConvertTo-Json -Depth 4",
+    "max_lines": 12
+  },
+  {
+    "name": "13-codes-postman",
+    "title": "Обёртка ответа: успех и ошибка 404",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\n'GET /api/health:'\ncurl.exe -s \"$b/api/health\"\n''\n'GET /api/equipment/0000…0000:'\ncurl.exe -s -w \"`nHTTP %{http_code}\" \"$b/api/equipment/00000000-0000-0000-0000-000000000000\"",
+    "max_lines": 18
+  },
+  {
+    "name": "14-login-postman",
+    "title": "Вход: POST /api/auth/login",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\n$r = curl.exe -s -X POST \"$b/api/auth/login\" -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"Admin123!\"}' | ConvertFrom-Json\n'Пользователь: ' + $r.data.user.fullName + ' / роль ' + $r.data.user.role\n'Токен: ' + $r.data.token.Substring(0, 40) + '…'\n'Длина токена: ' + $r.data.token.Length + ' символов'",
+    "max_lines": 14
+  },
+  {
+    "name": "14-register-postman",
+    "title": "Повторная регистрация того же логина: 409",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\ncurl.exe -s -o - -w \"`nHTTP %{http_code}\" -X POST \"$b/api/auth/register\" -H 'Content-Type: application/json' -d '{\"username\":\"admin\",\"password\":\"Admin123!\",\"fullName\":\"Повтор\"}'",
+    "max_lines": 14
+  },
+  {
+    "name": "15-401-403-run",
+    "title": "401 без токена и 403 при чужой роли",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\n'1. Без токена:'\ncurl.exe -s -o NUL -w '   GET /api/work-orders -> %{http_code}' \"$b/api/work-orders\"\n''\n'2. Токен мастера, отчёт (нужна роль MANAGER/ADMIN):'\n$r = curl.exe -s -X POST \"$b/api/auth/login\" -H 'Content-Type: application/json' -d '{\"username\":\"master\",\"password\":\"Master123!\"}' | ConvertFrom-Json\ncurl.exe -s -o NUL -w '   POST /api/reports -> %{http_code}' -X POST -H \"Authorization: Bearer $($r.data.token)\" \"$b/api/reports\"\n''\n'3. Тот же запрос с токеном менеджера:'\n$m = curl.exe -s -X POST \"$b/api/auth/login\" -H 'Content-Type: application/json' -d '{\"username\":\"manager\",\"password\":\"Manager123!\"}' | ConvertFrom-Json\ncurl.exe -s -o NUL -w '   POST /api/reports -> %{http_code}' -X POST -H \"Authorization: Bearer $($m.data.token)\" \"$b/api/reports\"",
+    "max_lines": 18
+  },
+  {
+    "name": "16-list-postman",
+    "title": "Список оборудования: страница, всего, элементы",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$r = curl.exe -s 'http://localhost:5080/api/equipment?page=1&pageSize=4' | ConvertFrom-Json\n'Всего: ' + $r.data.totalCount + ', страниц: ' + $r.data.totalPages\n$r.data.items | Format-Table inventoryNumber, name, status -AutoSize",
+    "max_lines": 16
+  },
+  {
+    "name": "17-types-get",
+    "title": "Справочник видов ТО: GET /api/maintenance-types",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$r = curl.exe -s 'http://localhost:5080/api/maintenance-types' | ConvertFrom-Json\n$r.data | Format-Table code, name, intervalDays -AutoSize",
+    "max_lines": 16
+  },
+  {
+    "name": "18-schedule-list-postman",
+    "title": "График планового ТО: GET /api/maintenance-schedule",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$r = curl.exe -s 'http://localhost:5080/api/maintenance-schedule?page=1&pageSize=5' | ConvertFrom-Json\n'Всего записей: ' + $r.data.totalCount\n$r.data.items | Format-Table plannedDate, equipmentName, maintenanceTypeName, isCompleted -AutoSize",
+    "max_lines": 16
+  },
+  {
+    "name": "20-validator-postman",
+    "title": "Валидация: пустое тело заявки даёт 400 и список ошибок",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\n$t = (curl.exe -s -X POST \"$b/api/auth/login\" -H 'Content-Type: application/json' -d '{\"username\":\"manager\",\"password\":\"Manager123!\"}' | ConvertFrom-Json).data.token\ncurl.exe -s -w \"`nHTTP %{http_code}\" -X POST \"$b/api/work-orders\" -H \"Authorization: Bearer $t\" -H 'Content-Type: application/json' -d '{}'",
+    "max_lines": 16
+  },
+  {
+    "name": "20-filter-postman",
+    "title": "Заявки с фильтром, сортировкой и страницей",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\n$t = (curl.exe -s -X POST \"$b/api/auth/login\" -H 'Content-Type: application/json' -d '{\"username\":\"manager\",\"password\":\"Manager123!\"}' | ConvertFrom-Json).data.token\n$r = curl.exe -s \"$b/api/work-orders?page=1&pageSize=4&sortBy=createdAt&sortDir=desc\" -H \"Authorization: Bearer $t\" | ConvertFrom-Json\n'Всего заявок: ' + $r.data.totalCount\n$r.data.items | Format-Table number, status, priority -AutoSize",
+    "max_lines": 16
+  },
+  {
+    "name": "22-crew-stats-postman",
+    "title": "Бригады и их показатели: GET /api/crews",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$r = curl.exe -s 'http://localhost:5080/api/crews?page=1&pageSize=5' | ConvertFrom-Json\n'Бригад: ' + $r.data.totalCount\n$r.data.items | Format-Table code, name, membersCount -AutoSize",
+    "max_lines": 16
+  },
+  {
+    "name": "23-shortage-postman",
+    "title": "Дефицит материалов: GET /api/materials/shortages",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$r = curl.exe -s 'http://localhost:5080/api/materials/shortages' | ConvertFrom-Json\n'Позиций ниже порога: ' + $r.data.Count\n$r.data | Format-Table sku, name, quantity, minQuantity -AutoSize",
+    "max_lines": 16
+  },
+  {
+    "name": "24-summary-postman",
+    "title": "Сводка дашборда: GET /api/dashboard/summary",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\ncurl.exe -s 'http://localhost:5080/api/dashboard/summary' | ConvertFrom-Json | ConvertTo-Json -Depth 4",
+    "max_lines": 22
+  },
+  {
+    "name": "25-downtime-postman",
+    "title": "Аналитика за год: GET /api/analytics",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$r = curl.exe -s 'http://localhost:5080/api/analytics?from=2026-01-01&to=2026-12-31' | ConvertFrom-Json\n'Средний простой: ' + $r.data.averageDowntimeHours + ' ч'\n'Аварийность: ' + $r.data.emergencyShare + ' %'\n'План ТО: ' + $r.data.planCompletionPercent + ' %'\n'Топ по простою:'\n$r.data.topEquipmentDowntime | Format-Table inventoryNumber, hours -AutoSize",
+    "max_lines": 20
+  },
+  {
+    "name": "25-pdf-generate",
+    "title": "Отчёт: POST /api/reports создаёт ссылку на файл",
+    "command": "$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $OutputEncoding=[Text.Encoding]::UTF8\n$b='http://localhost:5080'\n$m = (curl.exe -s -X POST \"$b/api/auth/login\" -H 'Content-Type: application/json' -d '{\"username\":\"manager\",\"password\":\"Manager123!\"}' | ConvertFrom-Json).data.token\n$r = curl.exe -s -X POST \"$b/api/reports\" -H \"Authorization: Bearer $m\" -H 'Content-Type: application/json' -d '{\"type\":\"downtime\",\"from\":\"2026-01-01\",\"to\":\"2026-12-31\"}' | ConvertFrom-Json\n'Ссылка: ' + $r.data.url",
+    "max_lines": 14
+  },
+  {
+    "name": "01-versions-run",
+    "title": "Версии инструментов на рабочей машине",
+    "command": "dotnet --version; node --version; npm --version; & 'C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe' --version; git --version",
+    "max_lines": 12
+  },
+  {
+    "name": "02-clone-run",
+    "title": "Репозиторий на машине: origin и последние коммиты",
+    "command": "git remote -v; '---'; git log --oneline -3; '---'; git status -sb",
+    "max_lines": 12
+  },
+  {
+    "name": "02-structure-run",
+    "title": "Структура репозитория",
+    "command": "Get-ChildItem -Directory | Select-Object -ExpandProperty Name; '---'; 'C# файлов: ' + (Get-ChildItem -Recurse -Filter *.cs -File).Count",
+    "max_lines": 14
+  },
+  {
+    "name": "02-db-create-run",
+    "title": "Роль и база приложения в кластере",
+    "command": [
+      "C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe",
+      "-h",
+      "127.0.0.1",
+      "-U",
+      "postgres",
+      "-d",
+      "postgres",
+      "-X",
+      "-q"
+    ],
+    "env": {
+      "PGPASSWORD": "root"
+    },
+    "sql": "SELECT rolname AS роль, rolcanlogin AS может_входить FROM pg_roles WHERE rolname = 'toirprof';\nSELECT datname AS база, pg_get_userbyid(datdba) AS владелец FROM pg_database WHERE datname = 'toirprof';",
+    "max_lines": 14
+  },
+  {
+    "name": "07-seed-run",
+    "title": "Загрузка демо-данных: psql -f db/seed.sql",
+    "command": "& 'C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe' -h 127.0.0.1 -U toirprof -d toirprof -X -f db/seed.sql",
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 16
+  },
+  {
+    "name": "12-solution-run",
+    "title": "Сборка API: dotnet build",
+    "command": "dotnet build src/api/ToirProf.Api.csproj -v m --nologo",
+    "max_lines": 16
+  },
+  {
+    "name": "12-api-start",
+    "title": "API отвечает: /api/health и процесс",
+    "command": "curl.exe -s http://localhost:5080/api/health; ''; Get-Process -Name ToirProf.Api | Select-Object Id, ProcessName",
+    "max_lines": 12
+  },
+  {
+    "name": "36-deps-install",
+    "title": "Зависимости веб-клиента установлены",
+    "command": "npm --prefix src/web ls --depth=0",
+    "max_lines": 16
+  },
+  {
+    "name": "36-proxy-check",
+    "title": "Прокси Vite: /api уходит на порт 5080",
+    "command": "curl.exe -s http://localhost:5173/api/health",
+    "max_lines": 8
+  },
+  {
+    "name": "36-http-401",
+    "title": "Запрос без токена: API отвечает 401",
+    "command": "curl.exe -s -o NUL -w \"HTTP %{http_code}\" http://localhost:5080/api/work-orders",
+    "max_lines": 6
+  },
+  {
+    "name": "46-test-project",
+    "title": "Тесты валидатора заявки",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~WorkOrderValidatorTests\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "46-test-valid-dates",
+    "title": "Тесты расчёта простоя",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~DowntimeCalculatorTests\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "46-test-negative",
+    "title": "Негативные тесты: валидатор отвергает заявку",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~ValidateWorkOrder_Rejects\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "47-test-valid-order",
+    "title": "Тест: корректная заявка проходит валидацию",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~ValidateWorkOrder_AcceptsCorrectWorkOrder\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "47-test-missing",
+    "title": "Тест: заявка без обязательного поля отвергается",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~ValidateWorkOrder_RejectsMissingRequiredField\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "47-test-emergency",
+    "title": "Тест: аварийная заявка без причины отказа отвергается",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~ValidateWorkOrder_RejectsEmergencyWithoutFailureReason\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "47-test-cost",
+    "title": "Тесты стоимости материалов",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~MaterialCostTests\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "47-test-cost-edges",
+    "title": "Тесты стоимости: пустой список и отрицательное количество",
+    "command": "dotnet test src/Tests/ToirProf.Tests.csproj --filter \"FullyQualifiedName~CalculateTotalMaterialCost_HandlesNegativeValues|FullyQualifiedName~CalculateTotalMaterialCost_ReturnsZeroForEmptyList\" --nologo",
+    "max_lines": 14
+  },
+  {
+    "name": "49-db-deploy",
+    "title": "Проверка развёрнутой базы: db/verify.sql",
+    "command": "& 'C:\\Program Files\\PostgreSQL\\16\\bin\\psql.exe' -h 127.0.0.1 -U toirprof -d toirprof -X -q -f db/verify.sql",
+    "env": {
+      "PGPASSWORD": "toirprof"
+    },
+    "max_lines": 18
+  },
+  {
+    "name": "49-web-start",
+    "title": "Веб-клиент слушает порт 5173",
+    "command": "curl.exe -s -I http://localhost:5173 | Select-Object -First 1; Get-NetTCPConnection -LocalPort 5173 -State Listen | Select-Object -First 1 LocalAddress, LocalPort, OwningProcess",
+    "max_lines": 10
+  },
+  {
+    "name": "49-desktop-start",
+    "title": "Запуск desktop-клиента и его процесс",
+    "command": "dotnet build src/desktop/ToirProf.Desktop.csproj --nologo -v q; Start-Process 'src/desktop/bin/Debug/net10.0/ToirProf.Desktop.exe'; Start-Sleep -Seconds 5; Get-Process ToirProf.Desktop | Select-Object Id, ProcessName; Stop-Process -Name ToirProf.Desktop -Force",
+    "max_lines": 18
+  }
+]

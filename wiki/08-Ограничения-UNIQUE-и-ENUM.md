@@ -53,6 +53,9 @@ SQL
 ![База отвергает дубликат логина: duplicate key value violates unique constraint](images/08-unique-violation.png)
 *База отвергает дубликат логина: duplicate key value violates unique constraint*
 
+![База отвергает дубликат логина: duplicate key value violates unique constraint](gifs/08-unique-check.gif)
+*База отвергает дубликат логина: duplicate key value violates unique constraint*
+
 
 ## Шаг 3. Создаём три типа ENUM — 20 мин
 

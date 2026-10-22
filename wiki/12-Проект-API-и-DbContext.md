@@ -39,6 +39,9 @@ dotnet add Tests/ToirProf.Tests.csproj reference Shared/ToirProf.Shared.csproj
 ![Solution создан, три проекта в дереве](images/12-solution.png)
 *Solution создан, три проекта в дереве*
 
+![Solution создан, три проекта в дереве](gifs/12-solution-run.gif)
+*Solution создан, три проекта в дереве*
+
 
 ## Шаг 2. Подключаем EF Core и строку подключения — 30 мин
 
@@ -64,6 +67,9 @@ dotnet add api package Swashbuckle.AspNetCore
 > **Замечание.** Регион `Jwt` читается через `builder.Configuration.GetSection("Jwt")`. Ключ должен быть не короче 32 байт — иначе `SymmetricSecurityKey` бросит исключение при первом же входе.
 
 ![Пакеты восстановлены, версия EF Core в выводе совпадает с версией .NET](images/12-efcore.png)
+*Пакеты восстановлены, версия EF Core в выводе совпадает с версией .NET*
+
+![Пакеты восстановлены, версия EF Core в выводе совпадает с версией .NET](gifs/12-efcore-restore.gif)
 *Пакеты восстановлены, версия EF Core в выводе совпадает с версией .NET*
 
 
@@ -114,6 +120,9 @@ curl -i http://localhost:5080/swagger/index.html
 > **Замечание.** Swagger подключается только в `app.Environment.IsDevelopment()`. На защите эксперты открывают `/swagger` без переменных окружения — добавьте `ASPNETCORE_ENVIRONMENT=Development` в инструкцию по развёртыванию.
 
 ![Swagger UI открыт, в группе ToirProf.Api виден Health](images/12-swagger.png)
+*Swagger UI открыт, в группе ToirProf.Api виден Health*
+
+![Swagger UI открыт, в группе ToirProf.Api виден Health](gifs/12-api-start.gif)
 *Swagger UI открыт, в группе ToirProf.Api виден Health*
 
 
