@@ -9,6 +9,8 @@
 
 > **Полное описание задания — в [wiki](https://github.com/artemovsergey/professionals-task/wiki).**
 
+![Набор на чемпионат «Профессионалы» — компетенция «Программные решения для бизнеса»](docs/championship/post/poster.png)
+
 ---
 
 ## Что здесь лежит
