@@ -166,7 +166,7 @@ public sealed class WorkOrderRow
 
     public string PriorityBrush => Priority switch
     {
-        "Аварийный" => "bad",
+        "Критический" => "bad",
         "Высокий" => "warn",
         _ => "wait",
     };

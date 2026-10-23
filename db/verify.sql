@@ -97,11 +97,11 @@ ORDER BY 1;
 \echo '--- Заявки по месяцам и статусам ------------------------------'
 
 SELECT to_char(created_at, 'YYYY-MM') AS месяц,
-       count(*) FILTER (WHERE status = 'Завершена')  AS завершено,
+       count(*) FILTER (WHERE status = 'Закрыта')  AS завершено,
        count(*) FILTER (WHERE status = 'В работе')   AS в_работе,
        count(*) FILTER (WHERE status = 'Назначена')  AS назначено,
        count(*) FILTER (WHERE status = 'Отменена')   AS отменено,
-       count(*) FILTER (WHERE priority = 'Аварийный') AS аварийных,
+       count(*) FILTER (WHERE priority = 'Критический') AS аварийных,
        count(*) AS всего
 FROM work_orders
 GROUP BY 1 ORDER BY 1;
@@ -116,13 +116,13 @@ GROUP BY 1 ORDER BY 1;
 SELECT
     count(*)                                                       AS всего_заявок,
     count(*) FILTER (WHERE status = 'В работе')                   AS в_работе,
-    count(*) FILTER (WHERE status = 'Завершена')                  AS завершено,
-    count(*) FILTER (WHERE priority = 'Аварийный')                 AS аварийных,
-    round(count(*) FILTER (WHERE priority = 'Аварийный') * 100.0
+    count(*) FILTER (WHERE status = 'Закрыта')                  AS завершено,
+    count(*) FILTER (WHERE priority = 'Критический')                 AS аварийных,
+    round(count(*) FILTER (WHERE priority = 'Критический') * 100.0
           / count(*), 1)                                           AS доля_аварийных_процентов,
-    round(avg(downtime_hours) FILTER (WHERE status = 'Завершена'), 2)
+    round(avg(downtime_hours) FILTER (WHERE status = 'Закрыта'), 2)
                                                                     AS средний_простой_часов,
-    round(sum(downtime_hours) FILTER (WHERE status = 'Завершена'), 2)
+    round(sum(downtime_hours) FILTER (WHERE status = 'Закрыта'), 2)
                                                                     AS всего_простоя_часов
 FROM work_orders;
 
@@ -156,8 +156,8 @@ LIMIT 5;
 
 SELECT c.code AS бригада,
        count(*) AS заявок,
-       count(*) FILTER (WHERE wo.status = 'Завершена') AS завершено,
-       round(avg(wo.downtime_hours) FILTER (WHERE wo.status = 'Завершена'), 2) AS средний_простой
+       count(*) FILTER (WHERE wo.status = 'Закрыта') AS завершено,
+       round(avg(wo.downtime_hours) FILTER (WHERE wo.status = 'Закрыта'), 2) AS средний_простой
 FROM crews c
 LEFT JOIN work_orders wo ON wo.crew_id = c.id
 GROUP BY c.code ORDER BY c.code;
@@ -182,7 +182,7 @@ SELECT pg_temp.verify_run('UNIQUE', 'users.username — повторный ло�
 
 SELECT pg_temp.verify_run('UNIQUE', 'equipment.inventory_number — повторный номер отклонён',
     $$INSERT INTO equipment (inventory_number, name, workshop_id, commission_date, status, criticality)
-      VALUES ('ПР-2', 'Дубль', 'aaaaaaaa-0000-0000-0000-000000000002', CURRENT_DATE, 'Работает', 3)$$, true);
+      VALUES ('ПР-2', 'Дубль', 'aaaaaaaa-0000-0000-0000-000000000002', CURRENT_DATE, 'В работе', 3)$$, true);
 
 SELECT pg_temp.verify_run('UNIQUE', 'materials.sku — повторный артикул отклонён',
     $$INSERT INTO materials (sku, name, unit, price, stock, min_stock)
@@ -191,17 +191,17 @@ SELECT pg_temp.verify_run('UNIQUE', 'materials.sku — повторный арт
 SELECT pg_temp.verify_run('UNIQUE', 'work_orders.number — повторный номер заявки отклонён',
     $$INSERT INTO work_orders (number, equipment_id, created_by, title, description, priority, status)
       VALUES ('Z-2026-0001', '44444444-4444-4444-4444-444444444444',
-              '55555555-0000-0000-0000-000000000003', 'Дубль', 'Дубль', 'Низкий', 'Черновик')$$, true);
+              '55555555-0000-0000-0000-000000000003', 'Дубль', 'Дубль', 'Низкий', 'Создана')$$, true);
 
 -- CHECK
 SELECT pg_temp.verify_run('CHECK', 'ck_work_order_number_format — неверный формат номера',
     $$INSERT INTO work_orders (number, equipment_id, created_by, title, description, priority, status)
       VALUES ('2026-15', '44444444-4444-4444-4444-444444444444',
-              '55555555-0000-0000-0000-000000000003', 'X', 'X', 'Низкий', 'Черновик')$$, true);
+              '55555555-0000-0000-0000-000000000003', 'X', 'X', 'Низкий', 'Создана')$$, true);
 
 SELECT pg_temp.verify_run('CHECK', 'ck_equipment_criticality — критичность вне 1..5',
     $$INSERT INTO equipment (inventory_number, name, workshop_id, commission_date, status, criticality)
-      VALUES ('ТЕСТ-1', 'X', 'aaaaaaaa-0000-0000-0000-000000000001', CURRENT_DATE, 'Работает', 9)$$, true);
+      VALUES ('ТЕСТ-1', 'X', 'aaaaaaaa-0000-0000-0000-000000000001', CURRENT_DATE, 'В работе', 9)$$, true);
 
 SELECT pg_temp.verify_run('CHECK', 'ck_equipment_decommission_date — снятие раньше ввода в эксплуатацию',
     $$INSERT INTO equipment (inventory_number, name, workshop_id, commission_date, decommission_date, status, criticality)
@@ -211,7 +211,7 @@ SELECT pg_temp.verify_run('CHECK', 'ck_work_order_planned_dates — оконча
     $$INSERT INTO work_orders (number, equipment_id, created_by, title, description, priority, status,
                                planned_start, planned_end)
       VALUES ('Z-2026-9001', '44444444-4444-4444-4444-444444444444',
-              '55555555-0000-0000-0000-000000000003', 'X', 'X', 'Низкий', 'Черновик',
+              '55555555-0000-0000-0000-000000000003', 'X', 'X', 'Низкий', 'Создана',
               '2026-05-10', '2026-05-01')$$, true);
 
 -- Ограничения набора значений
@@ -235,7 +235,7 @@ SELECT pg_temp.verify_run('ON DELETE', 'Материал со списанием
 SELECT pg_temp.verify_run('ENUM', 'Контрольная вставка с допустимыми значениями проходит',
     $$INSERT INTO work_orders (number, equipment_id, created_by, title, description, priority, status)
       VALUES ('Z-2026-9003', '44444444-4444-4444-4444-444444444444',
-              '55555555-0000-0000-0000-000000000003', 'Контроль', 'Контроль', 'Средний', 'Черновик')$$,
+              '55555555-0000-0000-0000-000000000003', 'Контроль', 'Контроль', 'Средний', 'Создана')$$,
     false);
 
 DELETE FROM work_orders WHERE number = 'Z-2026-9003';
@@ -248,7 +248,7 @@ DELETE FROM work_orders WHERE number = 'Z-2026-9003';
 \echo '=== 4. Триггеры ================================================='
 
 SELECT pg_temp.verify_run('Триггеры', 'trg_equipment_status_guard — статус выведенного из эксплуатации менять нельзя',
-    $$UPDATE equipment SET status = 'Работает'
+    $$UPDATE equipment SET status = 'В работе'
       WHERE inventory_number = 'КП-9'$$, true);
 
 SELECT pg_temp.verify_run('Триггеры', 'trg_equipment_status_guard — прочие поля выведенного менять можно',
@@ -260,7 +260,7 @@ SELECT pg_temp.verify_run('Триггеры', 'trg_work_order_dates_check — ф
       WHERE number = 'Z-2026-0047'$$, true);
 
 SELECT pg_temp.verify_run('Триггеры', 'trg_work_order_dates_check — завершённая заявка без причины неисправности',
-    $$UPDATE work_orders SET status = 'Завершена', actual_start = '2026-03-20 08:00',
+    $$UPDATE work_orders SET status = 'Закрыта', actual_start = '2026-03-20 08:00',
                             actual_end = '2026-03-20 12:00', failure_reason = '   '
       WHERE number = 'Z-2026-0044'$$, true);
 
@@ -273,7 +273,7 @@ BEGIN
     SELECT count(*) INTO v_before FROM operation_log;
     INSERT INTO work_orders (number, equipment_id, created_by, title, description, priority, status)
     VALUES ('Z-2026-9004', '44444444-4444-4444-4444-444444444444',
-            '55555555-0000-0000-0000-000000000003', 'Аудит', 'Аудит', 'Низкий', 'Черновик');
+            '55555555-0000-0000-0000-000000000003', 'Аудит', 'Аудит', 'Низкий', 'Создана');
     UPDATE work_orders SET title = 'Аудит изменён'
      WHERE number = 'Z-2026-9004';
     DELETE FROM work_orders WHERE number = 'Z-2026-9004';

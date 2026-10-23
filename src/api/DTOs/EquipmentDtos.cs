@@ -77,9 +77,11 @@ public sealed record EquipmentDto(
 /// </summary>
 public static class EquipmentStatuses
 {
-    public const string Running = "Работает";
+    public const string Running = "В работе";
 
     public const string InRepair = "В ремонте";
+
+    public const string Idle = "В простое";
 
     public const string Retired = "Выведено из эксплуатации";
 }

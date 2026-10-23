@@ -98,5 +98,5 @@ public sealed class EquipmentController(IEquipmentService service) : ControllerB
 }
 
 /// <summary>Тело запроса смены статуса оборудования.</summary>
-/// <param name="Status">Одно из значений: Работает, В ремонте, Выведено из эксплуатации.</param>
+/// <param name="Status">Одно из значений: В работе, В ремонте, В простое, Выведено из эксплуатации.</param>
 public sealed record ChangeStatusRequest(string Status);

@@ -252,13 +252,13 @@ public sealed class EquipmentService(AppDbContext db) : IEquipmentService
 
     /// <summary>
     /// Строка из запроса в значение перечисления. Неизвестное значение —
-    /// ошибка 400, а не молчаливое «Работает»: молчаливый откат
+    /// ошибка 400, а не молчаливое «В работе»: молчаливый откат
     /// выглядит на демонстрации как «приложение забыло данные».
     /// </summary>
     private static EquipmentStatus StringToStatus(string? status) =>
         status switch
         {
-            EquipmentStatuses.Running => EquipmentStatus.Работает,
+            EquipmentStatuses.Running => EquipmentStatus.ВРаботе,
             EquipmentStatuses.InRepair => EquipmentStatus.ВРемонте,
             EquipmentStatuses.Retired => EquipmentStatus.ВыведеноИзЭксплуатации,
             _ => throw ApiException.BadRequest(

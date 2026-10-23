@@ -103,7 +103,7 @@ CREATE TABLE equipment (
     serial_number     varchar(50),
     commission_date   date,
     decommission_date date,
-    status            varchar(50)       NOT NULL DEFAULT 'Работает',
+    status            varchar(50)       NOT NULL DEFAULT 'В работе',
     criticality       smallint          NOT NULL DEFAULT 3,
     location          varchar(100),
     notes             text,
@@ -123,11 +123,11 @@ CREATE TABLE equipment (
     CONSTRAINT ck_equipment_criticality
         CHECK (criticality BETWEEN 1 AND 5),
 
-    -- Набор состояний оборудования. Тип столбца — varchar, а не ENUM:
+    -- Наборы состояний оборудования. Как и у заявок, это varchar с проверкой:
     -- Npgsql передаёт строку как text, и запись в колонку ENUM падала бы
     -- с ошибкой 42804. Ограничение CHECK защищает от опечатки так же.
     CONSTRAINT ck_equipment_status
-        CHECK (status IN ('Работает', 'В ремонте', 'Выведено из эксплуатации')),
+        CHECK (status IN ('В работе', 'В ремонте', 'В простое', 'Выведено из эксплуатации')),
 
     CONSTRAINT fk_equipment_workshop FOREIGN KEY (workshop_id)
         REFERENCES workshops (id) ON DELETE RESTRICT
@@ -258,7 +258,7 @@ CREATE TABLE work_orders (
     title               varchar(200)        NOT NULL,
     description         text,
     priority            varchar(50)         NOT NULL DEFAULT 'Средний',
-    status              varchar(50)         NOT NULL DEFAULT 'Черновик',
+    status              varchar(50)         NOT NULL DEFAULT 'Создана',
     planned_start       date,
     planned_end         date,
     actual_start        timestamptz,
@@ -292,9 +292,9 @@ CREATE TABLE work_orders (
     -- Наборы приоритета и состояния заявки. Как и у оборудования, это
     -- varchar с проверкой: см. пояснение к ck_equipment_status.
     CONSTRAINT ck_work_order_priority
-        CHECK (priority IN ('Низкий', 'Средний', 'Высокий', 'Аварийный')),
+        CHECK (priority IN ('Низкий', 'Средний', 'Высокий', 'Критический')),
     CONSTRAINT ck_work_order_status
-        CHECK (status IN ('Черновик', 'Назначена', 'В работе', 'Завершена', 'Отменена')),
+        CHECK (status IN ('Создана', 'Назначена', 'В работе', 'Ожидает материалов', 'Выполнена', 'Закрыта', 'Отменена')),
 
     CONSTRAINT fk_work_orders_equipment FOREIGN KEY (equipment_id)
         REFERENCES equipment (id) ON DELETE RESTRICT,

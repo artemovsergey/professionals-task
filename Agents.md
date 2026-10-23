@@ -7,3 +7,8 @@ https://pro.firpo.ru/
 https://disk.yandex.ru/d/tj4P7D5bgHsS1Q
 
 https://disk.yandex.ru/d/5inFXmJN7YBMJg
+
+
+# Задание
+
+- в папке Программные решения для бизнеса 2027

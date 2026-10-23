@@ -168,7 +168,7 @@ BEGIN
 
     -- 1. Оборудование цеха
     SELECT count(*),
-           count(*) FILTER (WHERE status = 'Работает'),
+           count(*) FILTER (WHERE status = 'В работе'),
            count(*) FILTER (WHERE status = 'В ремонте'),
            count(*) FILTER (WHERE status = 'Выведено из эксплуатации')
       INTO v_total, v_working, v_repair, v_retired
@@ -181,7 +181,7 @@ BEGIN
 
     -- 2. Сводка по заявкам за период
     SELECT count(*),
-           count(*) FILTER (WHERE wo.status = 'Завершена'),
+           count(*) FILTER (WHERE wo.status = 'Закрыта'),
            COALESCE(sum(wo.downtime_hours), 0)
       INTO v_orders, v_completed, v_downtime
       FROM work_orders wo

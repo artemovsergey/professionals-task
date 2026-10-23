@@ -149,9 +149,9 @@ psql -h 127.0.0.1 -U toirprof -d toirprof -f db/verify.sql
 
 | Ограничение | Столбец | Значения |
 |---|---|---|
-| `ck_equipment_status` | `equipment.status` | Работает · В ремонте · Выведено из эксплуатации |
-| `ck_work_order_status` | `work_orders.status` | Черновик · Назначена · В работе · Завершена · Отменена |
-| `ck_work_order_priority` | `work_orders.priority` | Низкий · Средний · Высокий · Аварийный |
+| `ck_equipment_status` | `equipment.status` | В работе · В ремонте · В простое · Выведено из эксплуатации |
+| `ck_work_order_status` | `work_orders.status` | Создана · Назначена · В работе · Ожидает материалов · Выполнена · Закрыта · Отменена |
+| `ck_work_order_priority` | `work_orders.priority` | Низкий · Средний · Высокий · Критический |
 
 Русские значения — не опечатка. Приложение, база и эксперт видят одни
 и те же строки в журнале, отчёте и на экране.

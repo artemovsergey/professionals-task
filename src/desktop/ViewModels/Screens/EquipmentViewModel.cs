@@ -30,7 +30,7 @@ public sealed partial class EquipmentViewModel : PageViewModel
 
     /// <summary>Список статусов для выпадающего фильтра.</summary>
     public IReadOnlyList<string> StatusOptions { get; } =
-        ["Работает", "В ремонте", "Выведено из эксплуатации"];
+        ["В работе", "В ремонте", "В простое", "Выведено из эксплуатации"];
 
     [ObservableProperty]
     private string? _statusFilter;

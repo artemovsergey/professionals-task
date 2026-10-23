@@ -46,7 +46,7 @@ CREATE TABLE workshops (
     name VARCHAR(100) NOT NULL
 );
 
-CREATE TYPE equipment_status AS ENUM ('Работает', 'В ремонте', 'Выведено из эксплуатации');
+CREATE TYPE equipment_status AS ENUM ('В работе', 'В ремонте', 'В простое', 'Выведено из эксплуатации');
 
 CREATE TABLE equipment (
     id               UUID PRIMARY KEY,
@@ -56,7 +56,7 @@ CREATE TABLE equipment (
     serial_number    VARCHAR(50)  NOT NULL UNIQUE,
     workshop_id      UUID NOT NULL REFERENCES workshops (id) ON DELETE RESTRICT,
     commission_date  DATE NOT NULL,
-    status           equipment_status NOT NULL DEFAULT 'Работает',
+    status           equipment_status NOT NULL DEFAULT 'В работе',
     criticality      SMALLINT NOT NULL DEFAULT 3
 );
 ```
@@ -96,8 +96,8 @@ CREATE TABLE maintenance_schedule (
     UNIQUE (equipment_id, maintenance_type_id, planned_date)
 );
 
-CREATE TYPE work_order_status AS ENUM ('Черновик','Назначена','В работе','Завершена','Отменена');
-CREATE TYPE work_order_priority AS ENUM ('Низкий','Средний','Высокий','Аварийный');
+CREATE TYPE work_order_status AS ENUM ('Создана','Назначена','В работе','Ожидает материалов','Выполнена','Закрыта','Отменена');
+CREATE TYPE work_order_priority AS ENUM ('Низкий','Средний','Высокий','Критический');
 
 CREATE TABLE crews (
     id             UUID PRIMARY KEY,
@@ -113,7 +113,7 @@ CREATE TABLE work_orders (
     maintenance_type_id UUID REFERENCES maintenance_types (id) ON DELETE RESTRICT,
     crew_id             UUID REFERENCES crews (id) ON DELETE SET NULL,
     priority            work_order_priority NOT NULL DEFAULT 'Средний',
-    status              work_order_status NOT NULL DEFAULT 'Черновик',
+    status              work_order_status NOT NULL DEFAULT 'Создана',
     description         VARCHAR(500) NOT NULL,
     reason              VARCHAR(500),
     planned_start       TIMESTAMPTZ,

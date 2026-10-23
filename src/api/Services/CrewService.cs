@@ -69,7 +69,7 @@ public sealed class CrewService(AppDbContext db) : ICrewService
             .ToListAsync(ct);
 
         var active = orders.Count(o => o.Status == WorkOrderStatus.ВРаботе);
-        var completed = orders.Count(o => o.Status == WorkOrderStatus.Завершена);
+        var completed = orders.Count(o => o.Status == WorkOrderStatus.Закрыта);
         var downtime = orders.Where(o => o.DowntimeHours.HasValue).Sum(o => o.DowntimeHours!.Value);
 
         // Рейтинг — доля завершённых заявок в процентах. Считается

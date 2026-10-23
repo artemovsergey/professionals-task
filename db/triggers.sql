@@ -96,19 +96,19 @@ BEGIN
     END IF;
 
     -- 4. Завершённая заявка обязана иметь фактические даты
-    IF NEW.status = 'Завершена'
+    IF NEW.status = 'Закрыта'
        AND (NEW.actual_start IS NULL OR NEW.actual_end IS NULL) THEN
         RAISE EXCEPTION
-            'Заявка «%» помечена как завершённая, но не указаны даты начала и окончания работ',
+            'Заявка «%» помечена как закрытая, но не указаны даты начала и окончания работ',
             NEW.number
             USING ERRCODE = 'check_violation';
     END IF;
 
     -- 5. Завершённая заявка обязана иметь причину неисправности
-    IF NEW.status = 'Завершена'
+    IF NEW.status = 'Закрыта'
        AND (NEW.failure_reason IS NULL OR btrim(NEW.failure_reason) = '') THEN
         RAISE EXCEPTION
-            'Заявка «%» помечена как завершённая, но не указана причина неисправности',
+            'Заявка «%» помечена как закрытая, но не указана причина неисправности',
             NEW.number
             USING ERRCODE = 'check_violation';
     END IF;
@@ -117,7 +117,7 @@ BEGIN
     --    он не вводится вручную, иначе отчёт будет расходиться.
     IF NEW.actual_start IS NOT NULL AND NEW.actual_end IS NOT NULL THEN
         NEW.downtime_hours := fn_calculate_downtime(NEW.actual_start, NEW.actual_end);
-    ELSIF NEW.status IN ('Черновик', 'Назначена', 'Отменена') THEN
+    ELSIF NEW.status IN ('Создана', 'Назначена', 'Отменена') THEN
         NEW.downtime_hours := NULL;
     END IF;
 

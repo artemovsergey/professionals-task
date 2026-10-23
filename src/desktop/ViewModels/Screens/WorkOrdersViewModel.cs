@@ -37,9 +37,9 @@ public sealed partial class WorkOrdersViewModel : PageViewModel
 
     public ObservableCollection<EquipmentShort> Equipment { get; } = [];
 
-    public IReadOnlyList<string> StatusOptions { get; } = ["Черновик", "Назначена", "В работе", "Завершена", "Отменена"];
+    public IReadOnlyList<string> StatusOptions { get; } = ["Создана", "Назначена", "В работе", "Ожидает материалов", "Выполнена", "Закрыта", "Отменена"];
 
-    public IReadOnlyList<string> PriorityOptions { get; } = ["Низкий", "Средний", "Высокий", "Аварийный"];
+    public IReadOnlyList<string> PriorityOptions { get; } = ["Низкий", "Средний", "Высокий", "Критический"];
 
     [ObservableProperty]
     private string? _statusFilter;

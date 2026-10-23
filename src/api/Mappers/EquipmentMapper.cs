@@ -106,7 +106,7 @@ public static class EquipmentMapper
     private static string StatusToString(EquipmentStatus status) =>
         status switch
         {
-            EquipmentStatus.Работает => EquipmentStatuses.Running,
+            EquipmentStatus.ВРаботе => EquipmentStatuses.Running,
             EquipmentStatus.ВРемонте => EquipmentStatuses.InRepair,
             EquipmentStatus.ВыведеноИзЭксплуатации => EquipmentStatuses.Retired,
             _ => EquipmentStatuses.Running,

@@ -73,18 +73,22 @@ public sealed record WorkOrderDto(
 
 public static class WorkOrderStatuses
 {
-    public const string Draft = "Черновик";
+    public const string Draft = "Создана";
 
     public const string Assigned = "Назначена";
 
     public const string InProgress = "В работе";
 
-    public const string Completed = "Завершена";
+    public const string AwaitingMaterials = "Ожидает материалов";
+
+    public const string Completed = "Выполнена";
+
+    public const string Closed = "Закрыта";
 
     public const string Cancelled = "Отменена";
 
     /// <summary>
-    /// Разрешённые переходы статусов. Завершённая и отменённая заявки
+    /// Разрешённые переходы статусов. Закрытая и отменённая заявки
     /// закрываются навсегда — иначе простои и суммы в отчётах менялись бы
     /// задним числом.
     ///
@@ -95,8 +99,10 @@ public static class WorkOrderStatuses
         {
             [Draft] = [Assigned, InProgress, Cancelled],
             [Assigned] = [InProgress, Draft, Cancelled],
-            [InProgress] = [Completed, Assigned, Cancelled],
-            [Completed] = [],
+            [InProgress] = [AwaitingMaterials, Completed, Assigned, Cancelled],
+            [AwaitingMaterials] = [InProgress, Cancelled],
+            [Completed] = [Closed],
+            [Closed] = [],
             [Cancelled] = []
         };
 
@@ -108,7 +114,7 @@ public static class WorkOrderStatuses
     /// пришло неизвестное значение. Список берётся отсюда же, поэтому
     /// новое значение нельзя забыть внести в текст.
     /// </summary>
-    public const string AllText = $"{Draft}, {Assigned}, {InProgress}, {Completed}, {Cancelled}";
+    public const string AllText = $"{Draft}, {Assigned}, {InProgress}, {AwaitingMaterials}, {Completed}, {Closed}, {Cancelled}";
 }
 
 public static class WorkOrderPriorities
@@ -119,7 +125,7 @@ public static class WorkOrderPriorities
 
     public const string High = "Высокий";
 
-    public const string Emergency = "Аварийный";
+    public const string Emergency = "Критический";
 
     /// <summary>
     /// Все приоритеты через запятую — для текста ошибки валидации.

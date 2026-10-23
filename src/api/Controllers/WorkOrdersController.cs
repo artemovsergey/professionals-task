@@ -34,8 +34,8 @@ public sealed class WorkOrdersController(IWorkOrderService service) : Controller
     /// <summary>Список заявок с фильтрами, сортировкой и пагинацией.</summary>
     /// <param name="equipmentId">Ограничить по единице оборудования.</param>
     /// <param name="crewId">Ограничить по бригаде.</param>
-    /// <param name="status">Статус: Черновик, Назначена, В работе, Завершена, Отменена.</param>
-    /// <param name="priority">Приоритет: Низкий, Средний, Высокий, Аварийный.</param>
+    /// <param name="status">Статус: Создана, Назначена, В работе, Ожидает материалов, Выполнена, Закрыта, Отменена.</param>
+    /// <param name="priority">Приоритет: Низкий, Средний, Высокий, Критический.</param>
     /// <param name="from">Начало периода по дате создания.</param>
     /// <param name="to">Конец периода по дате создания.</param>
     /// <param name="query">Поиск по номеру, названию и инвентарному номеру.</param>

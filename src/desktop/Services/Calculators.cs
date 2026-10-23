@@ -37,8 +37,8 @@ public sealed record ValidationResult(bool IsValid, IReadOnlyList<string> Errors
 /// </summary>
 /// <param name="EquipmentId">Оборудование, по которому открыта заявка.</param>
 /// <param name="Description">Описание неисправности; обязательное поле.</param>
-/// <param name="Priority">Приоритет: «Низкий», «Средний», «Высокий», «Аварийный».</param>
-/// <param name="Status">Статус заявки: «Черновик», «Назначена», «В работе», «Завершена», «Отменена».</param>
+/// <param name="Priority">Приоритет: «Низкий», «Средний», «Высокий», «Критический».</param>
+/// <param name="Status">Статус заявки: «Создана», «Назначена», «В работе», «Ожидает материалов», «Выполнена», «Закрыта», «Отменена».</param>
 /// <param name="PlannedStart">Запланированная дата начала работ.</param>
 /// <param name="PlannedEnd">Запланированная дата окончания работ.</param>
 /// <param name="FailureReason">Причина неисправности; обязательна для аварийной заявки.</param>
@@ -61,22 +61,25 @@ public sealed record WorkOrderDraft(
 public static class Calculators
 {
     /// <summary>Приоритет, для которого обязательна причина неисправности.</summary>
-    public const string EmergencyPriority = "Аварийный";
+    public const string EmergencyPriority = "Критический";
 
     /// <summary>Статус закрытой заявки.</summary>
-    public const string CompletedStatus = "Завершена";
+    public const string CompletedStatus = "Закрыта";
 
     /// <summary>
-    /// Простой оборудования в часах между двумя моментами времени.
+    /// Простой оборудования в рабочих часах между двумя моментами времени.
     ///
-    /// Возвращает 0, если хотя бы одна граница не задана: заявка без
-    /// фактических дат простоя не имеет, и ноль честнее, чем
-    /// «неизвестно». Отрицательный результат тоже превращается в 0 —
-    /// обратный порядок дат не должен давать отрицательный простой.
+    /// Учитывает только рабочее время с 8:00 до 17:00 в будние дни
+    /// (понедельник — пятница). Выходные (суббота, воскресенье) и время
+    /// вне рабочего интервала не включаются в расчёт. Это соответствует
+    /// требованию Приложения 5 тематического сценария.
+    ///
+    /// Возвращает 0, если хотя бы одна граница не задана, либо если
+    /// окончание не позже начала.
     /// </summary>
     /// <param name="start">Момент начала простоя.</param>
     /// <param name="end">Момент окончания простоя.</param>
-    /// <returns>Длительность простоя в часах с точностью до сотых.</returns>
+    /// <returns>Длительность простоя в рабочих часах с точностью до сотых.</returns>
     public static decimal CalculateDowntimeHours(DateTimeOffset? start, DateTimeOffset? end)
     {
         if (start is null || end is null)
@@ -84,8 +87,58 @@ public static class Calculators
             return 0m;
         }
 
-        var hours = (end.Value - start.Value).TotalHours;
-        return hours <= 0 ? 0m : Math.Round((decimal)hours, 2, MidpointRounding.AwayFromZero);
+        var s = start.Value;
+        var e = end.Value;
+        if (e <= s)
+        {
+            return 0m;
+        }
+
+        const int workdayStartHour = 8;
+        const int workdayEndHour = 17;
+
+        var total = 0m;
+        var current = s;
+
+        while (current.Date < e.Date)
+        {
+            // Пропускаем выходные.
+            if (current.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+            {
+                current = current.Date.AddDays(1).AddHours(workdayStartHour);
+                continue;
+            }
+
+            // Начало рабочего дня для текущей даты.
+            var dayStart = current.Date.AddHours(workdayStartHour);
+            var dayEnd = current.Date.AddHours(workdayEndHour);
+
+            var segmentStart = current > dayStart ? current : dayStart;
+            var segmentEnd = e < dayEnd ? e : dayEnd;
+
+            if (segmentEnd > segmentStart)
+            {
+                total += (decimal)(segmentEnd - segmentStart).TotalHours;
+            }
+
+            current = current.Date.AddDays(1).AddHours(workdayStartHour);
+        }
+
+        // Последний день (или единственный, если start и end в один день).
+        if (e.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
+        {
+            var dayStart = e.Date.AddHours(workdayStartHour);
+            var dayEnd = e.Date.AddHours(workdayEndHour);
+            var segmentStart = s > dayStart ? s : dayStart;
+            var segmentEnd = e < dayEnd ? e : dayEnd;
+
+            if (segmentEnd > segmentStart)
+            {
+                total += (decimal)(segmentEnd - segmentStart).TotalHours;
+            }
+        }
+
+        return Math.Round(total, 2, MidpointRounding.AwayFromZero);
     }
 
     /// <summary>

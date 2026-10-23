@@ -135,7 +135,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
             Title = dto.Title.Trim(),
             Description = dto.Description.Trim(),
             Priority = ToPriority(dto.Priority),
-            Status = WorkOrderStatus.Черновик,
+            Status = WorkOrderStatus.Создана,
             PlannedStart = dto.PlannedStart,
             PlannedEnd = dto.PlannedEnd,
         };
@@ -198,7 +198,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
 
         order.CrewId = dto.CrewId;
         order.AssignedTo = dto.AssignedTo;
-        if (order.Status == WorkOrderStatus.Черновик)
+        if (order.Status == WorkOrderStatus.Создана)
             order.Status = WorkOrderStatus.Назначена;
 
         await db.SaveChangesAsync(ct);
@@ -234,7 +234,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
         order.ActualEnd = dto.ActualEnd.ToUniversalTime();
         order.FailureReason = dto.FailureReason.Trim();
         order.CompletedAt = dto.ActualEnd.ToUniversalTime();
-        order.Status = WorkOrderStatus.Завершена;
+        order.Status = WorkOrderStatus.Закрыта;
 
         await db.SaveChangesAsync(ct);
         return await GetByIdAsync(id, ct);
@@ -251,7 +251,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
         if (!WorkOrderStatuses.CanTransition(StatusText(order.Status), targetText))
             throw TransitionError(order, targetText);
 
-        if (target == WorkOrderStatus.Завершена)
+        if (target == WorkOrderStatus.Закрыта)
         {
             // Через смену статуса закрыть заявку тоже можно, но только если
             // фактические даты и причина уже проставлены.
@@ -264,7 +264,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
             order.CompletedAt = order.ActualEnd;
         }
 
-        if (target != WorkOrderStatus.Завершена && order.Status == WorkOrderStatus.Завершена)
+        if (target != WorkOrderStatus.Закрыта && order.Status == WorkOrderStatus.Закрыта)
             order.CompletedAt = null;
 
         order.Status = target;
@@ -459,7 +459,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
 
     private static void EnsureEditable(WorkOrder order)
     {
-        if (order.Status is WorkOrderStatus.Завершена or WorkOrderStatus.Отменена)
+        if (order.Status is WorkOrderStatus.Закрыта or WorkOrderStatus.Отменена)
             throw new ApiException(
                 409,
                 $"Заявка {order.Number} имеет статус «{StatusText(order.Status)}» и больше не изменяется.",
@@ -475,10 +475,10 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
     // а не молчаливый откат к значению по умолчанию.
     public static WorkOrderStatus ToStatus(string value) => value switch
     {
-        WorkOrderStatuses.Draft => WorkOrderStatus.Черновик,
+        WorkOrderStatuses.Draft => WorkOrderStatus.Создана,
         WorkOrderStatuses.Assigned => WorkOrderStatus.Назначена,
         WorkOrderStatuses.InProgress => WorkOrderStatus.ВРаботе,
-        WorkOrderStatuses.Completed => WorkOrderStatus.Завершена,
+        WorkOrderStatuses.Completed => WorkOrderStatus.Закрыта,
         WorkOrderStatuses.Cancelled => WorkOrderStatus.Отменена,
         _ => throw ApiException.BadRequest(
             $"Неизвестный статус «{value}». Допустимо: {WorkOrderStatuses.AllText}."),
@@ -489,7 +489,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
         WorkOrderPriorities.Low => WorkOrderPriority.Низкий,
         WorkOrderPriorities.Medium => WorkOrderPriority.Средний,
         WorkOrderPriorities.High => WorkOrderPriority.Высокий,
-        WorkOrderPriorities.Emergency => WorkOrderPriority.Аварийный,
+        WorkOrderPriorities.Emergency => WorkOrderPriority.Критический,
         _ => throw ApiException.BadRequest(
             $"Неизвестный приоритет «{value}». Допустимо: {WorkOrderPriorities.AllText}."),
     };
@@ -498,10 +498,12 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
     // контракт один и тот же для БД и для JSON.
     public static string StatusText(WorkOrderStatus status) => status switch
     {
-        WorkOrderStatus.Черновик => WorkOrderStatuses.Draft,
+        WorkOrderStatus.Создана => WorkOrderStatuses.Draft,
         WorkOrderStatus.Назначена => WorkOrderStatuses.Assigned,
         WorkOrderStatus.ВРаботе => WorkOrderStatuses.InProgress,
-        WorkOrderStatus.Завершена => WorkOrderStatuses.Completed,
+        WorkOrderStatus.ОжидаетМатериалов => WorkOrderStatuses.AwaitingMaterials,
+        WorkOrderStatus.Выполнена => WorkOrderStatuses.Completed,
+        WorkOrderStatus.Закрыта => WorkOrderStatuses.Closed,
         WorkOrderStatus.Отменена => WorkOrderStatuses.Cancelled,
         _ => WorkOrderStatuses.Draft,
     };
@@ -511,7 +513,7 @@ public sealed class WorkOrderService(AppDbContext db, IWorkOrderNumberService nu
         WorkOrderPriority.Низкий => WorkOrderPriorities.Low,
         WorkOrderPriority.Средний => WorkOrderPriorities.Medium,
         WorkOrderPriority.Высокий => WorkOrderPriorities.High,
-        WorkOrderPriority.Аварийный => WorkOrderPriorities.Emergency,
+        WorkOrderPriority.Критический => WorkOrderPriorities.Emergency,
         _ => WorkOrderPriorities.Medium,
     };
 
